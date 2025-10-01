@@ -1,0 +1,48 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hibuy/Bloc/bottomnavbar_bloc/bottom_nav_bloc.dart';
+import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
+import 'package:hibuy/Bloc/product_details_bloc/product_detail_bloc.dart';
+
+import 'package:hibuy/Bloc/profile_bloc.dart/steptile_bloc/steptile_bloc.dart';
+import 'package:hibuy/Bloc/setting_tab_bloc.dart/tab_bloc.dart';
+
+import 'package:hibuy/res/routes/routes.dart';
+import 'package:hibuy/res/routes/routes_name.dart';
+import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
+
+void main() {
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => StepBloc()),
+        BlocProvider(create: (_) => BottomNavBloc()),
+        BlocProvider(create: (_) => ProductDetailBloc()),
+        BlocProvider(create: (_) => TabBloc()),
+        BlocProvider(create: (_) => AuthBloc()),
+        BlocProvider(create: (_) => ImagePickerBloc()),
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'HiBuy',
+      theme: ThemeData(),
+      debugShowCheckedModeBanner: false,
+
+      // 🔑 Important for DevicePreview
+      // useInheritedMediaQuery: true,
+      // builder: DevicePreview.appBuilder,
+      // locale: DevicePreview.locale(context),
+      initialRoute: RoutesName.splash,
+      onGenerateRoute: AppRoutes.generateRoute,
+    );
+  }
+}
