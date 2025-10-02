@@ -13,6 +13,7 @@ import 'package:hibuy/services/location_service.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart';
+import 'package:hibuy/widgets/custom_dropdown.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/profile_image.dart';
@@ -157,14 +158,86 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
               ),
               SizedBox(height: context.heightPct(0.015)),
 
-              ReusableTextField(
-                controller: cityController,
-                hintText: AppStrings.select,
-                labelText: AppStrings.city,
-                trailingIcon: Icons.expand_more,
-                focusNode: cityFocus,
-                nextFocusNode: zipcodeFocus,
+       ReusableTextField(
+  controller: cityController,
+  hintText: "Select City",
+  labelText: "City",
+  trailingIcon: Icons.expand_more,
+  focusNode: cityFocus,
+  nextFocusNode: zipcodeFocus,
+  onIconTap: () async {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+
+    // Dropdown ko text field ke bilkul niche kholne ke liye position
+    final RelativeRect position = RelativeRect.fromLTRB(
+      button.localToGlobal(Offset.zero, ancestor: overlay).dx,
+      button.localToGlobal(button.size.bottomLeft(Offset.zero), ancestor: overlay).dy,
+      overlay.size.width -
+          button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay).dx,
+      0,
+    );
+
+    final cities = [
+      'Abbottabad',
+      'Bahawalpur',
+      'Dera Ghazi Khan',
+      'Faisalabad',
+      'Gujranwala',
+      'Hyderabad',
+      'Islamabad',
+      'Karachi',
+      'Lahore',
+      'Multan',
+      'Peshawar',
+      'Quetta',
+      'Rawalpindi',
+      'Sialkot',
+    ];
+
+    // ✅ ScrollController banaya
+    final ScrollController scrollController = ScrollController();
+
+    final selected = await showMenu<String>(
+      context: context,
+      position: position,
+      elevation: 4,
+      items: [
+        PopupMenuItem<String>(
+          enabled: false, // normal selection disable
+          padding: EdgeInsets.zero,
+          child: SizedBox(
+            height: 200, // 👈 max height of dropdown
+            width: button.size.width, // same width as textfield
+            child: Scrollbar(
+              controller: scrollController,
+              thumbVisibility: true,
+              child: ListView(
+                controller: scrollController, // ✅ assign controller
+                shrinkWrap: true,
+                children: cities.map((city) {
+                  return InkWell(
+                    onTap: () => Navigator.pop(context, city), // close with selected
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      child: Text(city, style: const TextStyle(fontSize: 14)),
+                    ),
+                  );
+                }).toList(),
               ),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    if (selected != null) {
+      cityController.text = selected; // ✅ update text field
+    }
+  },
+),
+
               SizedBox(height: context.heightPct(0.015)),
 
               ReusableTextField(
@@ -222,9 +295,7 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                       ),
                     );
                   }
-                  print(
-                        "storeProfilePicture: ${state.storeProfilePicture}",
-                      );
+                  print("storeProfilePicture: ${state.storeProfilePicture}");
                 },
                 builder: (context, state) {
                   return ReusableButton(
@@ -232,8 +303,6 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                         ? "Saving..."
                         : "Done",
                     onPressed: () {
-                      
-
                       // ✅ First Validate Form
                       if (_formKey.currentState!.validate()) {
                         final storeImagePath = context

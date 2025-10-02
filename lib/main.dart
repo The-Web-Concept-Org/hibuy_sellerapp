@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/Bloc/bottomnavbar_bloc/bottom_nav_bloc.dart';
+import 'package:hibuy/Bloc/droupdown_list/dropdown_bloc.dart';
+import 'package:hibuy/Bloc/droupdown_list/dropdown_event.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
 import 'package:hibuy/Bloc/product_details_bloc/product_detail_bloc.dart';
 
@@ -14,13 +16,15 @@ import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 void main() {
   runApp(
     MultiBlocProvider(
-      providers: [
+      providers: [ 
         BlocProvider(create: (_) => StepBloc()),
         BlocProvider(create: (_) => BottomNavBloc()),
         BlocProvider(create: (_) => ProductDetailBloc()),
         BlocProvider(create: (_) => TabBloc()),
         BlocProvider(create: (_) => AuthBloc()),
         BlocProvider(create: (_) => ImagePickerBloc()),
+        BlocProvider( create: (_) => DropdownBloc(),)
+
       ],
       child: const MyApp(),
     ),
