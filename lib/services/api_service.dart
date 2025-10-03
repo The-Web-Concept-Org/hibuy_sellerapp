@@ -276,7 +276,7 @@ static Future<void> postMultipartMultipleFilesMethod({
   setAcceptHeader(dio);
 
   if (authHeader) {
-    log("@@@ token ${await LocalStorage.getData(key: AppKeys.authToken)}")
+    log("@@@ token ${await LocalStorage.getData(key: AppKeys.authToken)}");
     await setCustomHeader(
       dio,
       'Authorization',

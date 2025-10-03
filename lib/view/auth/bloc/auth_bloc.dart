@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/models/user_model.dart';
 import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/services/api_key.dart';
-import 'package:hibuy/services/api_service';
+import 'package:hibuy/services/api_service.dart';
 import 'package:hibuy/services/local_storage.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart';
 import 'auth_event.dart';
