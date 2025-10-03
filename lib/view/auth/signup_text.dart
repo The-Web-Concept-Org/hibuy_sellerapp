@@ -8,19 +8,18 @@ import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
-import 'package:hibuy/view/auth/bloc/auth_state.dart' show AuthState, AuthStatus;
+import 'package:hibuy/view/auth/bloc/auth_state.dart'
+    show AuthState, AuthStatus;
 import 'package:hibuy/widgets/auth/button.dart';
 
 import 'package:hibuy/widgets/auth/text_field.dart';
 
 class SignupScreen extends StatelessWidget {
   SignupScreen({super.key, required this.role});
-    final String role;
+  final String role;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
-  
- 
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +41,12 @@ class SignupScreen extends StatelessWidget {
 
               /// Welcome Text
               Text(
-                AppStrings.WelcometoHiBuyO,
+                AppStrings.welcometoHiBuyO,
                 style: AppTextStyles.h4(context),
               ),
               SizedBox(height: context.heightPct(0.01)),
               Text(
-                AppStrings.Signuptocontinue,
+                AppStrings.signuptocontinue,
                 style: AppTextStyles.bodyRegular(context),
               ),
 
@@ -82,30 +81,34 @@ class SignupScreen extends StatelessWidget {
               SizedBox(height: context.heightPct(0.018)),
 
               /// Sign In Button
-             BlocConsumer<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state.authStatus == AuthStatus.error) {
-                  // Show error message
-                  // context.FlushBarErrorMessage(message: state.errorMessage ?? 'An error occurred');
-                } else if (state.authStatus == AuthStatus.success) {
-                  // Navigate to another screen or show success message
-                   Navigator.pushNamed(context, RoutesName.SigninScreen);
-                }
-              },
-              builder: (context, state) {
-                return state.authStatus==AuthStatus.loading?CircularProgressIndicator(): PrimaryButton(
-                text: AppStrings.signup,
-                onPressed: () {
-context.read<AuthBloc>().add(SignUpEvent(
-                    name: usernameController.text,
-                    email: emailController.text,
-                    password: passwordController.text,
-                    role: role, // Pass the role here
-                  ));
+              BlocConsumer<AuthBloc, AuthState>(
+                listener: (context, state) {
+                  if (state.authStatus == AuthStatus.error) {
+                    // Show error message
+                    // context.FlushBarErrorMessage(message: state.errorMessage ?? 'An error occurred');
+                  } else if (state.authStatus == AuthStatus.success) {
+                    // Navigate to another screen or show success message
+                    Navigator.pushNamed(context, RoutesName.SigninScreen);
+                  }
                 },
-              );
-              },
-             ),
+                builder: (context, state) {
+                  return state.authStatus == AuthStatus.loading
+                      ? CircularProgressIndicator()
+                      : PrimaryButton(
+                          text: AppStrings.signup,
+                          onPressed: () {
+                            context.read<AuthBloc>().add(
+                              SignUpEvent(
+                                name: usernameController.text,
+                                email: emailController.text,
+                                password: passwordController.text,
+                                role: role, // Pass the role here
+                              ),
+                            );
+                          },
+                        );
+                },
+              ),
 
               SizedBox(height: context.heightPct(0.01)),
 
@@ -130,7 +133,7 @@ context.read<AuthBloc>().add(SignUpEvent(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    AppStrings.Donthaveanaccount,
+                    AppStrings.donthaveanaccount,
                     style: AppTextStyles.TextSpan(context),
                   ),
                   GestureDetector(

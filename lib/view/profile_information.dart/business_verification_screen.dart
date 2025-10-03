@@ -43,14 +43,13 @@ class _BusinessVerificationScreenState
   final _formKey = GlobalKey<FormState>();
   // focus node
   final FocusNode businessNameFocus = FocusNode();
-  final FocusNode   registrationNoFocus= FocusNode();
-  final FocusNode  taxNoFocus = FocusNode();
+  final FocusNode registrationNoFocus = FocusNode();
+  final FocusNode taxNoFocus = FocusNode();
   final FocusNode provinceregionFocus = FocusNode();
-  final FocusNode  pinLocationFocus = FocusNode();
+  final FocusNode pinLocationFocus = FocusNode();
   final FocusNode phoneNoFocus = FocusNode();
   final FocusNode addressFocus = FocusNode();
   final FocusNode ownerfocus = FocusNode();
-
 
   @override
   void dispose() {
@@ -68,13 +67,11 @@ class _BusinessVerificationScreenState
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
-        title: AppStrings.BusinessVerification,
+        title: AppStrings.businessVerification,
         previousPageTitle: "Back",
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.widthPct(0.043),
-        ),
+        padding: EdgeInsets.symmetric(horizontal: context.widthPct(0.043)),
         child: Form(
           key: _formKey,
           child: Column(
@@ -101,11 +98,11 @@ class _BusinessVerificationScreenState
                     KycValidator.validate("business_business_name", val),
               ),
               SizedBox(height: context.heightPct(0.015)),
-  ReusableTextField(
+              ReusableTextField(
                 controller: ownerNameController,
                 hintText: AppStrings.enterhere,
                 labelText: AppStrings.ownerName,
-                focusNode:ownerfocus,
+                focusNode: ownerfocus,
                 nextFocusNode: registrationNoFocus,
                 validator: (val) =>
                     KycValidator.validate("business_owner_name", val),
@@ -128,8 +125,8 @@ class _BusinessVerificationScreenState
                 hintText: AppStrings.enterhere,
                 labelText: AppStrings.phoneNo,
                 keyboardType: TextInputType.phone,
-                focusNode:phoneNoFocus ,
-                nextFocusNode:addressFocus ,
+                focusNode: phoneNoFocus,
+                nextFocusNode: addressFocus,
                 validator: (val) =>
                     KycValidator.validate("business_phone_no", val),
               ),
@@ -167,14 +164,16 @@ class _BusinessVerificationScreenState
                 textInputAction: TextInputAction.done,
                 validator: (val) =>
                     KycValidator.validate("business_pin_location", val),
-                        onIconTap: () async {
+                onIconTap: () async {
                   await getCurrentLocation(pinLocationController);
                 },
               ),
 
               SizedBox(height: context.heightPct(0.02)),
-              Text(AppStrings.letterhead,
-                  style: AppTextStyles.bodyRegular(context)),
+              Text(
+                AppStrings.letterhead,
+                style: AppTextStyles.bodyRegular(context),
+              ),
               SizedBox(height: context.heightPct(0.012)),
               const ReusableImageContainer(
                 widthFactor: 0.9,
@@ -184,8 +183,7 @@ class _BusinessVerificationScreenState
               ),
 
               SizedBox(height: context.heightPct(0.02)),
-              Text(AppStrings.stamp,
-                  style: AppTextStyles.bodyRegular(context)),
+              Text(AppStrings.stamp, style: AppTextStyles.bodyRegular(context)),
               SizedBox(height: context.heightPct(0.012)),
               const ReusableImageContainer(
                 widthFactor: 0.9,
@@ -201,7 +199,9 @@ class _BusinessVerificationScreenState
                 listener: (context, state) {
                   if (state.businessStatus == BusinessStatus.success) {
                     Navigator.pushNamed(
-                        context, RoutesName.BankAccountVerification);
+                      context,
+                      RoutesName.BankAccountVerification,
+                    );
                   } else if (state.businessStatus == BusinessStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -211,11 +211,11 @@ class _BusinessVerificationScreenState
                       ),
                     );
                   }
-                   print(
-                        "businessPersonalProfile: ${state.businessPersonalProfile}",
-                      );
-                      print("businessLetterHead: ${state.businessLetterHead}");
-                      print("businessStamp: ${state.businessStamp}");
+                  print(
+                    "businessPersonalProfile: ${state.businessPersonalProfile}",
+                  );
+                  print("businessLetterHead: ${state.businessLetterHead}");
+                  print("businessStamp: ${state.businessStamp}");
                 },
                 builder: (context, state) {
                   return ReusableButton(
@@ -223,14 +223,12 @@ class _BusinessVerificationScreenState
                         ? "Saving..."
                         : "Done",
                     onPressed: () {
-                     
                       if (_formKey.currentState?.validate() ?? false) {
-                         final imageState = context
+                        final imageState = context
                             .read<ImagePickerBloc>()
                             .state;
 
-                        final StampImagePath =
-                            imageState.images['stamp'];
+                        final StampImagePath = imageState.images['stamp'];
                         final LeterImagePath = imageState.images['leter'];
                         final BusinessProfilePath =
                             imageState.images['business'];
@@ -242,25 +240,25 @@ class _BusinessVerificationScreenState
                         final File? LeterImage = LeterImagePath != null
                             ? File(LeterImagePath)
                             : null;
-                            
+
                         final File? BusinessImage = BusinessProfilePath != null
                             ? File(BusinessProfilePath)
                             : null;
 
                         context.read<AuthBloc>().add(
-                              SaveBusinessInfoEvent(
-                                businessName: businessNameController.text,
-                                ownerName: ownerNameController.text,
-                                phoneNo: phoneNoController.text,
-                                regNo: registrationNoController.text,
-                                taxNo: taxNoController.text,
-                                address: addressController.text,
-                                pinLocation: pinLocationController.text,
-                                letterHead: LeterImage,
-                                stamp: StampImage,
-                                businessPersonalProfile: BusinessImage,
-                              ),
-                            );
+                          SaveBusinessInfoEvent(
+                            businessName: businessNameController.text,
+                            ownerName: ownerNameController.text,
+                            phoneNo: phoneNoController.text,
+                            regNo: registrationNoController.text,
+                            taxNo: taxNoController.text,
+                            address: addressController.text,
+                            pinLocation: pinLocationController.text,
+                            letterHead: LeterImage,
+                            stamp: StampImage,
+                            businessPersonalProfile: BusinessImage,
+                          ),
+                        );
                       }
                     },
                   );

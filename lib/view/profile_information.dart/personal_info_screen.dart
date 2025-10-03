@@ -58,7 +58,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
-        title: AppStrings.PersonalInformation,
+        title: AppStrings.personalInformation,
         previousPageTitle: "Back",
       ),
       body: SingleChildScrollView(
@@ -176,16 +176,15 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                     );
                   }
                   print(
-                        "personalProfilePicture (Bloc state): ${state.personalProfilePicture}",
-                      );
-                      print(
-                        "personalFrontImage (Bloc state): ${state.personalFrontImage}",
-                      );
-                      print(
-                        "personalBackImage (Bloc state): ${state.personalBackImage}",
-                      );
-                      print("full name (Bloc state): ${state.personalFullName}",);
-                    
+                    "personalProfilePicture (Bloc state): ${state.personalProfilePicture}",
+                  );
+                  print(
+                    "personalFrontImage (Bloc state): ${state.personalFrontImage}",
+                  );
+                  print(
+                    "personalBackImage (Bloc state): ${state.personalBackImage}",
+                  );
+                  print("full name (Bloc state): ${state.personalFullName}");
                 },
                 builder: (context, state) {
                   return ReusableButton(
@@ -193,8 +192,6 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                         ? "Saving..."
                         : "Done",
                     onPressed: () {
-
-
                       if (_formKey.currentState?.validate() ?? false) {
                         final imageState = context
                             .read<ImagePickerBloc>()
@@ -244,10 +241,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                             frontImage: frontImage, // ✅ File
                             backImage: backImage, // ✅ File
                           ),
-                          
-                          
                         );
-                       
                       }
                     },
                   );

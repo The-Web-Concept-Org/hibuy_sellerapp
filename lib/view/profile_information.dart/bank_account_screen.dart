@@ -39,15 +39,14 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
 
   final _formKey = GlobalKey<FormState>();
   // focus node
-    final FocusNode accountTypeFocus = FocusNode();
+  final FocusNode accountTypeFocus = FocusNode();
   final FocusNode bankNameFocus = FocusNode();
   final FocusNode branchCodeFocus = FocusNode();
-  final FocusNode  branchNameFocus= FocusNode();
+  final FocusNode branchNameFocus = FocusNode();
   final FocusNode branchPhoneFocus = FocusNode();
   final FocusNode accountTitleFocus = FocusNode();
   final FocusNode accountNoFocus = FocusNode();
   final FocusNode ibanNoFocus = FocusNode();
-  
 
   @override
   void dispose() {
@@ -67,7 +66,7 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
-        title: AppStrings.BankAccountVerification,
+        title: AppStrings.bankAccountVerification,
         previousPageTitle: "Back",
       ),
       body: SingleChildScrollView(
@@ -224,7 +223,10 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
               ),
 
               SizedBox(height: context.heightPct(0.02)),
-              Text(AppStrings.verificationletter, style: AppTextStyles.bodyRegular(context)),
+              Text(
+                AppStrings.verificationletter,
+                style: AppTextStyles.bodyRegular(context),
+              ),
               SizedBox(height: context.heightPct(0.012)),
               const ReusableImageContainer(
                 widthFactor: 0.9,
@@ -263,11 +265,15 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                         ? "Submitting..."
                         : "Done",
                     onPressed: () {
-                      print("personalProfilePicture: ${state.personalProfilePicture}",);
+                      print(
+                        "personalProfilePicture: ${state.personalProfilePicture}",
+                      );
                       print("personalFrontImage: ${state.personalFrontImage}");
                       print("personalBackImage: ${state.personalBackImage}");
-                      print("bankCanceledCheque: ${state.bankCanceledCheque}",);
-                      print("bankCanceledCheque: ${state.bankVerificationLetter}",);
+                      print("bankCanceledCheque: ${state.bankCanceledCheque}");
+                      print(
+                        "bankCanceledCheque: ${state.bankVerificationLetter}",
+                      );
                       final imageState = context.read<ImagePickerBloc>().state;
                       if (_formKey.currentState!.validate()) {
                         final chequeImagePath = imageState.images['cheque'];

@@ -47,7 +47,9 @@ class KycMain extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.white,
                         borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(context.widthPct(14.29 / 375)),
+                          topLeft: Radius.circular(
+                            context.widthPct(14.29 / 375),
+                          ),
                           topRight: Radius.circular(
                             context.widthPct(14.29 / 375),
                           ),
@@ -57,42 +59,41 @@ class KycMain extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            AppStrings.ApplyforProfile,
+                            AppStrings.applyforProfile,
                             style: AppTextStyles.h4(context),
                           ),
                           SizedBox(height: context.heightPct(0.025)),
-                
+
                           /// Dynamic step list
                           BlocBuilder<StepBloc, StepState>(
                             builder: (context, state) {
                               // Fetch steps data
                               final steps = [
                                 {
-                                  "title": AppStrings.PersonalInformation,
-                                  "subtitle": AppStrings.Text,
+                                  "title": AppStrings.personalInformation,
+                                  "subtitle": AppStrings.text,
                                   "route": RoutesName.personalinformation,
                                 },
                                 {
-                                  "title": AppStrings.MyStoreInformation,
-                                  "subtitle": AppStrings.Text,
+                                  "title": AppStrings.myStoreInformation,
+                                  "subtitle": AppStrings.text,
                                   "route": RoutesName.MyStoreInformation,
                                 },
                                 {
-                                  "title": AppStrings.DocumentVerification,
-                                  "subtitle": AppStrings.Text,
+                                  "title": AppStrings.documentVerification,
+                                  "subtitle": AppStrings.text,
                                   "route": RoutesName.DocumentVerification,
                                 },
-                                  {
-                                  "title": AppStrings.BusinessVerification,
-                                  "subtitle": AppStrings.Text,
+                                {
+                                  "title": AppStrings.businessVerification,
+                                  "subtitle": AppStrings.text,
                                   "route": RoutesName.BusinessVerification,
                                 },
                                 {
-                                  "title": AppStrings.BankAccountVerification,
-                                  "subtitle": AppStrings.Text,
+                                  "title": AppStrings.bankAccountVerification,
+                                  "subtitle": AppStrings.text,
                                   "route": RoutesName.BankAccountVerification,
                                 },
-                               
                               ];
                               // Set default value for selectedStep
                               int selectedStep = 0;
@@ -154,7 +155,7 @@ class KycMain extends StatelessWidget {
                             ),
                           ),
                         ),
-                
+
                         // Second container in center
                         Center(
                           child: Flexible(

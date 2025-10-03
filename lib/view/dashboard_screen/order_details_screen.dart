@@ -63,7 +63,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
-        title: AppStrings.PersonalInformation,
+        title: AppStrings.personalInformation,
         previousPageTitle: "Order Details",
       ),
       body: SingleChildScrollView(
@@ -74,7 +74,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             const ReusableImageContainer(
               widthFactor: 0.9,
               heightFactor: 0.25,
-              placeholderSvg: 'ImageAssets.profileimage', imageKey: 'ordder',
+              placeholderSvg: 'ImageAssets.profileimage',
+              imageKey: 'ordder',
             ),
             SizedBox(height: context.heightPct(0.02)),
             const ShipmentDetailsWidget(),

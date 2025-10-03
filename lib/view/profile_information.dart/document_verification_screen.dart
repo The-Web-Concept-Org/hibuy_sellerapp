@@ -53,7 +53,7 @@ class _DocumentVerificationScreenState
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
-        title: AppStrings.DocumentVerification,
+        title: AppStrings.documentVerification,
         previousPageTitle: "Back",
       ),
       body: SingleChildScrollView(
@@ -100,7 +100,7 @@ class _DocumentVerificationScreenState
                 labelText: AppStrings.country,
                 trailingIcon: Icons.expand_more,
                 focusNode: countryFocus,
-                nextFocusNode:  provinceFocus,
+                nextFocusNode: provinceFocus,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return "Please select a country";
@@ -116,7 +116,7 @@ class _DocumentVerificationScreenState
                 labelText: AppStrings.provinceregion,
                 trailingIcon: Icons.expand_more,
                 focusNode: provinceFocus,
-                nextFocusNode:  cityFocus,
+                nextFocusNode: cityFocus,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return "Please select a province/region";
@@ -131,7 +131,7 @@ class _DocumentVerificationScreenState
                 hintText: AppStrings.select,
                 labelText: AppStrings.city,
                 trailingIcon: Icons.expand_more,
-                 focusNode: cityFocus,
+                focusNode: cityFocus,
                 textInputAction: TextInputAction.done,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -159,10 +159,8 @@ class _DocumentVerificationScreenState
                       ),
                     );
                   }
-                 print(
-                        "documentsHomeBill: ${state.documentsHomeBill}",
-                      );
-                      print("documentsShopVideo: ${state.documentsShopVideo}");  
+                  print("documentsHomeBill: ${state.documentsHomeBill}");
+                  print("documentsShopVideo: ${state.documentsShopVideo}");
                 },
                 builder: (context, state) {
                   return ReusableButton(
@@ -170,7 +168,6 @@ class _DocumentVerificationScreenState
                         ? "Saving..."
                         : "Done",
                     onPressed: () {
-                     
                       // ✅ Validate before submitting
                       if (_formKey.currentState!.validate()) {
                         final imageState = context

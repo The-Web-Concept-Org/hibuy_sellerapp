@@ -2,29 +2,29 @@ import 'package:flutter/material.dart';
 
 class AppStrings {
   // Authentication Strings
-  static const WelcometoHiBuyO = "Welcome to HiBuyO";
-  static const SelectStoreType = "Select Store Type";
-  static const Freelancer = "Freelancer";
+  static const welcometoHiBuyO = "Welcome to HiBuy";
+  static const selectStoreType = "Select Store Type";
+  static const freelancer = "Freelancer";
   static const seller = "Seller";
   static const signin = "Sign In";
-  static const Signuptocontinue = "Sign up to continue";
-  static const ForgotPassword = "Forgot Password?";
-  static const Signintocontinue = "Sign in to continue";
-  static const Donthaveanaccount = "Don’t have an account? ";
+  static const signuptocontinue = "Sign up to continue";
+  static const forgotPassword = "Forgot Password?";
+  static const signintocontinue = "Sign in to continue";
+  static const donthaveanaccount = "Don’t have an account? ";
   static const ortext = "OR";
-  static const Register = "Register";
+  static const register = "Register";
   static const login = "Login";
   static const signup = "Sign Up";
   static const createAccount = "Create an account";
   // profile information strings
-  static const PersonalInformation = "Personal Information";
-  static const MyStoreInformation = "My Store Information";
-  static const DocumentVerification = "Document Verification";
-  static const BankAccountVerification = "Bank Account Verification";
-  static const BusinessVerification = "Business Verification";
-  static const Text = "text";
+  static const personalInformation = "Personal Information";
+  static const myStoreInformation = "My Store Information";
+  static const documentVerification = "Document Verification";
+  static const bankAccountVerification = "Bank Account Verification";
+  static const businessVerification = "Business Verification";
+  static const text = "text";
   static const done = "Done";
-  static const ApplyforProfile = "Apply for Profile";
+  static const applyforProfile = "Apply for Profile";
   static const fillalldetails = "Fill All details to activate your Store";
   static const fullname = "Full Name";
   static const address = "Address";
@@ -62,8 +62,8 @@ class AppStrings {
   static const verificationletter = "Verification Letter (Optional)";
   static const registrationnumber = "Registration Number";
   static const taxnumber = "Tax Number";
-   static const shophome = "Shop / Home Bill";
-    static const shopvideo = "Shop Video (Optional)";
+  static const shophome = "Shop / Home Bill";
+  static const shopvideo = "Shop Video (Optional)";
   static const letterhead = "Letter Head";
   static const stamp = "Stamp (Optional)";
   static const mystore = "My Store";
@@ -126,9 +126,9 @@ class AppStrings {
   static const currentpassword = "Current Password";
   static const newpassword = "New Password";
   static const reenternewpassword = "Re-Enter New Password ";
-  static const referralid ="Referral ID";
-  static const referrallink ="Referral Link";
-  static const invitefriends ="Invite Friends";
+  static const referralid = "Referral ID";
+  static const referrallink = "Referral Link";
+  static const invitefriends = "Invite Friends";
   static const benefitsyouwillget = "Benefits you will get:";
   static const accountdetails = "Account Details";
   static const bankdetails = "Send 20% Payment in the following Bank Account:";
@@ -136,7 +136,7 @@ class AppStrings {
   static const orderStatus = "Order Status";
   static const from = "From";
   static const to = "To";
-  static const  date = "mm/dd/yyyy";
+  static const date = "mm/dd/yyyy";
   static const applyfilters = "Apply Filters";
   static const totalorders = "Total Orders";
   static const totalamount = "Total Amount";
