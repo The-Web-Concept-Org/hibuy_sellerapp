@@ -24,12 +24,16 @@ class SigninScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SingleChildScrollView(
-        child: Padding(
+        child: Container(
+          height: context.screenHeight,
+
           padding: EdgeInsets.symmetric(horizontal: context.widthPct(0.06)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: context.heightPct(0.12)),
+              SizedBox(height: context.heightPct(0.05)),
+
               Center(child: Image.asset(ImageAssets.app_logo2)),
 
               SizedBox(height: context.heightPct(0.018)),

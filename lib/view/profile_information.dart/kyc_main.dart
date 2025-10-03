@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart' hide StepState;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/Bloc/profile_bloc.dart/steptile_bloc/steptile_bloc.dart';
@@ -9,18 +11,33 @@ import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/services/api_key.dart';
+import 'package:hibuy/services/local_storage.dart';
 
 import 'package:hibuy/widgets/profile_widget.dart/step_tile.dart'; // Import BLoC
 
-class KycMain extends StatelessWidget {
+class KycMain extends StatefulWidget {
   const KycMain({super.key});
+
+  @override
+  State<KycMain> createState() => _KycMainState();
+}
+
+class _KycMainState extends State<KycMain> {
+  initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 10), () async {
+      log("KycMain ${await LocalStorage.getData(key: AppKeys.authToken)}");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
       body: SingleChildScrollView(
-        child: Padding(
+        child: Container(
+          height: context.screenHeight,
           padding: EdgeInsets.symmetric(horizontal: context.widthPct(0.06)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -158,24 +175,22 @@ class KycMain extends StatelessWidget {
 
                         // Second container in center
                         Center(
-                          child: Flexible(
-                            child: Container(
-                              width: context.widthPct(264.17 / 375),
-                              //height: context.heightPct(38.11 / 812),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: context.widthPct(28.58 / 375),
+                          child: Container(
+                            width: context.widthPct(264.17 / 375),
+                            //height: context.heightPct(38.11 / 812),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.widthPct(28.58 / 375),
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.gray.withOpacity(0.50),
+                              borderRadius: BorderRadius.circular(
+                                context.widthPct(95.28 / 375),
                               ),
-                              decoration: BoxDecoration(
-                                color: AppColors.gray.withOpacity(0.50),
-                                borderRadius: BorderRadius.circular(
-                                  context.widthPct(95.28 / 375),
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  AppStrings.fillalldetails,
-                                  style: AppTextStyles.samibold(context),
-                                ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                AppStrings.fillalldetails,
+                                style: AppTextStyles.samibold(context),
                               ),
                             ),
                           ),

@@ -33,6 +33,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         postData: {"user_email": event.email, "user_password": event.password},
         executionMethod: (bool success, dynamic responseData) {
           if (success) {
+            log("responseData: $responseData");
             UserModel userModel = UserModel.fromJson(responseData);
 
             emit(
@@ -67,6 +68,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
       );
     } catch (e) {
+      log("error: $e");
       emit(
         state.copyWith(authStatus: AuthStatus.error, errorMessage: 'error: $e'),
       );
@@ -224,112 +226,194 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   // ------------------ SUBMIT ALL FORMS (API CALL) ------------------
- void _submitAllForms(
-  SubmitAllFormsEvent event,
-  Emitter<AuthState> emit,
-) async {
-  emit(state.copyWith(authStatus: AuthStatus.loading));
+  void _submitAllForms(
+    SubmitAllFormsEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(authStatus: AuthStatus.loading));
 
-  try {
-    // ✅ Prepare formData with both strings + files (dynamic)
-    final Map<String, dynamic> formData = {
-      // ---------- PERSONAL INFO ----------
-      "personal_status": "pending",
-      "personal_full_name": state.personalFullName ?? '',
-      "personal_address": state.personalAddress ?? '',
-      "personal_phone_no": state.personalPhoneNo ?? '',
-      "personal_email": state.personalEmail ?? '',
-      "personal_cnic": state.personalCnic ?? '',
-      "personal_profile_picture": state.personalProfilePicture, // File?
-      "personal_front_image": state.personalFrontImage,         // File?
-      "personal_back_image": state.personalBackImage,           // File?
+    try {
+      final Map<String, dynamic> formData = {
+        // ---------- PERSONAL INFO ----------
+        "personal_status": "pending",
+        if (state.personalFullName?.isNotEmpty ?? false)
+          "personal_full_name": state.personalFullName,
+        if (state.personalAddress?.isNotEmpty ?? false)
+          "personal_address": state.personalAddress,
+        if (state.personalPhoneNo?.isNotEmpty ?? false)
+          "personal_phone_no": state.personalPhoneNo,
+        if (state.personalEmail?.isNotEmpty ?? false)
+          "personal_email": state.personalEmail,
+        if (state.personalCnic?.isNotEmpty ?? false)
+          "personal_cnic": state.personalCnic,
+        if (state.personalProfilePicture != null)
+          "personal_profile_picture": state.personalProfilePicture,
+        if (state.personalFrontImage != null)
+          "personal_front_image": state.personalFrontImage,
+        if (state.personalBackImage != null)
+          "personal_back_image": state.personalBackImage,
+        // ---------- STORE INFO ----------
+        "store_status": "pending",
+        if (state.storeName?.isNotEmpty ?? false)
+          "store_store_name": state.storeName,
+        if (state.storeType?.isNotEmpty ?? false) "store_type": state.storeType,
+        if (state.storePhoneNo?.isNotEmpty ?? false)
+          "store_phone_no": state.storePhoneNo,
+        if (state.storeEmail?.isNotEmpty ?? false)
+          "store_email": state.storeEmail,
+        if (state.storeCountry?.isNotEmpty ?? false)
+          "store_country": state.storeCountry,
+        if (state.storeProvince?.isNotEmpty ?? false)
+          "store_province": state.storeProvince,
+        if (state.storeCity?.isNotEmpty ?? false) "store_city": state.storeCity,
+        if (state.storeZipCode?.isNotEmpty ?? false)
+          "store_zip_code": state.storeZipCode,
+        if (state.storeAddress?.isNotEmpty ?? false)
+          "store_address": state.storeAddress,
+        if (state.storePinLocation?.isNotEmpty ?? false)
+          "store_pin_location": state.storePinLocation,
+        if (state.storeProfilePicture != null)
+          "store_profile_picture": state.storeProfilePicture,
+        // ---------- DOCUMENTS INFO ----------
+        "documents_status": "pending",
+        if (state.documentsCountry?.isNotEmpty ?? false)
+          "documents_country": state.documentsCountry,
+        if (state.documentsProvince?.isNotEmpty ?? false)
+          "documents_province": state.documentsProvince,
+        if (state.documentsCity?.isNotEmpty ?? false)
+          "documents_city": state.documentsCity,
+        if (state.documentsHomeBill != null)
+          "documents_home_bill": state.documentsHomeBill,
+        if (state.documentsShopVideo != null)
+          "documents_shop_video": state.documentsShopVideo,
+        // ---------- BANK INFO ----------
+        "bank_status": "pending",
+        if (event.accountType.isNotEmpty)
+          "bank_account_type": event.accountType,
+        if (event.bankName.isNotEmpty) "bank_bank_name": event.bankName,
+        if (event.branchCode.isNotEmpty) "bank_branch_code": event.branchCode,
+        if (event.branchName.isNotEmpty) "bank_branch_name": event.branchName,
+        if (event.branchPhone.isNotEmpty)
+          "bank_branch_phone": event.branchPhone,
+        if (event.accountTitle.isNotEmpty)
+          "bank_account_title": event.accountTitle,
+        if (event.accountNo.isNotEmpty) "bank_account_no": event.accountNo,
+        if (event.ibanNo.isNotEmpty) "bank_iban_no": event.ibanNo,
+        if (event.canceledCheque != null)
+          "bank_canceled_cheque": event.canceledCheque,
+        if (event.verificationLetter != null)
+          "bank_verification_letter": event.verificationLetter,
+        // ---------- BUSINESS INFO ----------
+        "business_status": "pending",
+        if (state.businessOwnerName?.isNotEmpty ?? false)
+          "business_owner_name": state.businessOwnerName,
+        if (state.businessName?.isNotEmpty ?? false)
+          "business_business_name": state.businessName,
+        if (state.businessPhoneNo?.isNotEmpty ?? false)
+          "business_phone_no": state.businessPhoneNo,
+        if (state.businessRegNo?.isNotEmpty ?? false)
+          "business_reg_no": state.businessRegNo,
+        if (state.businessTaxNo?.isNotEmpty ?? false)
+          "business_tax_no": state.businessTaxNo,
+        if (state.businessAddress?.isNotEmpty ?? false)
+          "business_address": state.businessAddress,
+        if (state.businessPinLocation?.isNotEmpty ?? false)
+          "business_pin_location": state.businessPinLocation,
+        if (state.businessPersonalProfile != null)
+          "business_personal_profile": state.businessPersonalProfile,
+        if (state.businessLetterHead != null)
+          "business_letter_head": state.businessLetterHead,
+        if (state.businessStamp != null) "business_stamp": state.businessStamp,
+      };
 
-      // ---------- STORE INFO ----------
-      "store_status": "pending",
-      "store_store_name": state.storeName ?? '',
-      "store_type": state.storeType ?? '',
-      "store_phone_no": state.storePhoneNo ?? '',
-      "store_email": state.storeEmail ?? '',
-      "store_country": state.storeCountry ?? '',
-      "store_province": state.storeProvince ?? '',
-      "store_city": state.storeCity ?? '',
-      "store_zip_code": state.storeZipCode ?? '',
-      "store_address": state.storeAddress ?? '',
-      "store_pin_location": state.storePinLocation ?? '',
-      "store_profile_picture": state.storeProfilePicture, // File?
+      // final Map<String, dynamic> formData = {
+      //   // ---------- PERSONAL INFO ----------
+      //   "personal_status": "pending",
+      //   "personal_full_name": "asad",
+      //   "personal_address": "abc",
+      //   "personal_phone_no": "03061212445",
+      //   "personal_email": "abc@gmail.com",
+      //   "personal_cnic": "3310015144215",
+      //   "personal_profile_picture": state.personalProfilePicture,
+      //   "personal_front_image": state.personalFrontImage,
+      //   "personal_back_image": state.personalBackImage,
+      //   // ---------- STORE INFO ----------
+      //   "store_status": "pending",
+      //   "store_store_name": "abc",
+      //   "store_type": "Retail",
+      //   "store_phone_no": "03011010112",
+      //   "store_email": "abc@gmail.com",
+      //   "store_country": "Pakistan",
+      //   "store_province": "Punjab",
+      //   "store_city": "faisalabad",
+      //   "store_zip_code": "380000",
+      //   "store_address": "abc",
+      //   "store_pin_location": "31.4201412,73.1177326",
+      //   "store_profile_picture_store": state.storeProfilePicture,
+      //   // ---------- DOCUMENTS INFO ----------
+      //   "documents_status": "pending",
+      //   "documents_country": "Pakistan",
+      //   "documents_province": 'pubjab',
+      //   "documents_city": "faisalabad",
+      //   "documents_home_bill": state.documentsHomeBill,
 
-      // ---------- DOCUMENTS INFO ----------
-      "documents_status": "pending",
-      "documents_country": state.documentsCountry ?? '',
-      "documents_province": state.documentsProvince ?? '',
-      "documents_city": state.documentsCity ?? '',
-      "documents_home_bill": state.documentsHomeBill,   // File?
-      "documents_shop_video": state.documentsShopVideo, // File?
+      //   // "documents_shop_video": state.documentsShopVideo,
+      //   "documents_shop_video": null,
 
-      // ---------- BANK INFO ----------
-      "bank_status": "pending",
-      "bank_account_type": event.accountType,
-      "bank_bank_name": event.bankName,
-      "bank_branch_code": event.branchCode,
-      "bank_branch_name": event.branchName,
-      "bank_branch_phone": event.branchPhone,
-      "bank_account_title": event.accountTitle,
-      "bank_account_no": event.accountNo,
-      "bank_iban_no": event.ibanNo,
-      "bank_canceled_cheque": event.canceledCheque,           // File?
-      "bank_verification_letter": event.verificationLetter,   // File?
+      //   // ---------- BANK INFO ----------
+      //   "bank_status": "pending",
+      //   "bank_account_type": "savings",
+      //   "bank_bank_name": "abv",
+      //   "bank_branch_code": "1122",
+      //   "bank_branch_name": "abc",
 
-      // ---------- BUSINESS INFO ----------
-      "business_status": "pending",
-      "business_owner_name": state.businessOwnerName ?? '',
-      "business_business_name": state.businessName ?? '',
-      "business_phone_no": state.businessPhoneNo ?? '',
-      "business_reg_no": state.businessRegNo ?? '',
-      "business_tax_no": state.businessTaxNo ?? '',
-      "business_address": state.businessAddress ?? '',
-      "business_pin_location": state.businessPinLocation ?? '',
-      "business_personal_profile": state.businessPersonalProfile, // File?
-      "business_letter_head": state.businessLetterHead,           // File?
-      "business_stamp": state.businessStamp,                      // File?
-    };
+      //   "bank_branch_phone": "03062525123",
 
-    // ✅ Debug Logs
-    formData.forEach((key, value) {
-      if (value is File) {
-        print("📂 File attached: $key => ${value.path}");
-      } else {
-        print("🔤 Field: $key => $value");
-      }
-    });
+      //   "bank_account_title": "abc",
+      //   "bank_account_no": "0100236547896325",
+      //   "bank_iban_no": "pk12354789651212",
+      //   "bank_canceled_cheque": event.canceledCheque,
+      //   "bank_verification_letter": event.verificationLetter,
+      //   // ---------- BUSINESS INFO ----------
+      //   "business_status": "pending",
+      //   "business_owner_name": "abc",
+      //   "business_business_name": "avbc",
+      //   "business_phone_no": "03062525123",
+      //   "business_reg_no": '1236547',
+      //   "business_tax_no": "123456",
+      //   "business_address": "abc",
+      //   "business_pin_location": "31.4201412,73.1177326",
+      //   "business_personal_profile": state.businessPersonalProfile,
+      //   "business_letter_head": state.businessLetterHead,
+      //   "business_stamp": state.businessStamp,
+      // };
 
-    // ✅ Send to API
-    await ApiService.postMultipartMultipleFilesMethod(
-      authHeader: true,
-      apiUrl: AppUrl.kycAuthentication,
-      formData: formData,
-      executionMethod: (bool success, dynamic responseData) {
-        if (success) {
-          emit(
-            state.copyWith(
-              authStatus: AuthStatus.success,
-              errorMessage: responseData['message'],
-            ),
-          );
-        } else {
-          emit(
-            state.copyWith(
-              authStatus: AuthStatus.error,
-              errorMessage: responseData['message'],
-            ),
-          );
-        }
-      },
-    );
-  } catch (e) {
-    emit(
-      state.copyWith(authStatus: AuthStatus.error, errorMessage: 'error: $e'),
-    );
+      await ApiService.postMultipartMultipleFilesMethod(
+        authHeader: true,
+        apiUrl: AppUrl.kycAuthentication,
+        formData: formData,
+        executionMethod: (bool success, dynamic responseData) {
+          if (success) {
+            emit(
+              state.copyWith(
+                authStatus: AuthStatus.success,
+                errorMessage: responseData['message'],
+              ),
+            );
+          } else {
+            emit(
+              state.copyWith(
+                authStatus: AuthStatus.error,
+                errorMessage: responseData['message'],
+              ),
+            );
+          }
+        },
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(authStatus: AuthStatus.error, errorMessage: 'error: $e'),
+      );
+    }
   }
-}
-
 }

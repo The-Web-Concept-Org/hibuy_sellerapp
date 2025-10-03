@@ -81,7 +81,7 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
               // Top info card
               Container(
                 width: double.maxFinite,
-                height: context.heightPct(0.1),
+                height: context.heightPct(0.12),
                 padding: EdgeInsets.all(context.widthPct(0.026)),
                 decoration: BoxDecoration(
                   color: AppColors.white,
@@ -206,7 +206,7 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                 labelText: "IBAN Number",
                 focusNode: ibanNoFocus,
                 textInputAction: TextInputAction.done,
-                keyboardType: TextInputType.phone,
+                keyboardType: TextInputType.text,
                 validator: (val) => KycValidator.validate("bank_iban_no", val),
               ),
               SizedBox(height: context.heightPct(0.02)),
@@ -275,34 +275,34 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                         "bankCanceledCheque: ${state.bankVerificationLetter}",
                       );
                       final imageState = context.read<ImagePickerBloc>().state;
-                      if (_formKey.currentState!.validate()) {
-                        final chequeImagePath = imageState.images['cheque'];
-                        final verificationImagePath =
-                            imageState.images['business'];
+                      // if (_formKey.currentState!.validate()) {
+                      final chequeImagePath = imageState.images['cheque'];
+                      final verificationImagePath =
+                          imageState.images['business'];
 
-                        final File? chequeImage = chequeImagePath != null
-                            ? File(chequeImagePath)
-                            : null;
+                      final File? chequeImage = chequeImagePath != null
+                          ? File(chequeImagePath)
+                          : null;
 
-                        final File? verificationImage =
-                            verificationImagePath != null
-                            ? File(verificationImagePath)
-                            : null;
-                        context.read<AuthBloc>().add(
-                          SubmitAllFormsEvent(
-                            accountType: _accountTypeController.text,
-                            bankName: _bankNameController.text,
-                            branchCode: _branchCodeController.text,
-                            branchName: _branchNameController.text,
-                            branchPhone: _branchPhoneController.text,
-                            accountTitle: _accountTitleController.text,
-                            accountNo: _accountNoController.text,
-                            ibanNo: _ibanNoController.text,
-                            canceledCheque: chequeImage,
-                            verificationLetter: verificationImage,
-                          ),
-                        );
-                      }
+                      final File? verificationImage =
+                          verificationImagePath != null
+                          ? File(verificationImagePath)
+                          : null;
+                      context.read<AuthBloc>().add(
+                        SubmitAllFormsEvent(
+                          accountType: _accountTypeController.text,
+                          bankName: _bankNameController.text,
+                          branchCode: _branchCodeController.text,
+                          branchName: _branchNameController.text,
+                          branchPhone: _branchPhoneController.text,
+                          accountTitle: _accountTitleController.text,
+                          accountNo: _accountNoController.text,
+                          ibanNo: _ibanNoController.text,
+                          canceledCheque: chequeImage,
+                          verificationLetter: verificationImage,
+                        ),
+                      );
+                      // }
                     },
                   );
                 },

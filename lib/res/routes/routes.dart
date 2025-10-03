@@ -24,7 +24,7 @@ import 'package:hibuy/view/profile_information.dart/personal_info_screen.dart';
 import 'package:hibuy/view/profile_information.dart/store_info_screen.dart';
 import 'package:hibuy/view/auth/select_type.dart';
 import 'package:hibuy/view/auth/signin_screen.dart';
-import 'package:hibuy/view/auth/signup_text.dart';
+import 'package:hibuy/view/auth/signup_screen.dart';
 import 'package:hibuy/view/auth/splash_screen.dart';
 
 class AppRoutes {

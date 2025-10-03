@@ -26,8 +26,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: context.widthPct(344 / 375),   // responsive width
-      height: context.heightPct(48 / 812),  // responsive height
+      width: context.widthPct(344 / 375), // responsive width
+      height: context.heightPct(48 / 812), // responsive height
       padding: EdgeInsets.symmetric(
         vertical: context.heightPct(12 / 812),
         horizontal: context.widthPct(16 / 375),
@@ -35,10 +35,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(context.widthPct(5 / 375)),
-        border: Border.all(
-          color:  AppColors.stroke ,
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.stroke, width: 1),
       ),
       child: Row(
         children: [

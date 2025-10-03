@@ -6,13 +6,14 @@ class UserModel {
   List<StepModel>? steps;
   String? kycApprovedStatus;
 
-  UserModel(
-      {this.success,
-      this.message,
-      this.accessToken,
-      this.user,
-      this.steps,
-      this.kycApprovedStatus});
+  UserModel({
+    this.success,
+    this.message,
+    this.accessToken,
+    this.user,
+    this.steps,
+    this.kycApprovedStatus,
+  });
 
   UserModel.fromJson(Map<String, dynamic> json) {
     success = json['success'];
@@ -22,7 +23,12 @@ class UserModel {
     if (json['steps'] != null) {
       steps = <StepModel>[];
       json['steps'].forEach((v) {
-        steps!.add(new StepModel.fromJson(v));
+        // Handle if v is an integer directly
+        if (v is int) {
+          steps!.add(StepModel(stepName: v));
+        } else if (v is Map<String, dynamic>) {
+          steps!.add(StepModel.fromJson(v));
+        }
       });
     }
     kycApprovedStatus = json['kyc_approved_status'];
@@ -37,7 +43,7 @@ class UserModel {
       data['user'] = this.user!.toJson();
     }
     if (this.steps != null) {
-      data['steps'] = this.steps!.map((v) => v.toJson()).toList();
+      data['steps'] = this.steps!.map((v) => v.stepName).toList();
     }
     data['kyc_approved_status'] = this.kycApprovedStatus;
     return data;
@@ -68,8 +74,9 @@ class User {
     return data;
   }
 }
+
 class StepModel {
-  String? stepName;
+  int? stepName;
 
   StepModel({this.stepName});
 

@@ -24,14 +24,17 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      resizeToAvoidBottomInset: true,
+      // backgroundColor: AppColors.white,
       body: SingleChildScrollView(
-        child: Padding(
+        child: Container(
+          height: context.screenHeight,
           padding: EdgeInsets.symmetric(
-            horizontal: context.widthPct(0.06), // ~22px padding
+            horizontal: 20, // ~22px padding
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               /// Logo
               SizedBox(height: context.heightPct(0.12)),
@@ -50,7 +53,7 @@ class SignupScreen extends StatelessWidget {
                 style: AppTextStyles.bodyRegular(context),
               ),
 
-              SizedBox(height: context.heightPct(0.009)),
+              SizedBox(height: context.heightPct(0.015)),
 
               /// username Field
               CustomTextField(

@@ -16,15 +16,14 @@ import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 void main() {
   runApp(
     MultiBlocProvider(
-      providers: [ 
+      providers: [
         BlocProvider(create: (_) => StepBloc()),
         BlocProvider(create: (_) => BottomNavBloc()),
         BlocProvider(create: (_) => ProductDetailBloc()),
         BlocProvider(create: (_) => TabBloc()),
         BlocProvider(create: (_) => AuthBloc()),
         BlocProvider(create: (_) => ImagePickerBloc()),
-        BlocProvider( create: (_) => DropdownBloc(),)
-
+        BlocProvider(create: (_) => DropdownBloc()),
       ],
       child: const MyApp(),
     ),
