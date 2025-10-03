@@ -1,16 +1,16 @@
 class RoutesName {
   // authentication
   static const String splash = 'splash_screen';
-  static const String select_type = 'select_type';
-  static const String SigninScreen = 'SigninScreen';
-  static const String SignupScreen = 'SignupScreen';
+  static const String selectType = 'select_type';
+  static const String signinScreen = 'SigninScreen';
+  static const String signupScreen = 'SignupScreen';
   // profile
-  static const String KycMain = 'KycMain';
+  static const String kycMain = 'KycMain';
   static const String personalinformation = 'personalinformation';
-  static const String BankAccountVerification = 'BankAccountVerification';
-  static const String BusinessVerification = 'BusinessVerification';
-  static const String DocumentVerification = 'DocumentVerification';
-  static const String MyStoreInformation = 'MyStoreInformation';
+  static const String bankAccountVerification = 'BankAccountVerification';
+  static const String businessVerification = 'BusinessVerification';
+  static const String documentVerification = 'DocumentVerification';
+  static const String myStoreInformation = 'MyStoreInformation';
   static const String bottomnabBar = 'BottomNabBar';
   static const String addproductscreen = 'addproductscreen';
   static const String editprofile = 'editprofile';

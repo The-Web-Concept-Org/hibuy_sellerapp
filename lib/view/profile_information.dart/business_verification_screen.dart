@@ -200,7 +200,7 @@ class _BusinessVerificationScreenState
                   if (state.businessStatus == BusinessStatus.success) {
                     Navigator.pushNamed(
                       context,
-                      RoutesName.BankAccountVerification,
+                      RoutesName.bankAccountVerification,
                     );
                   } else if (state.businessStatus == BusinessStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(

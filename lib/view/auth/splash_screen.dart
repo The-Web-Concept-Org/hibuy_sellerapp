@@ -16,7 +16,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-    void initState() {
+  void initState() {
     super.initState();
     _checkLogin();
   }
@@ -28,10 +28,10 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () {
       if (token != null && token.isNotEmpty) {
         // Agar token hai to KYC screen
-        Navigator.pushReplacementNamed(context, RoutesName.KycMain);
+        Navigator.pushReplacementNamed(context, RoutesName.kycMain);
       } else {
         // Agar token nahi hai to select_type
-        Navigator.pushReplacementNamed(context, RoutesName.select_type);
+        Navigator.pushReplacementNamed(context, RoutesName.selectType);
       }
     });
   }

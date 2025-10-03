@@ -306,7 +306,7 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                   if (state.storeStatus == StoreStatus.success) {
                     Navigator.pushNamed(
                       context,
-                      RoutesName.DocumentVerification,
+                      RoutesName.documentVerification,
                     );
                   } else if (state.storeStatus == StoreStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(

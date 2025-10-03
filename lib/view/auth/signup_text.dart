@@ -88,7 +88,7 @@ class SignupScreen extends StatelessWidget {
                     // context.FlushBarErrorMessage(message: state.errorMessage ?? 'An error occurred');
                   } else if (state.authStatus == AuthStatus.success) {
                     // Navigate to another screen or show success message
-                    Navigator.pushNamed(context, RoutesName.SigninScreen);
+                    Navigator.pushNamed(context, RoutesName.signinScreen);
                   }
                 },
                 builder: (context, state) {
@@ -138,7 +138,7 @@ class SignupScreen extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, RoutesName.SigninScreen);
+                      Navigator.pushNamed(context, RoutesName.signinScreen);
                       debugPrint("Register clicked");
                     },
                     child: Text(

@@ -75,7 +75,7 @@ class SelectType extends StatelessWidget {
         onTap: () {
           Navigator.pushNamed(
             context,
-            RoutesName.SignupScreen,
+            RoutesName.signupScreen,
             arguments: role,
           );
         },

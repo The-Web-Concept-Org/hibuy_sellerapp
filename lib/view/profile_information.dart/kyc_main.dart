@@ -77,22 +77,22 @@ class KycMain extends StatelessWidget {
                                 {
                                   "title": AppStrings.myStoreInformation,
                                   "subtitle": AppStrings.text,
-                                  "route": RoutesName.MyStoreInformation,
+                                  "route": RoutesName.myStoreInformation,
                                 },
                                 {
                                   "title": AppStrings.documentVerification,
                                   "subtitle": AppStrings.text,
-                                  "route": RoutesName.DocumentVerification,
+                                  "route": RoutesName.documentVerification,
                                 },
                                 {
                                   "title": AppStrings.businessVerification,
                                   "subtitle": AppStrings.text,
-                                  "route": RoutesName.BusinessVerification,
+                                  "route": RoutesName.businessVerification,
                                 },
                                 {
                                   "title": AppStrings.bankAccountVerification,
                                   "subtitle": AppStrings.text,
-                                  "route": RoutesName.BankAccountVerification,
+                                  "route": RoutesName.bankAccountVerification,
                                 },
                               ];
                               // Set default value for selectedStep

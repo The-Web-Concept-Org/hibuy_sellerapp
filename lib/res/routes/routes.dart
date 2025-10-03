@@ -35,40 +35,40 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (BuildContext context) => const SplashScreen(),
         );
-      case RoutesName.select_type:
+      case RoutesName.selectType:
         return MaterialPageRoute(
           builder: (BuildContext context) => const SelectType(),
         );
-      case RoutesName.SigninScreen:
+      case RoutesName.signinScreen:
         return MaterialPageRoute(
           builder: (BuildContext context) => SigninScreen(),
         );
-      case RoutesName.SignupScreen:
-  final role = settings.arguments as String; 
-  return MaterialPageRoute(
-    builder: (BuildContext context) => SignupScreen(role: role),
-  );
+      case RoutesName.signupScreen:
+        final role = settings.arguments as String;
+        return MaterialPageRoute(
+          builder: (BuildContext context) => SignupScreen(role: role),
+        );
 
       // profile
-      case RoutesName.KycMain:
+      case RoutesName.kycMain:
         return MaterialPageRoute(builder: (BuildContext context) => KycMain());
       case RoutesName.personalinformation:
         return MaterialPageRoute(
           builder: (BuildContext context) => PersonalInfoScreen(),
         );
-      case RoutesName.BankAccountVerification:
+      case RoutesName.bankAccountVerification:
         return MaterialPageRoute(
           builder: (BuildContext context) => BankAccountScreen(),
         );
-      case RoutesName.BusinessVerification:
+      case RoutesName.businessVerification:
         return MaterialPageRoute(
           builder: (BuildContext context) => BusinessVerificationScreen(),
         );
-      case RoutesName.DocumentVerification:
+      case RoutesName.documentVerification:
         return MaterialPageRoute(
           builder: (BuildContext context) => DocumentVerificationScreen(),
         );
-      case RoutesName.MyStoreInformation:
+      case RoutesName.myStoreInformation:
         return MaterialPageRoute(
           builder: (BuildContext context) => StoreInfoScreen(),
         );
@@ -100,7 +100,7 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (BuildContext context) => OtherproductScreen(),
         );
-        case RoutesName.purchasesscreen:
+      case RoutesName.purchasesscreen:
         return MaterialPageRoute(
           builder: (BuildContext context) => PurchasesScreen(),
         );
@@ -120,15 +120,15 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (BuildContext context) => SalereportScreen(),
         );
-         case RoutesName.password:
+      case RoutesName.password:
         return MaterialPageRoute(
           builder: (BuildContext context) => PasswordSetting(),
         );
-         case RoutesName.profile:
+      case RoutesName.profile:
         return MaterialPageRoute(
           builder: (BuildContext context) => ProfileSetting(),
         );
-         case RoutesName.myreferals:
+      case RoutesName.myreferals:
         return MaterialPageRoute(
           builder: (BuildContext context) => ReferalSetting(),
         );

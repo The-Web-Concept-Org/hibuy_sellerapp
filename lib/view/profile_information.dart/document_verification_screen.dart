@@ -148,7 +148,7 @@ class _DocumentVerificationScreenState
                   if (state.documentsStatus == DocumentsStatus.success) {
                     Navigator.pushNamed(
                       context,
-                      RoutesName.BusinessVerification,
+                      RoutesName.businessVerification,
                     );
                   } else if (state.documentsStatus == DocumentsStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(

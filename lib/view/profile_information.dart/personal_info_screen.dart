@@ -165,7 +165,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
                   if (state.personalStatus == PersonalStatus.success) {
-                    Navigator.pushNamed(context, RoutesName.MyStoreInformation);
+                    Navigator.pushNamed(context, RoutesName.myStoreInformation);
                   } else if (state.personalStatus == PersonalStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

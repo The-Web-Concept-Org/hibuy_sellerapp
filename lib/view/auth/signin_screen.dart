@@ -69,7 +69,7 @@ class SigninScreen extends StatelessWidget {
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
                   if (state.authStatus == AuthStatus.success) {
-                    Navigator.pushNamed(context, RoutesName.KycMain);
+                    Navigator.pushNamed(context, RoutesName.kycMain);
                   } else if (state.authStatus == AuthStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -134,7 +134,7 @@ class SigninScreen extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, RoutesName.SignupScreen);
+                      Navigator.pushNamed(context, RoutesName.signupScreen);
                     },
                     child: Text(
                       AppStrings.register,
