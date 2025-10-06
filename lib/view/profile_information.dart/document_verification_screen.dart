@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,8 +31,8 @@ class _DocumentVerificationScreenState
     extends State<DocumentVerificationScreen> {
   // ✅ Controllers
   final TextEditingController countryController = TextEditingController();
-  final TextEditingController provinceController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
+  final SingleSelectController<String> provinceController = SingleSelectController<String>(null);
+  final SingleSelectController<String> cityController = SingleSelectController<String>(null);
 
   // ✅ Form Key
   final _formKey = GlobalKey<FormState>();
@@ -98,7 +99,7 @@ class _DocumentVerificationScreenState
                 controller: countryController,
                 hintText: AppStrings.select,
                 labelText: AppStrings.country,
-                trailingIcon: Icons.expand_more,
+          
                 focusNode: countryFocus,
                 nextFocusNode: provinceFocus,
                 validator: (value) {
@@ -110,36 +111,219 @@ class _DocumentVerificationScreenState
               ),
               SizedBox(height: context.heightPct(0.015)),
 
-              ReusableTextField(
-                controller: provinceController,
-                hintText: AppStrings.select,
-                labelText: AppStrings.provinceregion,
-                trailingIcon: Icons.expand_more,
-                focusNode: provinceFocus,
-                nextFocusNode: cityFocus,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Please select a province/region";
-                  }
-                  return null;
-                },
+                Text(
+                AppStrings.provinceregion,
+                style: AppTextStyles.bodyRegular(context),
               ),
+              SizedBox(height: context.heightPct(0.007)),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.stroke, width: 1),
+                  borderRadius: BorderRadius.circular(context.widthPct(0.013)),
+                ),
+                height: context.heightPct(0.06),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.widthPct(0.043),
+                ),
+                child: CustomDropdown<String>.search(
+                  hintText: 'Select ',
+                  closedHeaderPadding: EdgeInsets.zero,
+                  decoration: CustomDropdownDecoration(
+                    hintStyle: AppTextStyles.normal(context),
+                  ),
+                  items: const [
+                    'Punjab',
+                    'Sindh',
+                    'Khyber Pakhtunkhwa',
+                    'Balochistan',
+                    'Islamabad',
+                    'Gilgit-Baltistan',
+                    'Azad Jammu and Kashmir',
+                  ],
+                   controller: provinceController,
+                  onChanged: (value) async {
+                    print('Selected: $value');
+                  },
+                ),
+              ),
+
               SizedBox(height: context.heightPct(0.015)),
 
-              ReusableTextField(
-                controller: cityController,
-                hintText: AppStrings.select,
-                labelText: AppStrings.city,
-                trailingIcon: Icons.expand_more,
-                focusNode: cityFocus,
-                textInputAction: TextInputAction.done,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Please select a city";
-                  }
-                  return null;
-                },
+            Text(
+                AppStrings.city,
+                style: AppTextStyles.bodyRegular(context),
               ),
+              SizedBox(height: context.heightPct(0.007)),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.stroke, width: 1),
+                  borderRadius: BorderRadius.circular(context.widthPct(0.013)),
+                ),
+                height: context.heightPct(0.06),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.widthPct(0.043),
+                ),
+                child: CustomDropdown<String>.search(
+                  hintText: 'Select ',
+                  closedHeaderPadding: EdgeInsets.zero,
+                  decoration: CustomDropdownDecoration(
+                    hintStyle: AppTextStyles.normal(context),
+                  ),
+                  items: const [
+                    'Abbottabad',
+                    'Ahmedpur East',
+                    'Ahmadpur Sial',
+                    'Alipur',
+                    'Arifwala',
+                    'Attock',
+                    'Badin',
+                    'Bagh',
+                    'Bahawalnagar',
+                    'Bahawalpur',
+                    'Bannu',
+                    'Barkhan',
+                    'Batkhela',
+                    'Bhakkar',
+                    'Bhalwal',
+                    'Bhakkar',
+                    'Bhera',
+                    'Bhimber',
+                    'Burewala',
+                    'Chakwal',
+                    'Charsadda',
+                    'Chichawatni',
+                    'Chiniot',
+                    'Chishtian',
+                    'Chitral',
+                    'Dadu',
+                    'Daska',
+                    'Dera Bugti',
+                    'Dera Ghazi Khan',
+                    'Dera Ismail Khan',
+                    'Dhaular',
+                    'Digri',
+                    'Dina',
+                    'Dir',
+                    'Dipalpur',
+                    'Faisalabad',
+                    'Fateh Jang',
+                    'Ghotki',
+                    'Gilgit',
+                    'Gojra',
+                    'Gujar Khan',
+                    'Gujranwala',
+                    'Gujrat',
+                    'Gwadar',
+                    'Hafizabad',
+                    'Hangu',
+                    'Haripur',
+                    'Harnai',
+                    'Hyderabad',
+                    'Islamabad',
+                    'Jacobabad',
+                    'Jaffarabad',
+                    'Jalalpur Jattan',
+                    'Jamshoro',
+                    'Jampur',
+                    'Jaranwala',
+                    'Jatoi',
+                    'Jauharabad',
+                    'Jhang',
+                    'Jhelum',
+                    'Kabirwala',
+                    'Kahror Pakka',
+                    'Kalat',
+                    'Kamalia',
+                    'Kamoke',
+                    'Kandhkot',
+                    'Karachi',
+                    'Karak',
+                    'Kasur',
+                    'Khairpur',
+                    'Khanewal',
+                    'Khanpur',
+                    'Khushab',
+                    'Khuzdar',
+                    'Kohat',
+                    'Kot Addu',
+                    'Kotli',
+                    'Lahore',
+                    'Lakki Marwat',
+                    'Lalamusa',
+                    'Larkana',
+                    'Lasbela',
+                    'Leiah',
+                    'Lodhran',
+                    'Loralai',
+                    'Malakand',
+                    'Mandi Bahauddin',
+                    'Mansehra',
+                    'Mardan',
+                    'Mastung',
+                    'Matiari',
+                    'Mian Channu',
+                    'Mianwali',
+                    'Mingora',
+                    'Mirpur',
+                    'Mirpur Khas',
+                    'Multan',
+                    'Muridke',
+                    'Murree',
+                    'Muzaffargarh',
+                    'Muzaffarabad',
+                    'Nankana Sahib',
+                    'Narowal',
+                    'Naushahro Feroze',
+                    'Nawabshah',
+                    'Nowshera',
+                    'Okara',
+                    'Pakpattan',
+                    'Panjgur',
+                    'Pattoki',
+                    'Peshawar',
+                    'Quetta',
+                    'Rahim Yar Khan',
+                    'Rajanpur',
+                    'Rawalpindi',
+                    'Sadiqabad',
+                    'Sahiwal',
+                    'Sanghar',
+                    'Sangla Hill',
+                    'Sargodha',
+                    'Shahdadkot',
+                    'Shahkot',
+                    'Shahpur',
+                    'Shakargarh',
+                    'Sheikhupura',
+                    'Shikarpur',
+                    'Sialkot',
+                    'Sibi',
+                    'Sukkur',
+                    'Swabi',
+                    'Swat',
+                    'Tando Adam',
+                    'Tando Allahyar',
+                    'Tando Muhammad Khan',
+                    'Tank',
+                    'Taxila',
+                    'Thatta',
+                    'Toba Tek Singh',
+                    'Turbat',
+                    'Umerkot',
+                    'Upper Dir',
+                    'Vehari',
+                    'Wah Cantt',
+                    'Wazirabad',
+                    'Zhob',
+                    'Ziarat',
+                  ],
+                   controller: cityController,
+                  onChanged: (value) async {
+                    print('Selected: $value');
+                  },
+                ),
+              ),
+
 
               SizedBox(height: context.heightPct(0.03)),
 
@@ -189,8 +373,8 @@ class _DocumentVerificationScreenState
                         context.read<AuthBloc>().add(
                           SaveDocumentsInfoEvent(
                             country: countryController.text,
-                            province: provinceController.text,
-                            city: cityController.text,
+                            province: provinceController.toString(),
+                            city: cityController.toString(),
                             homeBill: profileImage,
                             shopVideo: frontImage,
                           ),

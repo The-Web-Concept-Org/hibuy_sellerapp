@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -28,7 +29,7 @@ class BankAccountScreen extends StatefulWidget {
 
 class _BankAccountScreenState extends State<BankAccountScreen> {
   // ✅ Controllers
-  final TextEditingController _accountTypeController = TextEditingController();
+  final SingleSelectController<String> _accountTypeController = SingleSelectController<String>(null);
   final TextEditingController _bankNameController = TextEditingController();
   final TextEditingController _branchCodeController = TextEditingController();
   final TextEditingController _branchNameController = TextEditingController();
@@ -122,16 +123,34 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
               SizedBox(height: context.heightPct(0.03)),
 
               // ✅ TextFields with validators
-              ReusableTextField(
-                controller: _accountTypeController,
-                hintText: AppStrings.select,
-                labelText: AppStrings.accounttype,
-                trailingIcon: Icons.expand_more,
-                focusNode: accountTypeFocus,
-                nextFocusNode: bankNameFocus,
-                validator: (val) =>
-                    KycValidator.validate("bank_account_type", val),
+               Text(
+                AppStrings.accounttype,
+                style: AppTextStyles.bodyRegular(context),
               ),
+              SizedBox(height: context.heightPct(0.007)),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.stroke, width: 1),
+                  borderRadius: BorderRadius.circular(context.widthPct(0.013)),
+                ),
+                height: context.heightPct(0.06),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.widthPct(0.043),
+                ),
+                child: CustomDropdown<String>(
+                  hintText: 'Select ',
+                  closedHeaderPadding: EdgeInsets.zero,
+                  decoration: CustomDropdownDecoration(
+                    hintStyle: AppTextStyles.normal(context),
+                  ),
+                  items: const ['savings', 'current'],
+                   controller: _accountTypeController,
+                  onChanged: (value) async {
+                    print('Selected: $value');
+                  },
+                ),
+              ),
+
               SizedBox(height: context.heightPct(0.015)),
 
               ReusableTextField(
@@ -290,7 +309,7 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                           : null;
                       context.read<AuthBloc>().add(
                         SubmitAllFormsEvent(
-                          accountType: _accountTypeController.text,
+                          accountType: _accountTypeController.toString(),
                           bankName: _bankNameController.text,
                           branchCode: _branchCodeController.text,
                           branchName: _branchNameController.text,

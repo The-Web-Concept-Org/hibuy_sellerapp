@@ -75,6 +75,7 @@ class ReusableTextField extends StatelessWidget {
                   },
                   decoration: InputDecoration(
                     hintText: hintText,
+                    hintStyle: AppTextStyles.normal(context),
                     border: InputBorder.none,
                     isCollapsed: true,
                   ),

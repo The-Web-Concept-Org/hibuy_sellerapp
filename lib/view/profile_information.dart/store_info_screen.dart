@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
+import 'package:hibuy/res/text_style.dart';
 import 'package:hibuy/res/utils/validations.dart';
 import 'package:hibuy/services/location_service.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
@@ -29,12 +31,12 @@ class StoreInfoScreen extends StatefulWidget {
 class _StoreInfoScreenState extends State<StoreInfoScreen> {
   // ✅ Controllers
   final TextEditingController storeNameController = TextEditingController();
-  final TextEditingController storeTypeController = TextEditingController();
+  final SingleSelectController<String> storeTypeController = SingleSelectController<String>(null);
   final TextEditingController phoneNoController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController countryController = TextEditingController();
-  final TextEditingController provinceController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
+  final SingleSelectController<String> provinceController = SingleSelectController<String>(null);
+  final  SingleSelectController<String> cityController = SingleSelectController<String>(null);
   final TextEditingController zipCodeController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController pinLocationController = TextEditingController();
@@ -104,16 +106,34 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                 validator: (val) => KycValidator.validate("store_name", val),
               ),
               SizedBox(height: context.heightPct(0.015)),
-
-              ReusableTextField(
-                controller: storeTypeController,
-                hintText: AppStrings.select,
-                labelText: AppStrings.selectStoreType,
-                trailingIcon: Icons.expand_more,
-                focusNode: SelectStoreTypeFocus,
-                nextFocusNode: phoneNoFocus,
-                //validator: (val) => KycValidator.validate("store_type", val),
+              Text(
+                AppStrings.selectStoreType,
+                style: AppTextStyles.bodyRegular(context),
               ),
+              SizedBox(height: context.heightPct(0.007)),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.stroke, width: 1),
+                  borderRadius: BorderRadius.circular(context.widthPct(0.013)),
+                ),
+                height: context.heightPct(0.06),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.widthPct(0.043),
+                ),
+                child: CustomDropdown<String>(
+                  hintText: 'Select ',
+                  closedHeaderPadding: EdgeInsets.zero,
+                  decoration: CustomDropdownDecoration(
+                    hintStyle: AppTextStyles.normal(context),
+                  ),
+                  items: const ['Retail', 'Wholesale'],
+                   controller: storeTypeController,
+                  onChanged: (value) async {
+                    print('Selected: $value');
+                  },
+                ),
+              ),
+
               SizedBox(height: context.heightPct(0.015)),
 
               ReusableTextField(
@@ -142,122 +162,221 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                 controller: countryController,
                 hintText: AppStrings.select,
                 labelText: AppStrings.country,
-                trailingIcon: Icons.expand_more,
                 focusNode: countryFocus,
                 nextFocusNode: provinceregionFocus,
               ),
               SizedBox(height: context.heightPct(0.015)),
-
-              ReusableTextField(
-                controller: provinceController,
-                hintText: AppStrings.select,
-                labelText: AppStrings.provinceregion,
-                trailingIcon: Icons.expand_more,
-                focusNode: provinceregionFocus,
-                nextFocusNode: cityFocus,
+              Text(
+                AppStrings.provinceregion,
+                style: AppTextStyles.bodyRegular(context),
               ),
+              SizedBox(height: context.heightPct(0.007)),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.stroke, width: 1),
+                  borderRadius: BorderRadius.circular(context.widthPct(0.013)),
+                ),
+                height: context.heightPct(0.06),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.widthPct(0.043),
+                ),
+                child: CustomDropdown<String>.search(
+                  hintText: 'Select ',
+                  closedHeaderPadding: EdgeInsets.zero,
+                  decoration: CustomDropdownDecoration(
+                    hintStyle: AppTextStyles.normal(context),
+                  ),
+                  items: const [
+                    'Punjab',
+                    'Sindh',
+                    'Khyber Pakhtunkhwa',
+                    'Balochistan',
+                    'Islamabad',
+                    'Gilgit-Baltistan',
+                    'Azad Jammu and Kashmir',
+                  ],
+                   controller: provinceController,
+                  onChanged: (value) async {
+                    print('Selected: $value');
+                  },
+                ),
+              ),
+
               SizedBox(height: context.heightPct(0.015)),
 
-              ReusableTextField(
-                controller: cityController,
-                hintText: "Select City",
-                labelText: "City",
-                trailingIcon: Icons.expand_more,
-                focusNode: cityFocus,
-                nextFocusNode: zipcodeFocus,
-                onIconTap: () async {
-                  final RenderBox button =
-                      context.findRenderObject() as RenderBox;
-                  final RenderBox overlay =
-                      Overlay.of(context).context.findRenderObject()
-                          as RenderBox;
-
-                  // Dropdown ko text field ke bilkul niche kholne ke liye position
-                  final RelativeRect position = RelativeRect.fromLTRB(
-                    button.localToGlobal(Offset.zero, ancestor: overlay).dx,
-                    button
-                        .localToGlobal(
-                          button.size.bottomLeft(Offset.zero),
-                          ancestor: overlay,
-                        )
-                        .dy,
-                    overlay.size.width -
-                        button
-                            .localToGlobal(
-                              button.size.bottomRight(Offset.zero),
-                              ancestor: overlay,
-                            )
-                            .dx,
-                    0,
-                  );
-
-                  final cities = [
+              Text(
+                AppStrings.city,
+                style: AppTextStyles.bodyRegular(context),
+              ),
+              SizedBox(height: context.heightPct(0.007)),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.stroke, width: 1),
+                  borderRadius: BorderRadius.circular(context.widthPct(0.013)),
+                ),
+                height: context.heightPct(0.06),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.widthPct(0.043),
+                ),
+                child: CustomDropdown<String>.search(
+                  hintText: 'Select ',
+                  closedHeaderPadding: EdgeInsets.zero,
+                  decoration: CustomDropdownDecoration(
+                    hintStyle: AppTextStyles.normal(context),
+                  ),
+                  items: const [
                     'Abbottabad',
+                    'Ahmedpur East',
+                    'Ahmadpur Sial',
+                    'Alipur',
+                    'Arifwala',
+                    'Attock',
+                    'Badin',
+                    'Bagh',
+                    'Bahawalnagar',
                     'Bahawalpur',
+                    'Bannu',
+                    'Barkhan',
+                    'Batkhela',
+                    'Bhakkar',
+                    'Bhalwal',
+                    'Bhakkar',
+                    'Bhera',
+                    'Bhimber',
+                    'Burewala',
+                    'Chakwal',
+                    'Charsadda',
+                    'Chichawatni',
+                    'Chiniot',
+                    'Chishtian',
+                    'Chitral',
+                    'Dadu',
+                    'Daska',
+                    'Dera Bugti',
                     'Dera Ghazi Khan',
+                    'Dera Ismail Khan',
+                    'Dhaular',
+                    'Digri',
+                    'Dina',
+                    'Dir',
+                    'Dipalpur',
                     'Faisalabad',
+                    'Fateh Jang',
+                    'Ghotki',
+                    'Gilgit',
+                    'Gojra',
+                    'Gujar Khan',
                     'Gujranwala',
+                    'Gujrat',
+                    'Gwadar',
+                    'Hafizabad',
+                    'Hangu',
+                    'Haripur',
+                    'Harnai',
                     'Hyderabad',
                     'Islamabad',
+                    'Jacobabad',
+                    'Jaffarabad',
+                    'Jalalpur Jattan',
+                    'Jamshoro',
+                    'Jampur',
+                    'Jaranwala',
+                    'Jatoi',
+                    'Jauharabad',
+                    'Jhang',
+                    'Jhelum',
+                    'Kabirwala',
+                    'Kahror Pakka',
+                    'Kalat',
+                    'Kamalia',
+                    'Kamoke',
+                    'Kandhkot',
                     'Karachi',
+                    'Karak',
+                    'Kasur',
+                    'Khairpur',
+                    'Khanewal',
+                    'Khanpur',
+                    'Khushab',
+                    'Khuzdar',
+                    'Kohat',
+                    'Kot Addu',
+                    'Kotli',
                     'Lahore',
+                    'Lakki Marwat',
+                    'Lalamusa',
+                    'Larkana',
+                    'Lasbela',
+                    'Leiah',
+                    'Lodhran',
+                    'Loralai',
+                    'Malakand',
+                    'Mandi Bahauddin',
+                    'Mansehra',
+                    'Mardan',
+                    'Mastung',
+                    'Matiari',
+                    'Mian Channu',
+                    'Mianwali',
+                    'Mingora',
+                    'Mirpur',
+                    'Mirpur Khas',
                     'Multan',
+                    'Muridke',
+                    'Murree',
+                    'Muzaffargarh',
+                    'Muzaffarabad',
+                    'Nankana Sahib',
+                    'Narowal',
+                    'Naushahro Feroze',
+                    'Nawabshah',
+                    'Nowshera',
+                    'Okara',
+                    'Pakpattan',
+                    'Panjgur',
+                    'Pattoki',
                     'Peshawar',
                     'Quetta',
+                    'Rahim Yar Khan',
+                    'Rajanpur',
                     'Rawalpindi',
+                    'Sadiqabad',
+                    'Sahiwal',
+                    'Sanghar',
+                    'Sangla Hill',
+                    'Sargodha',
+                    'Shahdadkot',
+                    'Shahkot',
+                    'Shahpur',
+                    'Shakargarh',
+                    'Sheikhupura',
+                    'Shikarpur',
                     'Sialkot',
-                  ];
-
-                  // ✅ ScrollController banaya
-                  final ScrollController scrollController = ScrollController();
-
-                  final selected = await showMenu<String>(
-                    context: context,
-                    position: position,
-                    elevation: 4,
-                    items: [
-                      PopupMenuItem<String>(
-                        enabled: false, // normal selection disable
-                        padding: EdgeInsets.zero,
-                        child: SizedBox(
-                          height: 200, // 👈 max height of dropdown
-                          width: button.size.width, // same width as textfield
-                          child: Scrollbar(
-                            controller: scrollController,
-                            thumbVisibility: true,
-                            child: ListView(
-                              controller:
-                                  scrollController, // ✅ assign controller
-                              shrinkWrap: true,
-                              children: cities.map((city) {
-                                return InkWell(
-                                  onTap: () => Navigator.pop(
-                                    context,
-                                    city,
-                                  ), // close with selected
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 16,
-                                    ),
-                                    child: Text(
-                                      city,
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-
-                  if (selected != null) {
-                    cityController.text = selected; // ✅ update text field
-                  }
-                },
+                    'Sibi',
+                    'Sukkur',
+                    'Swabi',
+                    'Swat',
+                    'Tando Adam',
+                    'Tando Allahyar',
+                    'Tando Muhammad Khan',
+                    'Tank',
+                    'Taxila',
+                    'Thatta',
+                    'Toba Tek Singh',
+                    'Turbat',
+                    'Umerkot',
+                    'Upper Dir',
+                    'Vehari',
+                    'Wah Cantt',
+                    'Wazirabad',
+                    'Zhob',
+                    'Ziarat',
+                  ],
+                  controller: cityController,
+                  onChanged: (value) async {
+                    print('Selected: $value');
+                  },
+                ),
               ),
 
               SizedBox(height: context.heightPct(0.015)),
@@ -337,12 +456,12 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                         context.read<AuthBloc>().add(
                           SaveStoreInfoEvent(
                             storeName: storeNameController.text,
-                            type: storeTypeController.text,
+                            type: storeTypeController.toString(),
                             phoneNo: phoneNoController.text,
                             email: emailController.text,
                             country: countryController.text,
-                            province: provinceController.text,
-                            city: cityController.text,
+                            province: provinceController.toString(),
+                            city: cityController.toString(),
                             zipCode: zipCodeController.text,
                             address: addressController.text,
                             pinLocation: pinLocationController.text,
