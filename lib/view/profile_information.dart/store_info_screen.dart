@@ -456,12 +456,12 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                         context.read<AuthBloc>().add(
                           SaveStoreInfoEvent(
                             storeName: storeNameController.text,
-                            type: storeTypeController.toString(),
+                            type: storeTypeController.value??'',
                             phoneNo: phoneNoController.text,
                             email: emailController.text,
                             country: countryController.text,
-                            province: provinceController.toString(),
-                            city: cityController.toString(),
+                            province: provinceController.value??'',
+                            city: cityController.value??'',
                             zipCode: zipCodeController.text,
                             address: addressController.text,
                             pinLocation: pinLocationController.text,

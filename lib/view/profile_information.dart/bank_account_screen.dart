@@ -146,7 +146,7 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                   items: const ['savings', 'current'],
                    controller: _accountTypeController,
                   onChanged: (value) async {
-                    print('Selected: $value');
+                    print('Selected: ${_accountTypeController.value}');
                   },
                 ),
               ),
@@ -267,7 +267,7 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                         ),
                       ),
                     );
-                    Navigator.pushNamed(context, RoutesName.bottomnabBar);
+                    Navigator.pushNamed(context, RoutesName.kycstatusscreen);
                   } else if (state.authStatus == AuthStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -309,7 +309,7 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                           : null;
                       context.read<AuthBloc>().add(
                         SubmitAllFormsEvent(
-                          accountType: _accountTypeController.toString(),
+                          accountType: _accountTypeController.value??'', // .value in all controller               
                           bankName: _bankNameController.text,
                           branchCode: _branchCodeController.text,
                           branchName: _branchNameController.text,

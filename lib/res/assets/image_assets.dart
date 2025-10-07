@@ -33,6 +33,7 @@ class ImageAssets {
   static const String delete = 'assets/dashboard/delete.svg';
   static const String referalfriend = 'assets/dashboard/refer_friend.svg';
   static const String copyicon = 'assets/dashboard/copyicon.svg';
+  static const String review = 'assets/images/review.svg';
 
 
 }

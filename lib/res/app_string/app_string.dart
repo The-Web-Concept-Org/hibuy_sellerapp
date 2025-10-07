@@ -72,6 +72,11 @@ class AppStrings {
   static const editdetails = "Edit Details";
   static const startstore = "Start Store";
   static const logout = "Logout";
+  static const personalinfo = "Personal Info";
+  static const document = "Document";
+  static const account = "Account";
+  static const business = "Business";
+
 
   /// dashboard screen
   static const dashboard = "Dashboard";
@@ -167,4 +172,7 @@ class AppStrings {
   static const option1 = "Option 1";
   static const option2 = "Option 2";
   static const weight = "weight";
+ 
+
+
 }

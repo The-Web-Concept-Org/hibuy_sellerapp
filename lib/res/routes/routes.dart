@@ -20,6 +20,7 @@ import 'package:hibuy/view/profile_information.dart/bank_account_screen.dart';
 import 'package:hibuy/view/profile_information.dart/business_verification_screen.dart';
 import 'package:hibuy/view/profile_information.dart/document_verification_screen.dart';
 import 'package:hibuy/view/profile_information.dart/kyc_main.dart';
+import 'package:hibuy/view/profile_information.dart/kyc_status_screen.dart';
 import 'package:hibuy/view/profile_information.dart/personal_info_screen.dart';
 import 'package:hibuy/view/profile_information.dart/store_info_screen.dart';
 import 'package:hibuy/view/auth/select_type.dart';
@@ -131,6 +132,10 @@ class AppRoutes {
       case RoutesName.myreferals:
         return MaterialPageRoute(
           builder: (BuildContext context) => ReferalSetting(),
+        );
+         case RoutesName.kycstatusscreen:
+        return MaterialPageRoute(
+          builder: (BuildContext context) =>  KycStatusScreen(),
         );
       default:
         return MaterialPageRoute(

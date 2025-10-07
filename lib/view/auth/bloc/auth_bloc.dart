@@ -273,7 +273,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (state.storePinLocation?.isNotEmpty ?? false)
           "store_pin_location": state.storePinLocation,
         if (state.storeProfilePicture != null)
-          "store_profile_picture": state.storeProfilePicture,
+          "store_profile_picture_store": state.storeProfilePicture,
         // ---------- DOCUMENTS INFO ----------
         "documents_status": "pending",
         if (state.documentsCountry?.isNotEmpty ?? false)

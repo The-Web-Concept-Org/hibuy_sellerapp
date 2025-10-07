@@ -373,8 +373,8 @@ class _DocumentVerificationScreenState
                         context.read<AuthBloc>().add(
                           SaveDocumentsInfoEvent(
                             country: countryController.text,
-                            province: provinceController.toString(),
-                            city: cityController.toString(),
+                            province: provinceController.value??'',
+                            city: cityController.value??'',
                             homeBill: profileImage,
                             shopVideo: frontImage,
                           ),

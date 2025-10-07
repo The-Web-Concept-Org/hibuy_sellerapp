@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () {
       if (token != null && token.isNotEmpty) {
         // Agar token hai to KYC screen
-        Navigator.pushReplacementNamed(context, RoutesName.kycMain);
+        Navigator.pushReplacementNamed(context, RoutesName.kycstatusscreen);
       } else {
         // Agar token nahi hai to select_type
         Navigator.pushReplacementNamed(context, RoutesName.selectType);

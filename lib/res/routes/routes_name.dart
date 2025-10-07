@@ -26,4 +26,5 @@ class RoutesName {
   static const String profile = 'profile';
   static const String password = 'password';
   static const String myreferals = 'myreferals';
+  static const String kycstatusscreen = 'kycstatusscreen';
 }
