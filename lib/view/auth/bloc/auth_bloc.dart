@@ -22,6 +22,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SaveBankInfoEvent>(_saveBankInfo);
     on<SaveBusinessInfoEvent>(_saveBusinessInfo);
     on<SubmitAllFormsEvent>(_submitAllForms);
+
+   
   }
 
   // ------------------ LOGIN ------------------
@@ -224,7 +226,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
   }
-
+  
   // ------------------ SUBMIT ALL FORMS (API CALL) ------------------
   void _submitAllForms(
     SubmitAllFormsEvent event,

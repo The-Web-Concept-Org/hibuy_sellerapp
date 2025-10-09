@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:hibuy/models/kyc_response_model.dart';
 import '../../../models/user_model.dart';
 
 // Enums
@@ -335,4 +336,5 @@ class AuthState extends Equatable {
         businessLetterHead,
         businessStamp,
       ];
+      
 }

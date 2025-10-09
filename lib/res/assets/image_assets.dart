@@ -34,6 +34,7 @@ class ImageAssets {
   static const String referalfriend = 'assets/dashboard/refer_friend.svg';
   static const String copyicon = 'assets/dashboard/copyicon.svg';
   static const String review = 'assets/images/review.svg';
+  static const String statusapprove = 'assets/images/status_approve.svg';
 
 
 }

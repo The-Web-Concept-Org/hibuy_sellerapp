@@ -12,6 +12,7 @@ import 'package:hibuy/Bloc/setting_tab_bloc.dart/tab_bloc.dart';
 import 'package:hibuy/res/routes/routes.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
+import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
 
 void main() {
   runApp(
@@ -24,6 +25,7 @@ void main() {
         BlocProvider(create: (_) => AuthBloc()),
         BlocProvider(create: (_) => ImagePickerBloc()),
         BlocProvider(create: (_) => DropdownBloc()),
+        BlocProvider(create: (_) => KycBloc()),
       ],
       child: const MyApp(),
     ),

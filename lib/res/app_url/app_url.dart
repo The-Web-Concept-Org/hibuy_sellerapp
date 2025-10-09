@@ -6,6 +6,7 @@ class AppUrl {
   static const String loginApi = '$baseUrl/sellerLogin' ;
   static const String registerApi = '$baseUrl/register' ;
   static const String kycAuthentication = '$baseUrl/kycAuthentication' ;
+  static const String profiledetail ='$baseUrl/profileDetail';
 
   
 
