@@ -9,9 +9,18 @@ abstract class ImagePickerEvent extends Equatable {
 }
 
 class PickImageEvent extends ImagePickerEvent {
-  final String key; 
+  final String key;
 
   const PickImageEvent(this.key);
+
+  @override
+  List<Object?> get props => [key];
+}
+
+class PickVideoEvent extends ImagePickerEvent {
+  final String key;
+
+  const PickVideoEvent(this.key);
 
   @override
   List<Object?> get props => [key];

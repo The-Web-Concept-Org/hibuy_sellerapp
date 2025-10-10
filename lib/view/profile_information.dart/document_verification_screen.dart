@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
@@ -29,12 +28,12 @@ class DocumentVerificationScreen extends StatefulWidget {
 
 class _DocumentVerificationScreenState
     extends State<DocumentVerificationScreen> {
-  // ✅ Controllers
   final TextEditingController countryController = TextEditingController();
-  final SingleSelectController<String> provinceController = SingleSelectController<String>(null);
-  final SingleSelectController<String> cityController = SingleSelectController<String>(null);
+  final SingleSelectController<String> provinceController =
+      SingleSelectController<String>(null);
+  final SingleSelectController<String> cityController =
+      SingleSelectController<String>(null);
 
-  // ✅ Form Key
   final _formKey = GlobalKey<FormState>();
   // focus node
   final FocusNode countryFocus = FocusNode();
@@ -89,7 +88,8 @@ class _DocumentVerificationScreenState
                 widthFactor: 0.9,
                 heightFactor: 0.25,
                 placeholderSvg: ImageAssets.profileimage,
-                imageKey: 'profile',
+                imageKey: 'shopVideo',
+                isVideo: true, 
               ),
 
               SizedBox(height: context.heightPct(0.02)),
@@ -99,7 +99,7 @@ class _DocumentVerificationScreenState
                 controller: countryController,
                 hintText: AppStrings.select,
                 labelText: AppStrings.country,
-          
+
                 focusNode: countryFocus,
                 nextFocusNode: provinceFocus,
                 validator: (value) {
@@ -111,7 +111,7 @@ class _DocumentVerificationScreenState
               ),
               SizedBox(height: context.heightPct(0.015)),
 
-                Text(
+              Text(
                 AppStrings.provinceregion,
                 style: AppTextStyles.bodyRegular(context),
               ),
@@ -140,7 +140,7 @@ class _DocumentVerificationScreenState
                     'Gilgit-Baltistan',
                     'Azad Jammu and Kashmir',
                   ],
-                   controller: provinceController,
+                  controller: provinceController,
                   onChanged: (value) async {
                     print('Selected: $value');
                   },
@@ -149,10 +149,7 @@ class _DocumentVerificationScreenState
 
               SizedBox(height: context.heightPct(0.015)),
 
-            Text(
-                AppStrings.city,
-                style: AppTextStyles.bodyRegular(context),
-              ),
+              Text(AppStrings.city, style: AppTextStyles.bodyRegular(context)),
               SizedBox(height: context.heightPct(0.007)),
               Container(
                 decoration: BoxDecoration(
@@ -317,13 +314,12 @@ class _DocumentVerificationScreenState
                     'Zhob',
                     'Ziarat',
                   ],
-                   controller: cityController,
+                  controller: cityController,
                   onChanged: (value) async {
                     print('Selected: $value');
                   },
                 ),
               ),
-
 
               SizedBox(height: context.heightPct(0.03)),
 
@@ -358,25 +354,24 @@ class _DocumentVerificationScreenState
                             .read<ImagePickerBloc>()
                             .state;
 
-                        final profileImagePath =
-                            imageState.images['profileimage'];
-                        final frontImagePath = imageState.images['profile'];
+                        final homeBillPath = imageState.images['profileimage'];
+                        final shopVideoPath = imageState.images['shopVideo'];
 
-                        final File? profileImage = profileImagePath != null
-                            ? File(profileImagePath)
+                        final File? homeBill = homeBillPath != null
+                            ? File(homeBillPath)
                             : null;
 
-                        final File? frontImage = frontImagePath != null
-                            ? File(frontImagePath)
+                        final File? shopVideo = shopVideoPath != null
+                            ? File(shopVideoPath)
                             : null;
 
                         context.read<AuthBloc>().add(
                           SaveDocumentsInfoEvent(
                             country: countryController.text,
-                            province: provinceController.value??'',
-                            city: cityController.value??'',
-                            homeBill: profileImage,
-                            shopVideo: frontImage,
+                            province: provinceController.value ?? '',
+                            city: cityController.value ?? '',
+                            homeBill: homeBill,
+                            shopVideo: shopVideo,
                           ),
                         );
                       }

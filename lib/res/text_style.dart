@@ -4,6 +4,9 @@ import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 
 class AppTextStyles {
+  headingText({required String title,Color textolor=Colors.black,double fontSize=16,FontWeight fontWeight=FontWeight.w700}){
+    return Text(title,style: TextStyle(color: textolor,fontSize: fontSize,fontWeight: fontWeight));
+  }
   static TextStyle h4(BuildContext context) => GoogleFonts.poppins(
     fontWeight: FontWeight.w700,
     fontSize: context.scaledFont(16), //16

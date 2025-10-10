@@ -20,8 +20,9 @@ class ImagePicked extends ImagePickerState {
 class ImagePickerError extends ImagePickerState {
   final String message;
 
-  const ImagePickerError(this.message) : super(const {});
+  const ImagePickerError(this.message, {Map<String, String> images = const {}})
+    : super(images);
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, images];
 }
