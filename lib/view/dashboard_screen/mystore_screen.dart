@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
@@ -6,15 +7,43 @@ import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_event.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_state.dart';
 
-class MystoreScreen extends StatelessWidget {
+class MystoreScreen extends StatefulWidget {
   const MystoreScreen({super.key});
+
+  @override
+  State<MystoreScreen> createState() => _MystoreScreenState();
+}
+
+class _MystoreScreenState extends State<MystoreScreen> {
+  void initState() {
+    super.initState();
+    context.read<StoreDetailsBloc>().add(StoreEvent()); 
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Padding(
+      body:  BlocConsumer<StoreDetailsBloc, StoreDetailState>(
+        listener: (context, state) {
+          if (state.storeDetailsStatus == StoreDetailsStatus.error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message ?? "Something went wrong")),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state.storeDetailsStatus == StoreDetailsStatus.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.storeDetailsStatus == StoreDetailsStatus.success) {
+            final store = state.storeDetailsModel?.storeData;
+            return  Padding(
         padding: EdgeInsets.only(
           left: context.widthPct(17 / 375),
           right: context.widthPct(17 / 375),
@@ -94,8 +123,8 @@ class MystoreScreen extends StatelessWidget {
                                 width: 2.85,
                               ),
                             ),
-                            child: const CircleAvatar(
-                              // backgroundImage: AssetImage("assets/images/profile.png"),
+                            child:     CircleAvatar(
+                               backgroundImage:NetworkImage("https://dashboard.hibuyo.com/${store?.storeImage?? ""}"),
                               backgroundColor: Colors.white,
                             ),
                           ),
@@ -103,7 +132,8 @@ class MystoreScreen extends StatelessWidget {
                           Column(
                             children: [
                               Text(
-                                'Sara Store',
+                                  store?.storeName ?? "N/A",
+                                  
                                 style: AppTextStyles.samibold4(context),
                               ),
                               SizedBox(height: context.heightPct(5 / 812)),
@@ -147,6 +177,10 @@ class MystoreScreen extends StatelessWidget {
             ),
           ],
         ),
+    );
+  }
+ return const Center(child: Text("No data available"));
+}
       ),
     );
   }

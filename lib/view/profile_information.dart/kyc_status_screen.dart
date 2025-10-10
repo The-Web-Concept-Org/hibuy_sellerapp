@@ -68,6 +68,15 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
 
   Widget _buildKycBody(BuildContext context, dynamic data) {
     final seller = data['seller'];
+
+   if (seller == null) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    Navigator.pushNamed(context, RoutesName.bottomnabBar);
+  });
+  return const SizedBox.shrink(); 
+}
+
+    // ✅ Safely get each section (may be null)
     final personalInfo = seller['personal_info'];
     final storeInfo = seller['store_info'];
     final documentsInfo = seller['documents_info'];
@@ -110,17 +119,14 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                   /// Steps List
                   BlocBuilder<StepBloc, StepState>(
                     builder: (context, state) {
-                      
-                           final personalStatus = personalInfo['status']
-                                    ?.toLowerCase();
-                                final storeStatus = storeInfo['status']
-                                    ?.toLowerCase();
-                                final documentStatus = documentsInfo['status']
-                                    ?.toLowerCase();
-                                final bankStatus = bankInfo['status']
-                                    ?.toLowerCase();
-                                final businessStatus = businessInfo['status']
-                                    ?.toLowerCase();
+                      final personalStatus = personalInfo['status']
+                          ?.toLowerCase();
+                      final storeStatus = storeInfo['status']?.toLowerCase();
+                      final documentStatus = documentsInfo['status']
+                          ?.toLowerCase();
+                      final bankStatus = bankInfo['status']?.toLowerCase();
+                      final businessStatus = businessInfo['status']
+                          ?.toLowerCase();
                       final steps = [
                         {
                           "title": AppStrings.personalinfo,
@@ -130,17 +136,17 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                         {
                           "title": AppStrings.mystore,
                           "route": RoutesName.myStoreInformation,
-                          "status": storeStatus
+                          "status": storeStatus,
                         },
                         {
                           "title": AppStrings.document,
                           "route": RoutesName.documentVerification,
-                          "status": documentStatus
+                          "status": documentStatus,
                         },
                         {
                           "title": AppStrings.business,
                           "route": RoutesName.businessVerification,
-                          "status":bankStatus
+                          "status": bankStatus,
                         },
                         {
                           "title": AppStrings.account,

@@ -1,3 +1,4 @@
+// image_picker_bloc.dart
 import 'dart:io';
 import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,7 @@ class ImagePickerBloc extends Bloc<ImagePickerEvent, ImagePickerState> {
 
   ImagePickerBloc() : super(const ImageInitial()) {
     on<PickImageEvent>(_onPickImage);
+    on<RemoveImageEvent>(_onRemoveImage);
   }
 
   Future<void> _onPickImage(
@@ -57,6 +59,46 @@ class ImagePickerBloc extends Bloc<ImagePickerEvent, ImagePickerState> {
     } catch (e) {
       log('❌ Error picking/compressing image: $e');
       emit(ImagePickerError("Failed to pick image: $e"));
+    }
+  }
+
+  void _onRemoveImage(
+    RemoveImageEvent event,
+    Emitter<ImagePickerState> emit,
+  ) {
+    try {
+      final currentState = state;
+
+      if (currentState is ImageInitial || currentState is ImagePicked) {
+        final images = Map<String, String>.from(
+          currentState is ImagePicked
+              ? currentState.images
+              : (currentState as ImageInitial).images,
+        );
+
+        // Remove the image from the map
+        final removedPath = images.remove(event.key);
+        
+        if (removedPath != null) {
+          log('🗑️ Image removed: $removedPath (key: ${event.key})');
+          
+          // Optionally delete the file from storage
+          try {
+            final file = File(removedPath);
+            if (file.existsSync()) {
+              file.deleteSync();
+              log('🗑️ File deleted from storage: $removedPath');
+            }
+          } catch (e) {
+            log('⚠️ Failed to delete file: $e');
+          }
+        }
+
+        emit(ImagePicked(images));
+      }
+    } catch (e) {
+      log('❌ Error removing image: $e');
+      emit(ImagePickerError("Failed to remove image: $e"));
     }
   }
 }
