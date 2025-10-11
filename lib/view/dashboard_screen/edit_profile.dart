@@ -1,22 +1,39 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_event.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_state.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
-import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_event.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_state.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 import 'package:image/image.dart' as img;
 
-class EditProfile extends StatelessWidget {
+class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
+
+  @override
+  State<EditProfile> createState() => _EditProfileState();
+}
+
+class _EditProfileState extends State<EditProfile> {
+  final TextEditingController _storeNameController = TextEditingController();
+  final TextEditingController _tagController = TextEditingController();
+  final List<String> _tags = [];
+
+  @override
+  void dispose() {
+    _storeNameController.dispose();
+    _tagController.dispose();
+    super.dispose();
+  }
 
   // Validate banner image
   Future<bool> _validateBannerImage(String imagePath, BuildContext context) async {
@@ -27,7 +44,12 @@ class EditProfile extends StatelessWidget {
       final fileSizeInBytes = await file.length();
       final fileSizeInMB = fileSizeInBytes / (1024 * 1024);
       
+      print('🖼️ Banner Image Validation:');
+      print('   Path: $imagePath');
+      print('   Size: ${fileSizeInMB.toStringAsFixed(2)} MB');
+      
       if (fileSizeInMB > 2) {
+        print('   ❌ Size validation failed: ${fileSizeInMB.toStringAsFixed(2)} MB > 2 MB');
         _showErrorDialog(context, 'Banner image must be maximum 2MB');
         return false;
       }
@@ -37,17 +59,23 @@ class EditProfile extends StatelessWidget {
       final image = img.decodeImage(imageBytes);
       
       if (image == null) {
+        print('   ❌ Failed to decode image');
         _showErrorDialog(context, 'Invalid image file');
         return false;
       }
       
+      print('   Dimensions: ${image.width}x${image.height} pixels');
+      
       if (image.width != 1280 || image.height != 320) {
-        _showErrorDialog(context, 'Banner image size must be 1280x320 pixels');
+        print('   ❌ Dimension validation failed: Expected 1280x320, Got ${image.width}x${image.height}');
+        _showErrorDialog(context, 'Banner image size must be 1280x320 pixels.\nYour image: ${image.width}x${image.height}');
         return false;
       }
       
+      print('   ✅ Banner validation passed');
       return true;
     } catch (e) {
+      print('   ❌ Validation error: $e');
       _showErrorDialog(context, 'Error validating image: $e');
       return false;
     }
@@ -58,23 +86,49 @@ class EditProfile extends StatelessWidget {
     try {
       final file = File(imagePath);
       
-      // Check image dimensions (1080x1080)
+      print('\n📸 Post Image Validation:');
+      print('   📁 Path: $imagePath');
+      
+      // Check file size
+      final fileSizeInBytes = await file.length();
+      final fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+      print('   📊 Size: ${fileSizeInMB.toStringAsFixed(2)} MB');
+      
+      // Check image dimensions (MUST be 1080x1080)
       final imageBytes = await file.readAsBytes();
       final image = img.decodeImage(imageBytes);
       
       if (image == null) {
-        _showErrorDialog(context, 'Invalid image file');
+        print('   ❌ Failed to decode image');
+        if (context.mounted) {
+          _showErrorDialog(context, 'Invalid image file');
+        }
         return false;
       }
       
-      if (image.width != 1080 || image.height != 1080) {
-        _showErrorDialog(context, 'Post image size must be 1080x1080 pixels');
+      print('   📐 Dimensions: ${image.width}x${image.height} pixels');
+      print('   ✓ Required: 1080x1080 pixels');
+      
+      if (image.width != 1080 || image.height != 270) {
+        print('   ❌ Dimension validation FAILED!');
+        print('   ❌ Expected: 1080x1080');
+        print('   ❌ Got: ${image.width}x${image.height}');
+        if (context.mounted) {
+          _showErrorDialog(
+            context, 
+            'Post image MUST be exactly 1080x1080 pixels\n\nYour image: ${image.width}x${image.height} pixels\nRequired: 1080x1080 pixels'
+          );
+        }
         return false;
       }
       
+      print('   ✅ All validations PASSED');
       return true;
     } catch (e) {
-      _showErrorDialog(context, 'Error validating image: $e');
+      print('   ❌ Validation error: $e');
+      if (context.mounted) {
+        _showErrorDialog(context, 'Error validating image: $e');
+      }
       return false;
     }
   }
@@ -105,6 +159,117 @@ class EditProfile extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _addTag() {
+    if (_tagController.text.trim().isNotEmpty) {
+      setState(() {
+        _tags.add(_tagController.text.trim());
+        _tagController.clear();
+      });
+    }
+  }
+
+  void _removeTag(int index) {
+    setState(() {
+      _tags.removeAt(index);
+    });
+  }
+
+  void _submitForm() async {
+    final imageState = context.read<ImagePickerBloc>().state;
+    
+    // Validate store name
+    if (_storeNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter store name')),
+      );
+      return;
+    }
+
+    print('\n🚀 ===== SUBMITTING FORM DATA =====');
+    print('📝 Store Name: ${_storeNameController.text.trim()}');
+    print('🏷️ Tags: $_tags');
+
+    // Get profile image
+    String? profileImagePath = imageState.images['profile_image'];
+    File? storeImage = profileImagePath != null ? File(profileImagePath) : null;
+    
+    if (storeImage != null) {
+      print('\n👤 Profile Image:');
+      print('   Path: $profileImagePath');
+      await _logImageDimensions(storeImage, 'Profile');
+    }
+
+    // Get banner images and their IDs (if updating existing banners)
+    List<File> bannerImages = [];
+    List<int> bannerIds = [];
+    
+    // Sort banner keys to maintain order
+    List<String> sortedBannerKeys = imageState.images.keys
+        .where((key) => key.startsWith('banner_image_'))
+        .toList()
+      ..sort();
+    
+    print('\n🎨 Banner Images (${sortedBannerKeys.length}):');
+    for (int i = 0; i < sortedBannerKeys.length; i++) {
+      String key = sortedBannerKeys[i];
+      String path = imageState.images[key]!;
+      File bannerFile = File(path);
+      bannerImages.add(bannerFile);
+      print('   [$i] Key: $key');
+      print('       Path: $path');
+      await _logImageDimensions(bannerFile, 'Banner $i');
+    }
+
+    // Get post images
+    List<File> postImages = [];
+    print('\n📸 Post Images:');
+    for (int i = 0; i < 2; i++) {
+      String? postPath = imageState.images['post_image_$i'];
+      if (postPath != null) {
+        File postFile = File(postPath);
+        postImages.add(postFile);
+        print('   [$i] Path: $postPath');
+        await _logImageDimensions(postFile, 'Post $i');
+      }
+    }
+
+    print('\n✅ Total Images: ${(storeImage != null ? 1 : 0) + bannerImages.length + postImages.length}');
+    print('📤 Sending to API:');
+    print('   - storeName: ${_storeNameController.text.trim()}');
+    print('   - storeTags: $_tags');
+    print('   - storeImage: ${storeImage != null ? "YES" : "NO"}');
+    print('   - bannerImages: ${bannerImages.length} files');
+    print('   - postImages: ${postImages.length} files');
+    print('================================\n');
+
+    // Dispatch the update event
+    context.read<StoreBloc>().add(
+      UpdateStoreEvent(
+        storeName: _storeNameController.text.trim(),
+        storeTags: _tags,
+        storeImage: storeImage,
+        bannerImages: bannerImages.isNotEmpty ? bannerImages : null,
+        bannerIds: null, // Will be null for new banners
+        postImages: postImages.isNotEmpty ? postImages : null,
+      ),
+    );
+  }
+
+  // Helper method to log image dimensions
+  Future<void> _logImageDimensions(File imageFile, String imageType) async {
+    try {
+      final bytes = await imageFile.readAsBytes();
+      final image = img.decodeImage(bytes);
+      if (image != null) {
+        final sizeInKB = bytes.length / 1024;
+        print('       Size: ${sizeInKB.toStringAsFixed(2)} KB');
+        print('       Dimensions: ${image.width}x${image.height} pixels');
+      }
+    } catch (e) {
+      print('       ❌ Failed to read dimensions: $e');
+    }
   }
 
   @override
@@ -242,48 +407,79 @@ class EditProfile extends StatelessWidget {
                 ),
               ),
               SizedBox(height: context.heightPct(15 / 812)),
+              
+              // Store Name
               Text(
                 AppStrings.storename,
                 style: AppTextStyles.bodyRegular(context),
               ),
               ReusableTextField(
+                controller: _storeNameController,
                 hintText: AppStrings.enterhere,
                 labelText: '',
               ),
               SizedBox(height: context.heightPct(12 / 812)),
+              
+              // Tags
               Text(
                 AppStrings.tags,
                 style: AppTextStyles.bodyRegular(context),
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: ReusableTextField(
-                      hintText: AppStrings.enterhere,
-                      labelText: '',
-                    ),
-                  ),
-                  Container(
-                    height: 46,
-                    width: 43,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      border: Border.all(color: AppColors.stroke, width: 1),
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(5),
-                        bottomRight: Radius.circular(5),
+              Container(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ReusableTextField(
+                        controller: _tagController,
+                        hintText: AppStrings.enterhere,
+                        labelText: '',
                       ),
                     ),
-                    child: Icon(Icons.add, color: AppColors.white),
-                  ),
-                ],
+                    GestureDetector(
+                      onTap: _addTag,
+                      child: Container(
+                        height: 46,
+                        width: 43,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor,
+                          border: Border.all(color: AppColors.stroke, width: 1),
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(5),
+                            bottomRight: Radius.circular(5),
+                          ),
+                        ),
+                        child: Icon(Icons.add, color: AppColors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              
+              // Display added tags
+              if (_tags.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(top: context.heightPct(8 / 812)),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _tags.asMap().entries.map((entry) {
+                      return Chip(
+                        label: Text(entry.value),
+                        deleteIcon: const Icon(Icons.close, size: 18),
+                        onDeleted: () => _removeTag(entry.key),
+                        backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              
               SizedBox(height: context.heightPct(12 / 812)),
+              
+              // Banner Images
               Text(AppStrings.banner, style: AppTextStyles.bodyRegular(context)),
               Text(AppStrings.max2mb, style: AppTextStyles.searchtext(context)),
               SizedBox(height: context.heightPct(8 / 812)),
               
-              // Multiple Banner Images with Grid Layout
               BlocBuilder<ImagePickerBloc, ImagePickerState>(
                 builder: (context, state) {
                   Map<String, String> allImages = {};
@@ -294,14 +490,12 @@ class EditProfile extends StatelessWidget {
                     allImages = state.images;
                   }
 
-                  // Filter banner images
                   List<MapEntry<String, String>> bannerImages = allImages.entries
                       .where((entry) => entry.key.startsWith('banner_image_'))
                       .toList();
 
                   return Column(
                     children: [
-                      // Display existing banner images in grid
                       if (bannerImages.isNotEmpty)
                         GridView.builder(
                           itemCount: bannerImages.length,
@@ -339,7 +533,6 @@ class EditProfile extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                // Remove button
                                 Positioned(
                                   top: 5,
                                   right: 5,
@@ -372,10 +565,8 @@ class EditProfile extends StatelessWidget {
                       if (bannerImages.isNotEmpty)
                         SizedBox(height: context.heightPct(15 / 812)),
                       
-                      // Add new banner button
                       GestureDetector(
                         onTap: () async {
-                          // Find next available banner index
                           int nextIndex = 0;
                           while (allImages.containsKey('banner_image_$nextIndex')) {
                             nextIndex++;
@@ -387,7 +578,6 @@ class EditProfile extends StatelessWidget {
                             PickImageEvent(newBannerKey),
                           );
                           
-                          // Wait for state update and validate
                           await Future.delayed(const Duration(milliseconds: 500));
                           final updatedState = context.read<ImagePickerBloc>().state;
                           
@@ -396,7 +586,6 @@ class EditProfile extends StatelessWidget {
                             if (imagePath != null && imagePath.isNotEmpty) {
                               final isValid = await _validateBannerImage(imagePath, context);
                               if (!isValid) {
-                                // Remove invalid image
                                 context.read<ImagePickerBloc>().add(
                                   RemoveImageEvent(newBannerKey),
                                 );
@@ -450,11 +639,12 @@ class EditProfile extends StatelessWidget {
               ),
               
               SizedBox(height: context.heightPct(12 / 812)),
+              
+              // Post Images
               Text(AppStrings.post, style: AppTextStyles.bodyRegular(context)),
               Text(AppStrings.eachpost, style: AppTextStyles.searchtext(context)),
               SizedBox(height: context.heightPct(8 / 812)),
               
-              // Post Images with Image Picker and Validation
               BlocBuilder<ImagePickerBloc, ImagePickerState>(
                 builder: (context, state) {
                   Map<String, String> postImages = {};
@@ -485,7 +675,6 @@ class EditProfile extends StatelessWidget {
                             PickImageEvent(postKey),
                           );
                           
-                          // Wait for state update and validate
                           await Future.delayed(const Duration(milliseconds: 500));
                           final updatedState = context.read<ImagePickerBloc>().state;
                           
@@ -494,7 +683,6 @@ class EditProfile extends StatelessWidget {
                             if (imagePath != null && imagePath.isNotEmpty) {
                               final isValid = await _validatePostImage(imagePath, context);
                               if (!isValid) {
-                                // Remove invalid image
                                 context.read<ImagePickerBloc>().add(
                                   RemoveImageEvent(postKey),
                                 );
@@ -539,7 +727,7 @@ class EditProfile extends StatelessWidget {
                                       ),
                                       SizedBox(height: context.heightPct(2 / 812)),
                                       Text(
-                                        '1080x1080',
+                                        '1080x270',
                                         style: AppTextStyles.searchtext(context).copyWith(
                                           fontSize: context.widthPct(9 / 375),
                                         ),
@@ -553,11 +741,42 @@ class EditProfile extends StatelessWidget {
                   );
                 },
               ),
+              
               SizedBox(height: context.heightPct(23 / 812)),
-              ReusableButton(
-                text: AppStrings.done,
-                onPressed: () {
-                  // Handle form submission
+              
+              // Submit Button
+              BlocConsumer<StoreBloc, StoreUpdateState>(
+                listener: (context, state) {
+                  if (state.status == StoreUpdateStatus.success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          state.message ?? "Store updated successfully",
+                        ),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    // Navigate or refresh as needed
+                  } else if (state.status == StoreUpdateStatus.error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          state.message ?? "Something went wrong",
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  return ReusableButton(
+                    text: state.status == StoreUpdateStatus.loading
+                        ? "Submitting..."
+                        : "Done",
+                    onPressed: state.status == StoreUpdateStatus.loading
+                        ? () {}
+                        : _submitForm,
+                  );
                 },
               ),
             ],

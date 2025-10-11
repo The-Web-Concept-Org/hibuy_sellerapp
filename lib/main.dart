@@ -14,6 +14,7 @@ import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_bloc.dart';
 
 void main() {
   runApp(
@@ -28,6 +29,7 @@ void main() {
         BlocProvider(create: (_) => DropdownBloc()),
         BlocProvider(create: (_) => KycBloc()),
         BlocProvider(create: (_) => StoreDetailsBloc()),
+         BlocProvider(create: (_) => StoreBloc()),
       ],
       child: const MyApp(),
     ),

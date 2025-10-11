@@ -124,9 +124,9 @@ class AppStrings {
   static const medium = "Medium";
   static const tags = "Tags";
   static const banner = "Banner";
-  static const max2mb = "Max 2MB and Size should be 1280*720";
+  static const max2mb = "Max 2MB and Size should be 1280*320";
   static const post = "Posts";
-  static const eachpost = "Each post should be 1080 * 1080";
+  static const eachpost = "Each post should be 1080 * 270";
   static const productdetail = "Product Detail";
   static const currentpassword = "Current Password";
   static const newpassword = "New Password";
