@@ -16,6 +16,7 @@ class ReusableImageContainer extends StatelessWidget {
   final double? heightFactor;
   final BoxFit fit;
   final bool isVideo;
+  final bool autoPlayOnReturn;
 
   const ReusableImageContainer({
     super.key,
@@ -25,6 +26,7 @@ class ReusableImageContainer extends StatelessWidget {
     this.heightFactor = 0.25,
     this.fit = BoxFit.cover,
     this.isVideo = false,
+    this.autoPlayOnReturn = true,
   });
 
   @override
@@ -89,6 +91,7 @@ class ReusableImageContainer extends StatelessWidget {
           key: ValueKey(mediaPath), // Unique key prevents duplicate players
           videoPath: mediaPath,
           fit: fit,
+          autoPlayOnReturn: autoPlayOnReturn,
         );
       } else {
         // Display image
@@ -104,11 +107,13 @@ class ReusableImageContainer extends StatelessWidget {
 class VideoPlayerWidget extends StatefulWidget {
   final String videoPath;
   final BoxFit fit;
+  final bool autoPlayOnReturn;
 
   const VideoPlayerWidget({
     super.key,
     required this.videoPath,
     this.fit = BoxFit.cover,
+    this.autoPlayOnReturn = true,
   });
 
   @override
@@ -121,6 +126,17 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool showPlayer = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Auto-initialize and play if autoPlayOnReturn is true
+    if (widget.autoPlayOnReturn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        initializeAndPlay();
+      });
+    }
+  }
+
+  @override
   void didUpdateWidget(VideoPlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.videoPath != widget.videoPath) {
@@ -128,6 +144,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       controller = null;
       isInitialized = false;
       showPlayer = false;
+      // Auto-play on path change if enabled
+      if (widget.autoPlayOnReturn) {
+        initializeAndPlay();
+      }
     }
   }
 
@@ -162,6 +182,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           isInitialized = true;
         });
         controller!.setLooping(true);
+        // Auto-play if enabled
+        if (widget.autoPlayOnReturn) {
+          controller!.play();
+        }
       }
     } catch (e) {
       debugPrint('Error initializing video: $e');

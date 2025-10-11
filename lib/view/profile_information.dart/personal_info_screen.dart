@@ -43,6 +43,32 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
   final FocusNode phoneFocus = FocusNode();
   final FocusNode emailFocus = FocusNode();
 
+  bool _hasNavigated = false; // Flag to prevent duplicate navigation
+
+  @override
+  void initState() {
+    super.initState();
+    // Restore data from AuthBloc
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState.personalFullName != null) {
+        _fullNameController.text = authState.personalFullName!;
+      }
+      if (authState.personalAddress != null) {
+        _addressController.text = authState.personalAddress!;
+      }
+      if (authState.personalCnic != null) {
+        _cnicController.text = authState.personalCnic!;
+      }
+      if (authState.personalPhoneNo != null) {
+        _phoneController.text = authState.personalPhoneNo!;
+      }
+      if (authState.personalEmail != null) {
+        _emailController.text = authState.personalEmail!;
+      }
+    });
+  }
+
   @override
   void dispose() {
     _fullNameController.dispose();
@@ -164,7 +190,9 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               // ✅ BlocConsumer for Save Button
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                  if (state.personalStatus == PersonalStatus.success) {
+                  if (state.personalStatus == PersonalStatus.success &&
+                      !_hasNavigated) {
+                    _hasNavigated = true;
                     Navigator.pushNamed(context, RoutesName.myStoreInformation);
                   } else if (state.personalStatus == PersonalStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -193,6 +221,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                         : "Done",
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {
+                        _hasNavigated =
+                            false; // Reset flag for new save attempt
                         final imageState = context
                             .read<ImagePickerBloc>()
                             .state;

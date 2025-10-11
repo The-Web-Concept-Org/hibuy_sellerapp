@@ -31,12 +31,16 @@ class StoreInfoScreen extends StatefulWidget {
 class _StoreInfoScreenState extends State<StoreInfoScreen> {
   // ✅ Controllers
   final TextEditingController storeNameController = TextEditingController();
-  final SingleSelectController<String> storeTypeController = SingleSelectController<String>(null);
+  final SingleSelectController<String> storeTypeController =
+      SingleSelectController<String>(null);
   final TextEditingController phoneNoController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController countryController = TextEditingController();
-  final SingleSelectController<String> provinceController = SingleSelectController<String>(null);
-  final  SingleSelectController<String> cityController = SingleSelectController<String>(null);
+  final SingleSelectController<String> countryController =
+      SingleSelectController<String>(null);
+  final SingleSelectController<String> provinceController =
+      SingleSelectController<String>(null);
+  final SingleSelectController<String> cityController =
+      SingleSelectController<String>(null);
   final TextEditingController zipCodeController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController pinLocationController = TextEditingController();
@@ -55,6 +59,47 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
   final FocusNode zipcodeFocus = FocusNode();
   final FocusNode addressFocus = FocusNode();
   final FocusNode location_onFocus = FocusNode();
+
+  bool _hasNavigated = false; // Flag to prevent duplicate navigation
+
+  @override
+  void initState() {
+    super.initState();
+    // Restore data from AuthBloc
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState.storeName != null) {
+        storeNameController.text = authState.storeName!;
+      }
+      if (authState.storeType != null) {
+        storeTypeController.value = authState.storeType;
+      }
+      if (authState.storePhoneNo != null) {
+        phoneNoController.text = authState.storePhoneNo!;
+      }
+      if (authState.storeEmail != null) {
+        emailController.text = authState.storeEmail!;
+      }
+      if (authState.storeCountry != null) {
+        countryController.value = authState.storeCountry;
+      }
+      if (authState.storeProvince != null) {
+        provinceController.value = authState.storeProvince;
+      }
+      if (authState.storeCity != null) {
+        cityController.value = authState.storeCity;
+      }
+      if (authState.storeZipCode != null) {
+        zipCodeController.text = authState.storeZipCode!;
+      }
+      if (authState.storeAddress != null) {
+        addressController.text = authState.storeAddress!;
+      }
+      if (authState.storePinLocation != null) {
+        pinLocationController.text = authState.storePinLocation!;
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -125,9 +170,10 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                   closedHeaderPadding: EdgeInsets.zero,
                   decoration: CustomDropdownDecoration(
                     hintStyle: AppTextStyles.normal(context),
+                    headerStyle: TextStyle(),
                   ),
                   items: const ['Retail', 'Wholesale'],
-                   controller: storeTypeController,
+                  controller: storeTypeController,
                   onChanged: (value) async {
                     print('Selected: $value');
                   },
@@ -158,13 +204,42 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
               ),
               SizedBox(height: context.heightPct(0.015)),
 
-              ReusableTextField(
-                controller: countryController,
-                hintText: AppStrings.select,
-                labelText: AppStrings.country,
-                focusNode: countryFocus,
-                nextFocusNode: provinceregionFocus,
+              // ReusableTextField(
+              //   controller: countryController,
+              //   hintText: AppStrings.select,
+              //   labelText: AppStrings.country,
+              //   focusNode: countryFocus,
+              //   nextFocusNode: provinceregionFocus,
+              // ),
+              Text(
+                AppStrings.country,
+                style: AppTextStyles.bodyRegular(context),
               ),
+              SizedBox(height: context.heightPct(0.007)),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.stroke, width: 1),
+                  borderRadius: BorderRadius.circular(context.widthPct(0.013)),
+                ),
+                height: context.heightPct(0.06),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.widthPct(0.043),
+                ),
+                child: CustomDropdown<String>(
+                  hintText: 'Select ',
+                  closedHeaderPadding: EdgeInsets.zero,
+                  decoration: CustomDropdownDecoration(
+                    hintStyle: AppTextStyles.normal(context),
+                    headerStyle: TextStyle(),
+                  ),
+                  items: const ['Pakistan'],
+                  controller: countryController,
+                  onChanged: (value) async {
+                    print('Selected: $value');
+                  },
+                ),
+              ),
+
               SizedBox(height: context.heightPct(0.015)),
               Text(
                 AppStrings.provinceregion,
@@ -184,6 +259,8 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                   hintText: 'Select ',
                   closedHeaderPadding: EdgeInsets.zero,
                   decoration: CustomDropdownDecoration(
+                    headerStyle: TextStyle(),
+
                     hintStyle: AppTextStyles.normal(context),
                   ),
                   items: const [
@@ -195,7 +272,7 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                     'Gilgit-Baltistan',
                     'Azad Jammu and Kashmir',
                   ],
-                   controller: provinceController,
+                  controller: provinceController,
                   onChanged: (value) async {
                     print('Selected: $value');
                   },
@@ -204,10 +281,7 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
 
               SizedBox(height: context.heightPct(0.015)),
 
-              Text(
-                AppStrings.city,
-                style: AppTextStyles.bodyRegular(context),
-              ),
+              Text(AppStrings.city, style: AppTextStyles.bodyRegular(context)),
               SizedBox(height: context.heightPct(0.007)),
               Container(
                 decoration: BoxDecoration(
@@ -223,6 +297,7 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                   closedHeaderPadding: EdgeInsets.zero,
                   decoration: CustomDropdownDecoration(
                     hintStyle: AppTextStyles.normal(context),
+                    headerStyle: TextStyle(),
                   ),
                   items: const [
                     'Abbottabad',
@@ -422,7 +497,9 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
               // ✅ BlocConsumer
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                  if (state.storeStatus == StoreStatus.success) {
+                  if (state.storeStatus == StoreStatus.success &&
+                      !_hasNavigated) {
+                    _hasNavigated = true;
                     Navigator.pushNamed(
                       context,
                       RoutesName.documentVerification,
@@ -446,6 +523,8 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                     onPressed: () {
                       // ✅ First Validate Form
                       if (_formKey.currentState!.validate()) {
+                        _hasNavigated =
+                            false; // Reset flag for new save attempt
                         final storeImagePath = context
                             .read<ImagePickerBloc>()
                             .state
@@ -456,12 +535,12 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                         context.read<AuthBloc>().add(
                           SaveStoreInfoEvent(
                             storeName: storeNameController.text,
-                            type: storeTypeController.value??'',
+                            type: storeTypeController.value ?? '',
                             phoneNo: phoneNoController.text,
                             email: emailController.text,
-                            country: countryController.text,
-                            province: provinceController.value??'',
-                            city: cityController.value??'',
+                            country: countryController.value ?? '',
+                            province: provinceController.value ?? '',
+                            city: cityController.value ?? '',
                             zipCode: zipCodeController.text,
                             address: addressController.text,
                             pinLocation: pinLocationController.text,

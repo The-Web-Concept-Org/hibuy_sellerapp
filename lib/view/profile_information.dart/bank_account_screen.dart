@@ -51,6 +51,39 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
   final FocusNode ibanNoFocus = FocusNode();
 
   @override
+  void initState() {
+    super.initState();
+    // Restore data from AuthBloc
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState.bankAccountType != null) {
+        _accountTypeController.value = authState.bankAccountType;
+      }
+      if (authState.bankBankName != null) {
+        _bankNameController.text = authState.bankBankName!;
+      }
+      if (authState.bankBranchCode != null) {
+        _branchCodeController.text = authState.bankBranchCode!;
+      }
+      if (authState.bankBranchName != null) {
+        _branchNameController.text = authState.bankBranchName!;
+      }
+      if (authState.bankBranchPhone != null) {
+        _branchPhoneController.text = authState.bankBranchPhone!;
+      }
+      if (authState.bankAccountTitle != null) {
+        _accountTitleController.text = authState.bankAccountTitle!;
+      }
+      if (authState.bankAccountNo != null) {
+        _accountNoController.text = authState.bankAccountNo!;
+      }
+      if (authState.bankIbanNo != null) {
+        _ibanNoController.text = authState.bankIbanNo!;
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _accountTypeController.dispose();
     _bankNameController.dispose();
@@ -154,6 +187,7 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                           closedHeaderPadding: EdgeInsets.zero,
                           decoration: CustomDropdownDecoration(
                             hintStyle: AppTextStyles.normal(context),
+                            headerStyle: TextStyle(),
                           ),
                           items: const ['savings', 'current'],
                           controller: _accountTypeController,

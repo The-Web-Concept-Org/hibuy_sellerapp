@@ -30,6 +30,8 @@ class BusinessVerificationScreen extends StatefulWidget {
 
 class _BusinessVerificationScreenState
     extends State<BusinessVerificationScreen> {
+  bool _hasNavigated = false; // Flag to prevent duplicate navigation
+
   // ✅ Controllers
   final TextEditingController businessNameController = TextEditingController();
   final TextEditingController ownerNameController = TextEditingController();
@@ -50,6 +52,36 @@ class _BusinessVerificationScreenState
   final FocusNode phoneNoFocus = FocusNode();
   final FocusNode addressFocus = FocusNode();
   final FocusNode ownerfocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // Restore data from AuthBloc
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState.businessName != null) {
+        businessNameController.text = authState.businessName!;
+      }
+      if (authState.businessOwnerName != null) {
+        ownerNameController.text = authState.businessOwnerName!;
+      }
+      if (authState.businessRegNo != null) {
+        registrationNoController.text = authState.businessRegNo!;
+      }
+      if (authState.businessTaxNo != null) {
+        taxNoController.text = authState.businessTaxNo!;
+      }
+      if (authState.businessAddress != null) {
+        addressController.text = authState.businessAddress!;
+      }
+      if (authState.businessPhoneNo != null) {
+        phoneNoController.text = authState.businessPhoneNo!;
+      }
+      if (authState.businessPinLocation != null) {
+        pinLocationController.text = authState.businessPinLocation!;
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -197,7 +229,9 @@ class _BusinessVerificationScreenState
               // ✅ BlocConsumer for Save Button
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                  if (state.businessStatus == BusinessStatus.success) {
+                  if (state.businessStatus == BusinessStatus.success &&
+                      !_hasNavigated) {
+                    _hasNavigated = true;
                     Navigator.pushNamed(
                       context,
                       RoutesName.bankAccountVerification,
@@ -223,26 +257,27 @@ class _BusinessVerificationScreenState
                         ? "Saving..."
                         : "Done",
                     onPressed: () {
+                      _hasNavigated = false; // Reset flag for new save attempt
                       if (_formKey.currentState?.validate() ?? false) {
                         final imageState = context
                             .read<ImagePickerBloc>()
                             .state;
 
-                        final StampImagePath = imageState.images['stamp'];
-                        final LeterImagePath = imageState.images['leter'];
-                        final BusinessProfilePath =
+                        final stampImagePath = imageState.images['stamp'];
+                        final leterImagePath = imageState.images['leter'];
+                        final businessProfilePath =
                             imageState.images['business'];
 
-                        final File? StampImage = StampImagePath != null
-                            ? File(StampImagePath)
+                        final File? stampImage = stampImagePath != null
+                            ? File(stampImagePath)
                             : null;
 
-                        final File? LeterImage = LeterImagePath != null
-                            ? File(LeterImagePath)
+                        final File? leterImage = leterImagePath != null
+                            ? File(leterImagePath)
                             : null;
 
-                        final File? BusinessImage = BusinessProfilePath != null
-                            ? File(BusinessProfilePath)
+                        final File? businessImage = businessProfilePath != null
+                            ? File(businessProfilePath)
                             : null;
 
                         context.read<AuthBloc>().add(
@@ -254,9 +289,9 @@ class _BusinessVerificationScreenState
                             taxNo: taxNoController.text,
                             address: addressController.text,
                             pinLocation: pinLocationController.text,
-                            letterHead: LeterImage,
-                            stamp: StampImage,
-                            businessPersonalProfile: BusinessImage,
+                            letterHead: leterImage,
+                            stamp: stampImage,
+                            businessPersonalProfile: businessImage,
                           ),
                         );
                       }

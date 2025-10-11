@@ -28,7 +28,8 @@ class DocumentVerificationScreen extends StatefulWidget {
 
 class _DocumentVerificationScreenState
     extends State<DocumentVerificationScreen> {
-  final TextEditingController countryController = TextEditingController();
+  final SingleSelectController<String> countryController =
+      SingleSelectController<String>(null);
   final SingleSelectController<String> provinceController =
       SingleSelectController<String>(null);
   final SingleSelectController<String> cityController =
@@ -39,6 +40,26 @@ class _DocumentVerificationScreenState
   final FocusNode countryFocus = FocusNode();
   final FocusNode provinceFocus = FocusNode();
   final FocusNode cityFocus = FocusNode();
+
+  bool _hasNavigated = false; // Flag to prevent duplicate navigation
+
+  @override
+  void initState() {
+    super.initState();
+    // Restore data from AuthBloc
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState.documentsCountry != null) {
+        countryController.value = authState.documentsCountry!;
+      }
+      if (authState.documentsProvince != null) {
+        provinceController.value = authState.documentsProvince;
+      }
+      if (authState.documentsCity != null) {
+        cityController.value = authState.documentsCity;
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -89,25 +110,53 @@ class _DocumentVerificationScreenState
                 heightFactor: 0.25,
                 placeholderSvg: ImageAssets.profileimage,
                 imageKey: 'shopVideo',
-                isVideo: true, 
+                isVideo: true,
               ),
 
               SizedBox(height: context.heightPct(0.02)),
 
               // ✅ Fields with validation
-              ReusableTextField(
-                controller: countryController,
-                hintText: AppStrings.select,
-                labelText: AppStrings.country,
+              // ReusableTextField(
+              //   controller: countryController,
+              //   hintText: AppStrings.select,
+              //   labelText: AppStrings.country,
 
-                focusNode: countryFocus,
-                nextFocusNode: provinceFocus,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Please select a country";
-                  }
-                  return null;
-                },
+              //   focusNode: countryFocus,
+              //   nextFocusNode: provinceFocus,
+              //   validator: (value) {
+              //     if (value == null || value.trim().isEmpty) {
+              //       return "Please select a country";
+              //     }
+              //     return null;
+              //   },
+              // ),
+              Text(
+                AppStrings.country,
+                style: AppTextStyles.bodyRegular(context),
+              ),
+              SizedBox(height: context.heightPct(0.007)),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.stroke, width: 1),
+                  borderRadius: BorderRadius.circular(context.widthPct(0.013)),
+                ),
+                height: context.heightPct(0.06),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.widthPct(0.043),
+                ),
+                child: CustomDropdown<String>(
+                  hintText: 'Select ',
+                  closedHeaderPadding: EdgeInsets.zero,
+                  decoration: CustomDropdownDecoration(
+                    hintStyle: AppTextStyles.normal(context),
+                    headerStyle: TextStyle(),
+                  ),
+                  items: const ['Pakistan'],
+                  controller: countryController,
+                  onChanged: (value) async {
+                    print('Selected: $value');
+                  },
+                ),
               ),
               SizedBox(height: context.heightPct(0.015)),
 
@@ -129,6 +178,8 @@ class _DocumentVerificationScreenState
                   hintText: 'Select ',
                   closedHeaderPadding: EdgeInsets.zero,
                   decoration: CustomDropdownDecoration(
+                    headerStyle: TextStyle(),
+
                     hintStyle: AppTextStyles.normal(context),
                   ),
                   items: const [
@@ -164,6 +215,8 @@ class _DocumentVerificationScreenState
                   hintText: 'Select ',
                   closedHeaderPadding: EdgeInsets.zero,
                   decoration: CustomDropdownDecoration(
+                    headerStyle: TextStyle(),
+
                     hintStyle: AppTextStyles.normal(context),
                   ),
                   items: const [
@@ -325,7 +378,9 @@ class _DocumentVerificationScreenState
 
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                  if (state.documentsStatus == DocumentsStatus.success) {
+                  if (state.documentsStatus == DocumentsStatus.success &&
+                      !_hasNavigated) {
+                    _hasNavigated = true;
                     Navigator.pushNamed(
                       context,
                       RoutesName.businessVerification,
@@ -350,6 +405,8 @@ class _DocumentVerificationScreenState
                     onPressed: () {
                       // ✅ Validate before submitting
                       if (_formKey.currentState!.validate()) {
+                        _hasNavigated =
+                            false; // Reset flag for new save attempt
                         final imageState = context
                             .read<ImagePickerBloc>()
                             .state;
@@ -367,7 +424,7 @@ class _DocumentVerificationScreenState
 
                         context.read<AuthBloc>().add(
                           SaveDocumentsInfoEvent(
-                            country: countryController.text,
+                            country: countryController.value ?? '',
                             province: provinceController.value ?? '',
                             city: cityController.value ?? '',
                             homeBill: homeBill,
