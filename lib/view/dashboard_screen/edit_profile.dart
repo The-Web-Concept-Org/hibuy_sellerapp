@@ -667,7 +667,7 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                     itemBuilder: (context, index) {
                       String postKey = 'post_image_$index';
-                      String? postImagePath = postImages[postKey];
+                      String?    postImagePath = postImages[postKey];
 
                       return GestureDetector(
                         onTap: () async {
@@ -736,9 +736,11 @@ class _EditProfileState extends State<EditProfile> {
                                   ),
                                 ),
                         ),
+                      
                       );
                     },
                   );
+               
                 },
               ),
               

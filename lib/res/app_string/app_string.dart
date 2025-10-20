@@ -177,6 +177,8 @@ class AppStrings {
   static const width = " Estimated Width(inches)";
   static const height = "Estimated Hight(inches)";
   static const vechicle = "Vechicle Type";
+  static const price = "Price: Rs.00";
+  static const stock = "Stock: 00";
 
  
 

@@ -16,6 +16,7 @@ import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/product_category/productcategory_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/variant_bloc/variant_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_bloc.dart';
 
 void main() {
@@ -34,6 +35,7 @@ void main() {
          BlocProvider(create: (_) => StoreBloc()),
          BlocProvider(create: (_) => ProductCategoryBloc()),
         BlocProvider(create: (_) => VehicleTypeBloc()),
+         BlocProvider(create: (context) => VariantBloc()),
       ],
       child: const MyApp(),
     ),
