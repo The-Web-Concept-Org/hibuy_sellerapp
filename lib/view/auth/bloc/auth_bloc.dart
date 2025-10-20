@@ -13,6 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc() : super(const AuthState()) {
     on<LoginEvent>(_loginEvent);
     on<SignUpEvent>(_signUpEvent);
+    on<LogoutEvent>(_logoutEvent);
 
     // ✅ New handlers for KYC multi-forms
     on<SavePersonalInfoEvent>(_savePersonalInfo);
@@ -127,6 +128,61 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+  // ------------------ LOGOUT ------------------
+  void _logoutEvent(LogoutEvent event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(logoutStatus: LogoutStatus.loading));
+
+    try {
+      log(" Logging out...");
+
+      // Call logout API with POST method (only token in header)
+      await ApiService.postMethod(
+        apiUrl: AppUrl.logOutApi,
+        authHeader: true, 
+        postData: {}, 
+        executionMethod: (bool success, dynamic responseData) async {
+          if (success) {
+            log(" Logout API successful");
+
+            
+            await LocalStorage.removeData(key: AppKeys.authToken);
+            await LocalStorage.removeData(key: AppKeys.uRole);
+            await LocalStorage.removeData(key: AppKeys.userData);
+
+            log(" Local storage cleared");
+
+            // ✅ Clear all AuthState data and set logout success
+            emit(
+              const AuthState(
+                logoutStatus: LogoutStatus.success,
+                authStatus: AuthStatus.initial,
+                isEditMode: false,
+              ),
+            );
+
+            log("Logout completed successfully - Navigate to login");
+          } else {
+            log(" Logout API failed: ${responseData['message']}");
+            emit(
+              state.copyWith(
+                logoutStatus: LogoutStatus.error,
+                errorMessage: responseData['message'] ?? "Logout failed",
+              ),
+            );
+          }
+        },
+      );
+    } catch (e) {
+      log("Logout error: $e");
+      emit(
+        state.copyWith(
+          logoutStatus: LogoutStatus.error,
+          errorMessage: 'Logout error: $e',
+        ),
+      );
+    }
+  }
+
   // ------------------ SAVE PERSONAL INFO ------------------
   void _savePersonalInfo(SavePersonalInfoEvent event, Emitter<AuthState> emit) {
     emit(
@@ -144,10 +200,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     // ✅ Debugging print
-    print("Bloc state updated with images:");
-    print("personalProfilePicture: ${event.profilePicture?.path}");
-    print("personalFrontImage: ${event.frontImage?.path}");
-    print("personalBackImage: ${event.backImage?.path}");
+    log("Bloc state updated with images:");
+    log("personalProfilePicture: ${event.profilePicture?.path}");
+    log("personalFrontImage: ${event.frontImage?.path}");
+    log("personalBackImage: ${event.backImage?.path}");
   }
 
   // ------------------ SAVE STORE INFO ------------------
@@ -233,6 +289,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(authStatus: AuthStatus.loading));
 
     try {
+      log(" Submitting KYC forms...");
+      log(" Edit Mode: ${state.isEditMode}");
+
       final Map<String, dynamic> formData = {
         // ---------- PERSONAL INFO ----------
         "personal_status": "pending",
@@ -246,6 +305,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           "personal_email": state.personalEmail,
         if (state.personalCnic?.isNotEmpty ?? false)
           "personal_cnic": state.personalCnic,
+        //Only send Files that are NOT null (newly picked images in edit mode)
         if (state.personalProfilePicture != null)
           "personal_profile_picture": state.personalProfilePicture,
         if (state.personalFrontImage != null)
@@ -272,6 +332,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           "store_address": state.storeAddress,
         if (state.storePinLocation?.isNotEmpty ?? false)
           "store_pin_location": state.storePinLocation,
+        //Only send if File is not null
         if (state.storeProfilePicture != null)
           "store_profile_picture_store": state.storeProfilePicture,
         // ---------- DOCUMENTS INFO ----------
@@ -282,6 +343,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           "documents_province": state.documentsProvince,
         if (state.documentsCity?.isNotEmpty ?? false)
           "documents_city": state.documentsCity,
+        // Only send Files that are not null
         if (state.documentsHomeBill != null)
           "documents_home_bill": state.documentsHomeBill,
         if (state.documentsShopVideo != null)
@@ -299,6 +361,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           "bank_account_title": event.accountTitle,
         if (event.accountNo.isNotEmpty) "bank_account_no": event.accountNo,
         if (event.ibanNo.isNotEmpty) "bank_iban_no": event.ibanNo,
+        // Only send Files from event that are not null
         if (event.canceledCheque != null)
           "bank_canceled_cheque": event.canceledCheque,
         if (event.verificationLetter != null)
@@ -319,12 +382,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           "business_address": state.businessAddress,
         if (state.businessPinLocation?.isNotEmpty ?? false)
           "business_pin_location": state.businessPinLocation,
+        //  Only send Files that are not null
         if (state.businessPersonalProfile != null)
           "business_personal_profile": state.businessPersonalProfile,
         if (state.businessLetterHead != null)
           "business_letter_head": state.businessLetterHead,
         if (state.businessStamp != null) "business_stamp": state.businessStamp,
       };
+
+      log("FormData prepared with ${formData.length} fields");
 
       // final Map<String, dynamic> formData = {
       //   // ---------- PERSONAL INFO ----------
@@ -394,13 +460,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         formData: formData,
         executionMethod: (bool success, dynamic responseData) {
           if (success) {
+            log(" KYC submission successful!");
+            log(" Clearing all AuthState data...");
+
+            // Clear everything in AuthState after successful submission
             emit(
-              state.copyWith(
+              const AuthState(
                 authStatus: AuthStatus.success,
-                errorMessage: responseData['message'],
-              ),
+                isEditMode: false,
+                // All other fields will be reset to null/empty by default constructor
+              ).copyWith(errorMessage: responseData['message']),
             );
           } else {
+            log(" KYC submission failed: ${responseData['message']}");
             emit(
               state.copyWith(
                 authStatus: AuthStatus.error,
@@ -422,11 +494,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LoadKycDataToAuthStateEvent event,
     Emitter<AuthState> emit,
   ) {
-    log("📥 Loading KYC data to AuthState for editing");
+    log(" Loading KYC data to AuthState for editing");
 
     final seller = event.kycResponse.seller;
     if (seller == null) {
-      log("⚠️ No seller data in KYC response");
+      log(" No seller data in KYC response");
       return;
     }
 
@@ -439,7 +511,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     emit(
       state.copyWith(
-        // ✅ Set edit mode flag to true
+        // Set edit mode flag to true
         isEditMode: true,
 
         // Personal Info - Text Fields
@@ -453,6 +525,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         personalProfilePictureUrl: personalInfo?.profilePicture,
         personalFrontImageUrl: personalInfo?.frontImage,
         personalBackImageUrl: personalInfo?.backImage,
+        //  Set File variables to null (we have network URLs instead)
+        personalProfilePicture: null,
+        personalFrontImage: null,
+        personalBackImage: null,
 
         // Store Info - Text Fields
         storeName: storeInfo?.storeName,
@@ -468,6 +544,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
         // Store Info - Network Image URL
         storeProfilePictureUrl: storeInfo?.profilePictureStore,
+        // Set File variable to null
+        storeProfilePicture: null,
 
         // Documents Info - Text Fields
         documentsCountry: documentsInfo?.country,
@@ -477,6 +555,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // Documents Info - Network URLs
         documentsHomeBillUrl: documentsInfo?.homeBill,
         documentsShopVideoUrl: documentsInfo?.shopVideo,
+        // Set File variables to null
+        documentsHomeBill: null,
+        documentsShopVideo: null,
 
         // Bank Info - Text Fields
         bankAccountType: bankInfo?.accountType,
@@ -491,6 +572,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // Bank Info - Network Image URLs
         bankCanceledChequeUrl: bankInfo?.canceledCheque,
         bankVerificationLetterUrl: bankInfo?.verificationLetter,
+        // Set File variables to null
+        bankCanceledCheque: null,
+        bankVerificationLetter: null,
 
         // Business Info - Text Fields
         businessName: businessInfo?.businessName,
@@ -505,13 +589,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         businessPersonalProfileUrl: businessInfo?.personalProfile,
         businessLetterHeadUrl: businessInfo?.letterHead,
         businessStampUrl: businessInfo?.stamp,
+        // Set File variables to null
+        businessPersonalProfile: null,
+        businessLetterHead: null,
+        businessStamp: null,
       ),
     );
 
-    log("✅ KYC data loaded to AuthState successfully");
-    log("📸 Personal Profile URL: ${personalInfo?.profilePicture}");
-    log("📸 Store Profile URL: ${storeInfo?.profilePictureStore}");
-    log("📸 Documents Home Bill URL: ${documentsInfo?.homeBill}");
-    log("🎥 Documents Shop Video URL: ${documentsInfo?.shopVideo}");
+    log(" KYC data loaded to AuthState successfully");
+    log(" Personal Profile URL: ${personalInfo?.profilePicture}");
+    log(" Store Profile URL: ${storeInfo?.profilePictureStore}");
+    log(" Documents Home Bill URL: ${documentsInfo?.homeBill}");
+    log(" Documents Shop Video URL: ${documentsInfo?.shopVideo}");
   }
 }

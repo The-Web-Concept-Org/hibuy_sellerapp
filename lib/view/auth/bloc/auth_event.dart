@@ -291,3 +291,11 @@ class LoadKycDataToAuthStateEvent extends AuthEvent {
   @override
   List<Object?> get props => [kycResponse];
 }
+
+// ✅ Logout Event
+class LogoutEvent extends AuthEvent {
+  LogoutEvent();
+
+  @override
+  List<Object?> get props => [];
+}

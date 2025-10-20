@@ -24,6 +24,7 @@ class KycMain extends StatefulWidget {
 }
 
 class _KycMainState extends State<KycMain> {
+  @override
   initState() {
     super.initState();
     Future.delayed(const Duration(milliseconds: 10), () async {

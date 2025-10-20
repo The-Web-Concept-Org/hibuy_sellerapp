@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -97,7 +96,7 @@ class ReusableImageContainer extends StatelessWidget {
     String? mediaPath,
   ) {
     // ✅ Priority: 1. Local file (newly picked), 2. Network URL (from API), 3. Placeholder
-    log("networkImageUrl: $networkImageUrl");
+
     // If user has picked a new file locally, show it
     if (mediaPath != null && mediaPath.isNotEmpty) {
       if (isVideo) {
@@ -115,8 +114,16 @@ class ReusableImageContainer extends StatelessWidget {
       }
     }
 
-    // If in edit mode and network URL exists, show network image
+    // ✅ Check if File variable is null to determine if we should show network image
+    // This ensures network image only shows when no local file exists in AuthState
+    final bool shouldShowNetworkImage = _shouldShowNetworkImage(
+      authState,
+      imageKey,
+    );
+
+    // If in edit mode, File is null, and network URL exists, show network image
     if (authState.isEditMode &&
+        shouldShowNetworkImage &&
         networkImageUrl != null &&
         networkImageUrl!.isNotEmpty) {
       // ✅ Construct full URL (assuming base URL is needed)
@@ -164,6 +171,39 @@ class ReusableImageContainer extends StatelessWidget {
     else {
       // Display placeholder
       return SvgPicture.asset(placeholderSvg, fit: BoxFit.contain);
+    }
+  }
+
+  /// ✅ Helper method to check if File variable is null for the given image key
+  /// Returns true if the File is null (meaning no new image has been picked)
+  bool _shouldShowNetworkImage(AuthState authState, String imageKey) {
+    switch (imageKey) {
+      // Personal Info
+      case 'cnicFrontImage':
+        return authState.personalFrontImage == null;
+      case 'cnicBackImage':
+        return authState.personalBackImage == null;
+
+      // Documents
+      case 'profileimage': // Home bill
+        return authState.documentsHomeBill == null;
+      case 'shopVideo':
+        return authState.documentsShopVideo == null;
+
+      // Bank
+      case 'cheque':
+        return authState.bankCanceledCheque == null;
+      case 'verification':
+        return authState.bankVerificationLetter == null;
+
+      // Business
+      case 'leter': // Letter head
+        return authState.businessLetterHead == null;
+      case 'stamp':
+        return authState.businessStamp == null;
+
+      default:
+        return true; // For unknown keys, allow network image
     }
   }
 }

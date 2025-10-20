@@ -6,6 +6,8 @@ import '../../../models/user_model.dart';
 // Enums
 enum AuthStatus { initial, loading, success, error }
 
+enum LogoutStatus { initial, loading, success, error }
+
 enum PersonalStatus { initial, loading, success, error }
 
 enum StoreStatus { initial, loading, success, error }
@@ -18,6 +20,7 @@ enum BusinessStatus { initial, loading, success, error }
 
 class AuthState extends Equatable {
   final AuthStatus authStatus;
+  final LogoutStatus logoutStatus;
   final String? errorMessage;
   final UserModel? userModel;
 
@@ -101,6 +104,7 @@ class AuthState extends Equatable {
 
   const AuthState({
     this.authStatus = AuthStatus.initial,
+    this.logoutStatus = LogoutStatus.initial,
     this.errorMessage = '',
     this.userModel,
     this.isEditMode = false,
@@ -178,6 +182,7 @@ class AuthState extends Equatable {
 
   AuthState copyWith({
     AuthStatus? authStatus,
+    LogoutStatus? logoutStatus,
     String? errorMessage,
     UserModel? userModel,
     bool? isEditMode,
@@ -254,6 +259,7 @@ class AuthState extends Equatable {
   }) {
     return AuthState(
       authStatus: authStatus ?? this.authStatus,
+      logoutStatus: logoutStatus ?? this.logoutStatus,
       errorMessage: errorMessage ?? this.errorMessage,
       userModel: userModel ?? this.userModel,
       isEditMode: isEditMode ?? this.isEditMode,
@@ -344,6 +350,7 @@ class AuthState extends Equatable {
   @override
   List<Object?> get props => [
     authStatus,
+    logoutStatus,
     errorMessage,
     userModel,
     isEditMode,

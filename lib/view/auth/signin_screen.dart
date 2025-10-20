@@ -73,7 +73,11 @@ class SigninScreen extends StatelessWidget {
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
                   if (state.authStatus == AuthStatus.success) {
-                    Navigator.pushNamed(context, RoutesName.kycMain);
+                    if ((state.userModel?.steps?.length ?? 0) < 5) {
+                      Navigator.pushNamed(context, RoutesName.kycMain);
+                    } else {
+                      Navigator.pushNamed(context, RoutesName.kycstatusscreen);
+                    }
                   } else if (state.authStatus == AuthStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

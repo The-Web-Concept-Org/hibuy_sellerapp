@@ -78,8 +78,16 @@ class ReusableCircleImage extends StatelessWidget {
       return Image.file(File(imagePath), fit: fit);
     }
 
-    // If in edit mode and network URL exists, show network image
+    // ✅ Check if File variable is null to determine if we should show network image
+    // This ensures network image only shows when no local file exists in AuthState
+    final bool shouldShowNetworkImage = _shouldShowNetworkImage(
+      authState,
+      imageKey,
+    );
+
+    // If in edit mode, File is null, and network URL exists, show network image
     if (authState.isEditMode &&
+        shouldShowNetworkImage &&
         networkImageUrl != null &&
         networkImageUrl!.isNotEmpty) {
       // ✅ Construct full URL (assuming base URL is needed)
@@ -109,5 +117,26 @@ class ReusableCircleImage extends StatelessWidget {
 
     // Show placeholder if no image
     return SvgPicture.asset(placeholderSvg, fit: BoxFit.contain);
+  }
+
+  /// ✅ Helper method to check if File variable is null for the given image key
+  /// Returns true if the File is null (meaning no new image has been picked)
+  bool _shouldShowNetworkImage(AuthState authState, String imageKey) {
+    switch (imageKey) {
+      // Personal Info
+      case 'personal':
+        return authState.personalProfilePicture == null;
+
+      // Store Info
+      case 'store':
+        return authState.storeProfilePicture == null;
+
+      // Business Info
+      case 'business':
+        return authState.businessPersonalProfile == null;
+
+      default:
+        return true; // For unknown keys, allow network image
+    }
   }
 }

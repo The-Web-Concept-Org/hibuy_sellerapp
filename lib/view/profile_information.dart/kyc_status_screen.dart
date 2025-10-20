@@ -13,6 +13,7 @@ import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
+import 'package:hibuy/view/auth/bloc/auth_state.dart';
 import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
 import 'package:hibuy/view/auth/bloc/kyc_event.dart';
 import 'package:hibuy/view/auth/bloc/kyc_state.dart';
@@ -54,7 +55,7 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
           if (state.status == KycStatus.success && state.kycResponse != null) {
             final kycResponse = state.kycResponse!;
 
-            log("✅ KYC Response in UI: ${kycResponse.seller?.sellerId}");
+            log("KYC Response in UI: ${kycResponse.seller?.sellerId}");
             return _buildKycBody(context, kycResponse);
           }
 
@@ -279,7 +280,7 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                                   return;
                                 }
 
-                                // ✅ If no rejection, go to summary or dashboard
+                                // If no rejection, go to summary or dashboard
                                 Navigator.pushNamed(
                                   context,
                                   RoutesName.kycMain,
@@ -349,18 +350,68 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                       SizedBox(height: 10),
 
                       /// Logout Button
-                      Container(
-                        height: context.heightPct(40 / 812),
-                        width: context.widthPct(102 / 375),
-                        decoration: BoxDecoration(
-                          color: AppColors.red,
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: Center(
-                          child: Text(
-                            AppStrings.logout,
-                            style: AppTextStyles.medium2(context),
-                          ),
+                      BlocListener<AuthBloc, AuthState>(
+                        listener: (context, authState) {
+                          if (authState.logoutStatus == LogoutStatus.success) {
+                            // ✅ Navigate to login screen on successful logout
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              RoutesName.signinScreen,
+                              (route) => false, // Remove all previous routes
+                            );
+                          } else if (authState.logoutStatus ==
+                              LogoutStatus.error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  authState.errorMessage ?? "Logout failed",
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        child: BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, authState) {
+                            final isLoading =
+                                authState.logoutStatus == LogoutStatus.loading;
+
+                            return GestureDetector(
+                              onTap: isLoading
+                                  ? null
+                                  : () {
+                                      // Trigger logout event
+                                      context.read<AuthBloc>().add(
+                                        LogoutEvent(),
+                                      );
+                                    },
+                              child: Container(
+                                height: context.heightPct(40 / 812),
+                                width: context.widthPct(102 / 375),
+                                decoration: BoxDecoration(
+                                  color: isLoading
+                                      ? AppColors.red.withOpacity(0.6)
+                                      : AppColors.red,
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                                child: Center(
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Text(
+                                          AppStrings.logout,
+                                          style: AppTextStyles.medium2(context),
+                                        ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
