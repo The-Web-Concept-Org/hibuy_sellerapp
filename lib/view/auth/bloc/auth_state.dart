@@ -1,21 +1,28 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
-import 'package:hibuy/models/kyc_response_model.dart';
 import '../../../models/user_model.dart';
 
 // Enums
 enum AuthStatus { initial, loading, success, error }
+
 enum PersonalStatus { initial, loading, success, error }
+
 enum StoreStatus { initial, loading, success, error }
+
 enum DocumentsStatus { initial, loading, success, error }
+
 enum BankStatus { initial, loading, success, error }
+
 enum BusinessStatus { initial, loading, success, error }
 
 class AuthState extends Equatable {
   final AuthStatus authStatus;
   final String? errorMessage;
   final UserModel? userModel;
+
+  // ✅ Flag to indicate if data is loaded from KYC (for showing network images)
+  final bool isEditMode;
 
   // Personal
   final PersonalStatus personalStatus;
@@ -27,6 +34,10 @@ class AuthState extends Equatable {
   final File? personalProfilePicture;
   final File? personalFrontImage;
   final File? personalBackImage;
+  // Network URLs for personal images
+  final String? personalProfilePictureUrl;
+  final String? personalFrontImageUrl;
+  final String? personalBackImageUrl;
 
   // Store
   final StoreStatus storeStatus;
@@ -41,6 +52,8 @@ class AuthState extends Equatable {
   final String? storeAddress;
   final String? storePinLocation;
   final File? storeProfilePicture;
+  // Network URL for store image
+  final String? storeProfilePictureUrl;
 
   // Documents
   final DocumentsStatus documentsStatus;
@@ -49,6 +62,9 @@ class AuthState extends Equatable {
   final String? documentsCity;
   final File? documentsHomeBill;
   final File? documentsShopVideo;
+  // Network URLs for document images/videos
+  final String? documentsHomeBillUrl;
+  final String? documentsShopVideoUrl;
 
   // Bank
   final BankStatus bankStatus;
@@ -62,6 +78,9 @@ class AuthState extends Equatable {
   final String? bankIbanNo;
   final File? bankCanceledCheque;
   final File? bankVerificationLetter;
+  // Network URLs for bank images
+  final String? bankCanceledChequeUrl;
+  final String? bankVerificationLetterUrl;
 
   // Business
   final BusinessStatus businessStatus;
@@ -75,11 +94,16 @@ class AuthState extends Equatable {
   final File? businessPersonalProfile;
   final File? businessLetterHead;
   final File? businessStamp;
+  // Network URLs for business images
+  final String? businessPersonalProfileUrl;
+  final String? businessLetterHeadUrl;
+  final String? businessStampUrl;
 
   const AuthState({
     this.authStatus = AuthStatus.initial,
     this.errorMessage = '',
     this.userModel,
+    this.isEditMode = false,
 
     // Personal
     this.personalStatus = PersonalStatus.initial,
@@ -91,6 +115,9 @@ class AuthState extends Equatable {
     this.personalProfilePicture,
     this.personalFrontImage,
     this.personalBackImage,
+    this.personalProfilePictureUrl,
+    this.personalFrontImageUrl,
+    this.personalBackImageUrl,
 
     // Store
     this.storeStatus = StoreStatus.initial,
@@ -105,6 +132,7 @@ class AuthState extends Equatable {
     this.storeAddress,
     this.storePinLocation,
     this.storeProfilePicture,
+    this.storeProfilePictureUrl,
 
     // Documents
     this.documentsStatus = DocumentsStatus.initial,
@@ -113,6 +141,8 @@ class AuthState extends Equatable {
     this.documentsCity,
     this.documentsHomeBill,
     this.documentsShopVideo,
+    this.documentsHomeBillUrl,
+    this.documentsShopVideoUrl,
 
     // Bank
     this.bankStatus = BankStatus.initial,
@@ -126,6 +156,8 @@ class AuthState extends Equatable {
     this.bankIbanNo,
     this.bankCanceledCheque,
     this.bankVerificationLetter,
+    this.bankCanceledChequeUrl,
+    this.bankVerificationLetterUrl,
 
     // Business
     this.businessStatus = BusinessStatus.initial,
@@ -139,12 +171,16 @@ class AuthState extends Equatable {
     this.businessPersonalProfile,
     this.businessLetterHead,
     this.businessStamp,
+    this.businessPersonalProfileUrl,
+    this.businessLetterHeadUrl,
+    this.businessStampUrl,
   });
 
   AuthState copyWith({
     AuthStatus? authStatus,
     String? errorMessage,
     UserModel? userModel,
+    bool? isEditMode,
 
     // Personal
     PersonalStatus? personalStatus,
@@ -156,6 +192,9 @@ class AuthState extends Equatable {
     File? personalProfilePicture,
     File? personalFrontImage,
     File? personalBackImage,
+    String? personalProfilePictureUrl,
+    String? personalFrontImageUrl,
+    String? personalBackImageUrl,
 
     // Store
     StoreStatus? storeStatus,
@@ -170,6 +209,7 @@ class AuthState extends Equatable {
     String? storeAddress,
     String? storePinLocation,
     File? storeProfilePicture,
+    String? storeProfilePictureUrl,
 
     // Documents
     DocumentsStatus? documentsStatus,
@@ -178,6 +218,8 @@ class AuthState extends Equatable {
     String? documentsCity,
     File? documentsHomeBill,
     File? documentsShopVideo,
+    String? documentsHomeBillUrl,
+    String? documentsShopVideoUrl,
 
     // Bank
     BankStatus? bankStatus,
@@ -191,6 +233,8 @@ class AuthState extends Equatable {
     String? bankIbanNo,
     File? bankCanceledCheque,
     File? bankVerificationLetter,
+    String? bankCanceledChequeUrl,
+    String? bankVerificationLetterUrl,
 
     // Business
     BusinessStatus? businessStatus,
@@ -204,11 +248,15 @@ class AuthState extends Equatable {
     File? businessPersonalProfile,
     File? businessLetterHead,
     File? businessStamp,
+    String? businessPersonalProfileUrl,
+    String? businessLetterHeadUrl,
+    String? businessStampUrl,
   }) {
     return AuthState(
       authStatus: authStatus ?? this.authStatus,
       errorMessage: errorMessage ?? this.errorMessage,
       userModel: userModel ?? this.userModel,
+      isEditMode: isEditMode ?? this.isEditMode,
 
       // Personal
       personalStatus: personalStatus ?? this.personalStatus,
@@ -217,9 +265,15 @@ class AuthState extends Equatable {
       personalPhoneNo: personalPhoneNo ?? this.personalPhoneNo,
       personalEmail: personalEmail ?? this.personalEmail,
       personalCnic: personalCnic ?? this.personalCnic,
-      personalProfilePicture: personalProfilePicture ?? this.personalProfilePicture,
+      personalProfilePicture:
+          personalProfilePicture ?? this.personalProfilePicture,
       personalFrontImage: personalFrontImage ?? this.personalFrontImage,
       personalBackImage: personalBackImage ?? this.personalBackImage,
+      personalProfilePictureUrl:
+          personalProfilePictureUrl ?? this.personalProfilePictureUrl,
+      personalFrontImageUrl:
+          personalFrontImageUrl ?? this.personalFrontImageUrl,
+      personalBackImageUrl: personalBackImageUrl ?? this.personalBackImageUrl,
 
       // Store
       storeStatus: storeStatus ?? this.storeStatus,
@@ -234,6 +288,8 @@ class AuthState extends Equatable {
       storeAddress: storeAddress ?? this.storeAddress,
       storePinLocation: storePinLocation ?? this.storePinLocation,
       storeProfilePicture: storeProfilePicture ?? this.storeProfilePicture,
+      storeProfilePictureUrl:
+          storeProfilePictureUrl ?? this.storeProfilePictureUrl,
 
       // Documents
       documentsStatus: documentsStatus ?? this.documentsStatus,
@@ -242,6 +298,9 @@ class AuthState extends Equatable {
       documentsCity: documentsCity ?? this.documentsCity,
       documentsHomeBill: documentsHomeBill ?? this.documentsHomeBill,
       documentsShopVideo: documentsShopVideo ?? this.documentsShopVideo,
+      documentsHomeBillUrl: documentsHomeBillUrl ?? this.documentsHomeBillUrl,
+      documentsShopVideoUrl:
+          documentsShopVideoUrl ?? this.documentsShopVideoUrl,
 
       // Bank
       bankStatus: bankStatus ?? this.bankStatus,
@@ -254,7 +313,12 @@ class AuthState extends Equatable {
       bankAccountNo: bankAccountNo ?? this.bankAccountNo,
       bankIbanNo: bankIbanNo ?? this.bankIbanNo,
       bankCanceledCheque: bankCanceledCheque ?? this.bankCanceledCheque,
-      bankVerificationLetter: bankVerificationLetter ?? this.bankVerificationLetter,
+      bankVerificationLetter:
+          bankVerificationLetter ?? this.bankVerificationLetter,
+      bankCanceledChequeUrl:
+          bankCanceledChequeUrl ?? this.bankCanceledChequeUrl,
+      bankVerificationLetterUrl:
+          bankVerificationLetterUrl ?? this.bankVerificationLetterUrl,
 
       // Business
       businessStatus: businessStatus ?? this.businessStatus,
@@ -265,76 +329,93 @@ class AuthState extends Equatable {
       businessTaxNo: businessTaxNo ?? this.businessTaxNo,
       businessAddress: businessAddress ?? this.businessAddress,
       businessPinLocation: businessPinLocation ?? this.businessPinLocation,
-      businessPersonalProfile: businessPersonalProfile ?? this.businessPersonalProfile,
+      businessPersonalProfile:
+          businessPersonalProfile ?? this.businessPersonalProfile,
       businessLetterHead: businessLetterHead ?? this.businessLetterHead,
       businessStamp: businessStamp ?? this.businessStamp,
+      businessPersonalProfileUrl:
+          businessPersonalProfileUrl ?? this.businessPersonalProfileUrl,
+      businessLetterHeadUrl:
+          businessLetterHeadUrl ?? this.businessLetterHeadUrl,
+      businessStampUrl: businessStampUrl ?? this.businessStampUrl,
     );
   }
 
   @override
   List<Object?> get props => [
-        authStatus,
-        errorMessage,
-        userModel,
+    authStatus,
+    errorMessage,
+    userModel,
+    isEditMode,
 
-        // Personal
-        personalStatus,
-        personalFullName,
-        personalAddress,
-        personalPhoneNo,
-        personalEmail,
-        personalCnic,
-        personalProfilePicture,
-        personalFrontImage,
-        personalBackImage,
+    // Personal
+    personalStatus,
+    personalFullName,
+    personalAddress,
+    personalPhoneNo,
+    personalEmail,
+    personalCnic,
+    personalProfilePicture,
+    personalFrontImage,
+    personalBackImage,
+    personalProfilePictureUrl,
+    personalFrontImageUrl,
+    personalBackImageUrl,
 
-        // Store
-        storeStatus,
-        storeName,
-        storeType,
-        storePhoneNo,
-        storeEmail,
-        storeCountry,
-        storeProvince,
-        storeCity,
-        storeZipCode,
-        storeAddress,
-        storePinLocation,
-        storeProfilePicture,
+    // Store
+    storeStatus,
+    storeName,
+    storeType,
+    storePhoneNo,
+    storeEmail,
+    storeCountry,
+    storeProvince,
+    storeCity,
+    storeZipCode,
+    storeAddress,
+    storePinLocation,
+    storeProfilePicture,
+    storeProfilePictureUrl,
 
-        // Documents
-        documentsStatus,
-        documentsCountry,
-        documentsProvince,
-        documentsCity,
-        documentsHomeBill,
-        documentsShopVideo,
+    // Documents
+    documentsStatus,
+    documentsCountry,
+    documentsProvince,
+    documentsCity,
+    documentsHomeBill,
+    documentsShopVideo,
+    documentsHomeBillUrl,
+    documentsShopVideoUrl,
 
-        // Bank
-        bankStatus,
-        bankAccountType,
-        bankBankName,
-        bankBranchCode,
-        bankBranchName,
-        bankBranchPhone,
-        bankAccountTitle,
-        bankAccountNo,
-        bankIbanNo,
-        bankCanceledCheque,
-        bankVerificationLetter,
+    // Bank
+    bankStatus,
+    bankAccountType,
+    bankBankName,
+    bankBranchCode,
+    bankBranchName,
+    bankBranchPhone,
+    bankAccountTitle,
+    bankAccountNo,
+    bankIbanNo,
+    bankCanceledCheque,
+    bankVerificationLetter,
+    bankCanceledChequeUrl,
+    bankVerificationLetterUrl,
 
-        // Business
-        businessStatus,
-        businessName,
-        businessOwnerName,
-        businessPhoneNo,
-        businessRegNo,
-        businessTaxNo,
-        businessAddress,
-        businessPinLocation,
-        businessPersonalProfile,
-        businessLetterHead,
-        businessStamp,
-      ];
-      
+    // Business
+    businessStatus,
+    businessName,
+    businessOwnerName,
+    businessPhoneNo,
+    businessRegNo,
+    businessTaxNo,
+    businessAddress,
+    businessPinLocation,
+    businessPersonalProfile,
+    businessLetterHead,
+    businessStamp,
+    businessPersonalProfileUrl,
+    businessLetterHeadUrl,
+    businessStampUrl,
+  ];
 }

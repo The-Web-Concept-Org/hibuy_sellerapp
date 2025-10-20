@@ -6,4 +6,6 @@ class AppUrl {
   static const String profiledetail = '$baseUrl/profileDetail';
   static const String sellerStoreDetail = '$baseUrl/sellerStoreDetail';
   static const String editStoreProfile = '$baseUrl/editStoreProfile';
+  static const String productCategory = '$baseUrl/getCategories';
+  static const String getVehicleTypes = '$baseUrl/getVehicleTypes'; 
 }

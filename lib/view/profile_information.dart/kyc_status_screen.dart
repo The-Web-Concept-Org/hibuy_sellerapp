@@ -11,8 +11,8 @@ import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
-import 'package:hibuy/services/api_key.dart';
-import 'package:hibuy/services/local_storage.dart';
+import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
+import 'package:hibuy/view/auth/bloc/auth_event.dart';
 import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
 import 'package:hibuy/view/auth/bloc/kyc_event.dart';
 import 'package:hibuy/view/auth/bloc/kyc_state.dart';
@@ -51,10 +51,11 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state.status == KycStatus.success) {
-            final data = state.kycResponse;
-            log("✅ Data in UI: $data");
-            return _buildKycBody(context, data);
+          if (state.status == KycStatus.success && state.kycResponse != null) {
+            final kycResponse = state.kycResponse!;
+
+            log("✅ KYC Response in UI: ${kycResponse.seller?.sellerId}");
+            return _buildKycBody(context, kycResponse);
           }
 
           // Ensure a Widget is always returned to satisfy non-nullable return type.
@@ -66,22 +67,22 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
     );
   }
 
-  Widget _buildKycBody(BuildContext context, dynamic data) {
-    final seller = data['seller'];
+  Widget _buildKycBody(BuildContext context, kycResponse) {
+    final seller = kycResponse.seller;
 
-   if (seller == null) {
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    Navigator.pushNamed(context, RoutesName.bottomnabBar);
-  });
-  return const SizedBox.shrink(); 
-}
+    if (seller == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamed(context, RoutesName.bottomnabBar);
+      });
+      return const SizedBox.shrink();
+    }
 
     // ✅ Safely get each section (may be null)
-    final personalInfo = seller['personal_info'];
-    final storeInfo = seller['store_info'];
-    final documentsInfo = seller['documents_info'];
-    final bankInfo = seller['bank_info'];
-    final businessInfo = seller['business_info'];
+    final personalInfo = seller.personalInfo;
+    final storeInfo = seller.storeInfo;
+    final documentsInfo = seller.documentsInfo;
+    final bankInfo = seller.bankInfo;
+    final businessInfo = seller.businessInfo;
     return SingleChildScrollView(
       child: Container(
         height: context.screenHeight,
@@ -119,13 +120,13 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                   /// Steps List
                   BlocBuilder<StepBloc, StepState>(
                     builder: (context, state) {
-                      final personalStatus = personalInfo['status']
+                      final personalStatus = personalInfo?.status
                           ?.toLowerCase();
-                      final storeStatus = storeInfo['status']?.toLowerCase();
-                      final documentStatus = documentsInfo['status']
+                      final storeStatus = storeInfo?.status?.toLowerCase();
+                      final documentStatus = documentsInfo?.status
                           ?.toLowerCase();
-                      final bankStatus = bankInfo['status']?.toLowerCase();
-                      final businessStatus = businessInfo['status']
+                      final bankStatus = bankInfo?.status?.toLowerCase();
+                      final businessStatus = businessInfo?.status
                           ?.toLowerCase();
                       final steps = [
                         {
@@ -155,19 +156,11 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                         },
                       ];
 
-                      int selectedStep = 0;
-                      if (state is StepSelectedState) {
-                        selectedStep = state.selectedStep;
-                      }
-
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: List.generate(steps.length, (index) {
-                            bool isSelected =
-                                state is StepSelectedState &&
-                                state.selectedStep == index;
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8.0,
@@ -231,15 +224,22 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                final personalStatus = personalInfo['status']
+                                // ✅ Load KYC data into AuthBloc for editing
+                                context.read<AuthBloc>().add(
+                                  LoadKycDataToAuthStateEvent(
+                                    kycResponse: kycResponse,
+                                  ),
+                                );
+
+                                final personalStatus = personalInfo?.status
                                     ?.toLowerCase();
-                                final storeStatus = storeInfo['status']
+                                final storeStatus = storeInfo?.status
                                     ?.toLowerCase();
-                                final documentStatus = documentsInfo['status']
+                                final documentStatus = documentsInfo?.status
                                     ?.toLowerCase();
-                                final bankStatus = bankInfo['status']
+                                final bankStatus = bankInfo?.status
                                     ?.toLowerCase();
-                                final businessStatus = businessInfo['status']
+                                final businessStatus = businessInfo?.status
                                     ?.toLowerCase();
 
                                 // ✅ Navigate to rejected step
@@ -310,8 +310,7 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
-                                final seller = data['seller'];
-                                final status = (seller['status'] ?? '')
+                                final status = (seller.status ?? '')
                                     .toString()
                                     .toLowerCase();
                                 if (status == 'approved') {

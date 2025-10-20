@@ -1,8 +1,10 @@
+import 'package:hibuy/models/kyc_response_model.dart';
+
 enum KycStatus { initial, loading, success, error }
 
 class KycState {
   final KycStatus status;
-  final dynamic kycResponse;
+  final KycResponse? kycResponse;
   final String? errorMessage;
 
   KycState({
@@ -15,7 +17,7 @@ class KycState {
 
   KycState copyWith({
     KycStatus? status,
-    dynamic kycResponse,
+    KycResponse? kycResponse,
     String? errorMessage,
   }) {
     return KycState(

@@ -96,6 +96,9 @@ class _BusinessVerificationScreenState
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Get AuthState to access network URLs
+    final authState = context.watch<AuthBloc>().state;
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
@@ -110,11 +113,13 @@ class _BusinessVerificationScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: context.heightPct(0.025)),
-              const Center(
+              Center(
                 child: ReusableCircleImage(
                   placeholderSvg: ImageAssets.profileimage,
                   imageKey: "business",
                   sizeFactor: 0.28,
+                  networkImageUrl:
+                      authState.businessPersonalProfileUrl, // ✅ Network URL
                 ),
               ),
               SizedBox(height: context.heightPct(0.03)),
@@ -207,21 +212,24 @@ class _BusinessVerificationScreenState
                 style: AppTextStyles.bodyRegular(context),
               ),
               SizedBox(height: context.heightPct(0.012)),
-              const ReusableImageContainer(
+              ReusableImageContainer(
                 widthFactor: 0.9,
                 heightFactor: 0.25,
                 placeholderSvg: ImageAssets.profileimage,
                 imageKey: 'leter',
+                networkImageUrl:
+                    authState.businessLetterHeadUrl, // ✅ Network URL
               ),
 
               SizedBox(height: context.heightPct(0.02)),
               Text(AppStrings.stamp, style: AppTextStyles.bodyRegular(context)),
               SizedBox(height: context.heightPct(0.012)),
-              const ReusableImageContainer(
+              ReusableImageContainer(
                 widthFactor: 0.9,
                 heightFactor: 0.25,
                 placeholderSvg: ImageAssets.profileimage,
                 imageKey: 'stamp',
+                networkImageUrl: authState.businessStampUrl, // ✅ Network URL
               ),
 
               SizedBox(height: context.heightPct(0.03)),

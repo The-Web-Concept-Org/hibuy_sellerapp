@@ -15,7 +15,6 @@ import 'package:hibuy/services/location_service.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart';
-import 'package:hibuy/widgets/custom_dropdown.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/profile_image.dart';
@@ -118,6 +117,9 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Get AuthState to access network URLs
+    final authState = context.watch<AuthBloc>().state;
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
@@ -132,11 +134,13 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: context.heightPct(0.025)),
-              const Center(
+              Center(
                 child: ReusableCircleImage(
                   placeholderSvg: ImageAssets.profileimage,
                   imageKey: "store",
                   sizeFactor: 0.28,
+                  networkImageUrl:
+                      authState.storeProfilePictureUrl, // ✅ Network URL
                 ),
               ),
               SizedBox(height: context.heightPct(0.03)),

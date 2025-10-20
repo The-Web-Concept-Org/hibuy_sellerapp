@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,8 @@ import 'package:hibuy/Bloc/image_picker/image_picker_event.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_state.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
+import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
+import 'package:hibuy/view/auth/bloc/auth_state.dart';
 
 class ReusableImageContainer extends StatelessWidget {
   final String placeholderSvg;
@@ -17,6 +20,7 @@ class ReusableImageContainer extends StatelessWidget {
   final BoxFit fit;
   final bool isVideo;
   final bool autoPlayOnReturn;
+  final String? networkImageUrl; // ✅ Network image URL from API
 
   const ReusableImageContainer({
     super.key,
@@ -27,6 +31,7 @@ class ReusableImageContainer extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.isVideo = false,
     this.autoPlayOnReturn = true,
+    this.networkImageUrl, // ✅ Optional network URL
   });
 
   @override
@@ -53,6 +58,9 @@ class ReusableImageContainer extends StatelessWidget {
           mediaPath = state.images[imageKey];
         }
 
+        // ✅ Get AuthState to check for network images
+        final authState = context.watch<AuthBloc>().state;
+
         return GestureDetector(
           onTap: () {
             if (isVideo) {
@@ -75,7 +83,7 @@ class ReusableImageContainer extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(context.widthPct(0.015)),
-              child: Center(child: _buildMedia(mediaPath)),
+              child: Center(child: _buildMedia(context, authState, mediaPath)),
             ),
           ),
         );
@@ -83,7 +91,14 @@ class ReusableImageContainer extends StatelessWidget {
     );
   }
 
-  Widget _buildMedia(String? mediaPath) {
+  Widget _buildMedia(
+    BuildContext context,
+    AuthState authState,
+    String? mediaPath,
+  ) {
+    // ✅ Priority: 1. Local file (newly picked), 2. Network URL (from API), 3. Placeholder
+    log("networkImageUrl: $networkImageUrl");
+    // If user has picked a new file locally, show it
     if (mediaPath != null && mediaPath.isNotEmpty) {
       if (isVideo) {
         // Display video player with unique key to prevent multiple instances
@@ -92,12 +107,61 @@ class ReusableImageContainer extends StatelessWidget {
           videoPath: mediaPath,
           fit: fit,
           autoPlayOnReturn: autoPlayOnReturn,
+          isNetworkVideo: false,
         );
       } else {
-        // Display image
+        // Display local image
         return Image.file(File(mediaPath), fit: fit);
       }
-    } else {
+    }
+
+    // If in edit mode and network URL exists, show network image
+    if (authState.isEditMode &&
+        networkImageUrl != null &&
+        networkImageUrl!.isNotEmpty) {
+      // ✅ Construct full URL (assuming base URL is needed)
+      final String fullUrl = networkImageUrl!.startsWith('http')
+          ? networkImageUrl!
+          : 'https://dashboard.hibuyo.com/$networkImageUrl'; // ✅ Add your base URL
+
+      if (isVideo) {
+        return VideoPlayerWidget(
+          key: ValueKey(fullUrl),
+          videoPath: fullUrl,
+          fit: fit,
+          autoPlayOnReturn: autoPlayOnReturn,
+          isNetworkVideo: true,
+        );
+      } else {
+        return Image.network(
+          fullUrl,
+          fit: fit,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, color: Colors.red, size: 40),
+                SizedBox(height: 8),
+                Text('Failed to load image', style: TextStyle(fontSize: 12)),
+              ],
+            );
+          },
+        );
+      }
+    }
+    // Show placeholder if no image
+    else {
       // Display placeholder
       return SvgPicture.asset(placeholderSvg, fit: BoxFit.contain);
     }
@@ -108,12 +172,14 @@ class VideoPlayerWidget extends StatefulWidget {
   final String videoPath;
   final BoxFit fit;
   final bool autoPlayOnReturn;
+  final bool isNetworkVideo; // ✅ Flag to differentiate network vs local video
 
   const VideoPlayerWidget({
     super.key,
     required this.videoPath,
     this.fit = BoxFit.cover,
     this.autoPlayOnReturn = true,
+    this.isNetworkVideo = false, // ✅ Default to local video
   });
 
   @override
@@ -174,7 +240,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       showPlayer = true;
     });
 
-    controller = VideoPlayerController.file(File(widget.videoPath));
+    // ✅ Use network or file controller based on flag
+    controller = widget.isNetworkVideo
+        ? VideoPlayerController.network(widget.videoPath)
+        : VideoPlayerController.file(File(widget.videoPath));
+
     try {
       await controller!.initialize();
       if (mounted) {

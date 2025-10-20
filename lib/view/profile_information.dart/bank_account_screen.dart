@@ -284,11 +284,13 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                         style: AppTextStyles.bodyRegular(context),
                       ),
                       SizedBox(height: context.heightPct(0.012)),
-                      const ReusableImageContainer(
+                      ReusableImageContainer(
                         widthFactor: 0.9,
                         heightFactor: 0.25,
                         placeholderSvg: ImageAssets.profileimage,
                         imageKey: 'cheque',
+                        networkImageUrl:
+                            authState.bankCanceledChequeUrl, // ✅ Network URL
                       ),
 
                       SizedBox(height: context.heightPct(0.02)),
@@ -297,11 +299,13 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                         style: AppTextStyles.bodyRegular(context),
                       ),
                       SizedBox(height: context.heightPct(0.012)),
-                      const ReusableImageContainer(
+                      ReusableImageContainer(
                         widthFactor: 0.9,
                         heightFactor: 0.25,
                         placeholderSvg: ImageAssets.profileimage,
                         imageKey: 'verification',
+                        networkImageUrl: authState
+                            .bankVerificationLetterUrl, // ✅ Network URL
                       ),
 
                       SizedBox(height: context.heightPct(0.03)),

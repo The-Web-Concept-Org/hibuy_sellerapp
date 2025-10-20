@@ -16,7 +16,6 @@ import 'package:hibuy/view/auth/bloc/auth_state.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
-import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 
 class DocumentVerificationScreen extends StatefulWidget {
   const DocumentVerificationScreen({super.key});
@@ -71,6 +70,9 @@ class _DocumentVerificationScreenState
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Get AuthState to access network URLs
+    final authState = context.watch<AuthBloc>().state;
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
@@ -92,11 +94,13 @@ class _DocumentVerificationScreenState
                 style: AppTextStyles.bodyRegular(context),
               ),
               SizedBox(height: context.heightPct(0.012)),
-              const ReusableImageContainer(
+              ReusableImageContainer(
                 widthFactor: 0.9,
                 heightFactor: 0.25,
                 placeholderSvg: ImageAssets.profileimage,
                 imageKey: 'profileimage',
+                networkImageUrl:
+                    authState.documentsHomeBillUrl, // ✅ Network URL
               ),
 
               SizedBox(height: context.heightPct(0.02)),
@@ -105,12 +109,14 @@ class _DocumentVerificationScreenState
                 style: AppTextStyles.bodyRegular(context),
               ),
               SizedBox(height: context.heightPct(0.012)),
-              const ReusableImageContainer(
+              ReusableImageContainer(
                 widthFactor: 0.9,
                 heightFactor: 0.25,
                 placeholderSvg: ImageAssets.profileimage,
                 imageKey: 'shopVideo',
                 isVideo: true,
+                networkImageUrl:
+                    authState.documentsShopVideoUrl, // ✅ Network URL
               ),
 
               SizedBox(height: context.heightPct(0.02)),

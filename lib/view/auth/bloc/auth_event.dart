@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:hibuy/models/kyc_response_model.dart';
 
 abstract class AuthEvent extends Equatable {}
 
@@ -281,4 +282,12 @@ class SubmitAllFormsEvent extends AuthEvent {
   ];
 }
 
+// ✅ Load KYC Data to Auth State Event (for editing)
+class LoadKycDataToAuthStateEvent extends AuthEvent {
+  final KycResponse kycResponse;
 
+  LoadKycDataToAuthStateEvent({required this.kycResponse});
+
+  @override
+  List<Object?> get props => [kycResponse];
+}

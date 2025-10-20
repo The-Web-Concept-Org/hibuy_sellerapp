@@ -6,12 +6,15 @@ import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_event.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_state.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
+import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
+import 'package:hibuy/view/auth/bloc/auth_state.dart';
 
 class ReusableCircleImage extends StatelessWidget {
-  final String placeholderSvg;  
-  final String imageKey;         
-  final double? sizeFactor;    
+  final String placeholderSvg;
+  final String imageKey;
+  final double? sizeFactor;
   final BoxFit fit;
+  final String? networkImageUrl; // ✅ Network image URL from API
 
   const ReusableCircleImage({
     super.key,
@@ -19,6 +22,7 @@ class ReusableCircleImage extends StatelessWidget {
     required this.placeholderSvg,
     this.sizeFactor = 0.28,
     this.fit = BoxFit.cover,
+    this.networkImageUrl, // ✅ Optional network URL
   });
 
   @override
@@ -29,10 +33,13 @@ class ReusableCircleImage extends StatelessWidget {
       builder: (context, state) {
         String? imagePath;
         if (state is ImagePicked) {
-          imagePath = state.images[imageKey]; 
+          imagePath = state.images[imageKey];
         } else if (state is ImageInitial) {
           imagePath = state.images[imageKey];
         }
+
+        // ✅ Get AuthState to check for network images
+        final authState = context.watch<AuthBloc>().state;
 
         return GestureDetector(
           onTap: () {
@@ -41,9 +48,7 @@ class ReusableCircleImage extends StatelessWidget {
           child: Container(
             width: size,
             height: size,
-            padding: EdgeInsets.symmetric(
-              horizontal: context.widthPct(0.005),
-            ),
+            padding: EdgeInsets.symmetric(horizontal: context.widthPct(0.005)),
             decoration: BoxDecoration(
               color: const Color(0xFFD9D9D9),
               shape: BoxShape.circle,
@@ -53,9 +58,7 @@ class ReusableCircleImage extends StatelessWidget {
               ),
             ),
             child: ClipOval(
-              child: Center(
-                child: _buildImage(imagePath),
-              ),
+              child: Center(child: _buildImage(context, authState, imagePath)),
             ),
           ),
         );
@@ -63,17 +66,48 @@ class ReusableCircleImage extends StatelessWidget {
     );
   }
 
-  Widget _buildImage(String? imagePath) {
+  Widget _buildImage(
+    BuildContext context,
+    AuthState authState,
+    String? imagePath,
+  ) {
+    // ✅ Priority: 1. Local file (newly picked), 2. Network URL (from API), 3. Placeholder
+
+    // If user has picked a new file locally, show it
     if (imagePath != null && imagePath.isNotEmpty) {
-      return Image.file(
-        File(imagePath), 
+      return Image.file(File(imagePath), fit: fit);
+    }
+
+    // If in edit mode and network URL exists, show network image
+    if (authState.isEditMode &&
+        networkImageUrl != null &&
+        networkImageUrl!.isNotEmpty) {
+      // ✅ Construct full URL (assuming base URL is needed)
+      final String fullUrl = networkImageUrl!.startsWith('http')
+          ? networkImageUrl!
+          : 'https://dashboard.hibuyo.com/$networkImageUrl';
+
+      return Image.network(
+        fullUrl,
         fit: fit,
-      );
-    } else {
-      return SvgPicture.asset(
-        placeholderSvg, 
-        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.error_outline, color: Colors.red, size: 30);
+        },
       );
     }
+
+    // Show placeholder if no image
+    return SvgPicture.asset(placeholderSvg, fit: BoxFit.contain);
   }
 }

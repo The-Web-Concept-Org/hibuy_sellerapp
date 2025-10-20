@@ -81,6 +81,9 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Get AuthState to access network URLs
+    final authState = context.watch<AuthBloc>().state;
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
@@ -97,10 +100,12 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               SizedBox(height: context.heightPct(0.025)),
 
               // ✅ Profile Image
-              const Center(
+              Center(
                 child: ReusableCircleImage(
                   placeholderSvg: ImageAssets.profileimage,
                   imageKey: 'personal',
+                  networkImageUrl:
+                      authState.personalProfilePictureUrl, // ✅ Network URL
                 ),
               ),
 
@@ -169,9 +174,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 style: AppTextStyles.bodyRegular(context),
               ),
               SizedBox(height: context.heightPct(0.012)),
-              const ReusableImageContainer(
+              ReusableImageContainer(
                 placeholderSvg: ImageAssets.profileimage,
                 imageKey: 'cnicFrontImage',
+                networkImageUrl:
+                    authState.personalFrontImageUrl, // ✅ Network URL
               ),
 
               SizedBox(height: context.heightPct(0.02)),
@@ -180,9 +187,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 style: AppTextStyles.bodyRegular(context),
               ),
               SizedBox(height: context.heightPct(0.012)),
-              const ReusableImageContainer(
+              ReusableImageContainer(
                 placeholderSvg: ImageAssets.profileimage,
                 imageKey: 'cnicBackImage',
+                networkImageUrl:
+                    authState.personalBackImageUrl, // ✅ Network URL
               ),
 
               SizedBox(height: context.heightPct(0.03)),

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/models/user_model.dart';
 import 'package:hibuy/res/app_url/app_url.dart';
@@ -22,8 +21,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SaveBankInfoEvent>(_saveBankInfo);
     on<SaveBusinessInfoEvent>(_saveBusinessInfo);
     on<SubmitAllFormsEvent>(_submitAllForms);
-
-   
+    on<LoadKycDataToAuthStateEvent>(_loadKycDataToAuthState);
   }
 
   // ------------------ LOGIN ------------------
@@ -226,7 +224,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
   }
-  
+
   // ------------------ SUBMIT ALL FORMS (API CALL) ------------------
   void _submitAllForms(
     SubmitAllFormsEvent event,
@@ -417,5 +415,103 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         state.copyWith(authStatus: AuthStatus.error, errorMessage: 'error: $e'),
       );
     }
+  }
+
+  // ------------------ LOAD KYC DATA TO AUTH STATE (FOR EDITING) ------------------
+  void _loadKycDataToAuthState(
+    LoadKycDataToAuthStateEvent event,
+    Emitter<AuthState> emit,
+  ) {
+    log("📥 Loading KYC data to AuthState for editing");
+
+    final seller = event.kycResponse.seller;
+    if (seller == null) {
+      log("⚠️ No seller data in KYC response");
+      return;
+    }
+
+    // Extract all the data from the KYC response
+    final personalInfo = seller.personalInfo;
+    final storeInfo = seller.storeInfo;
+    final documentsInfo = seller.documentsInfo;
+    final bankInfo = seller.bankInfo;
+    final businessInfo = seller.businessInfo;
+
+    emit(
+      state.copyWith(
+        // ✅ Set edit mode flag to true
+        isEditMode: true,
+
+        // Personal Info - Text Fields
+        personalFullName: personalInfo?.fullName,
+        personalAddress: personalInfo?.address,
+        personalPhoneNo: personalInfo?.phoneNo,
+        personalEmail: personalInfo?.email,
+        personalCnic: personalInfo?.cnic,
+
+        // Personal Info - Network Image URLs
+        personalProfilePictureUrl: personalInfo?.profilePicture,
+        personalFrontImageUrl: personalInfo?.frontImage,
+        personalBackImageUrl: personalInfo?.backImage,
+
+        // Store Info - Text Fields
+        storeName: storeInfo?.storeName,
+        storeType: storeInfo?.type,
+        storePhoneNo: storeInfo?.phoneNo,
+        storeEmail: storeInfo?.email,
+        storeCountry: storeInfo?.country,
+        storeProvince: storeInfo?.province,
+        storeCity: storeInfo?.city,
+        storeZipCode: storeInfo?.zipCode,
+        storeAddress: storeInfo?.address,
+        storePinLocation: storeInfo?.pinLocation,
+
+        // Store Info - Network Image URL
+        storeProfilePictureUrl: storeInfo?.profilePictureStore,
+
+        // Documents Info - Text Fields
+        documentsCountry: documentsInfo?.country,
+        documentsProvince: documentsInfo?.province,
+        documentsCity: documentsInfo?.city,
+
+        // Documents Info - Network URLs
+        documentsHomeBillUrl: documentsInfo?.homeBill,
+        documentsShopVideoUrl: documentsInfo?.shopVideo,
+
+        // Bank Info - Text Fields
+        bankAccountType: bankInfo?.accountType,
+        bankBankName: bankInfo?.bankName,
+        bankBranchCode: bankInfo?.branchCode,
+        bankBranchName: bankInfo?.branchName,
+        bankBranchPhone: bankInfo?.branchPhone,
+        bankAccountTitle: bankInfo?.accountTitle,
+        bankAccountNo: bankInfo?.accountNo,
+        bankIbanNo: bankInfo?.ibanNo,
+
+        // Bank Info - Network Image URLs
+        bankCanceledChequeUrl: bankInfo?.canceledCheque,
+        bankVerificationLetterUrl: bankInfo?.verificationLetter,
+
+        // Business Info - Text Fields
+        businessName: businessInfo?.businessName,
+        businessOwnerName: businessInfo?.ownerName,
+        businessPhoneNo: businessInfo?.phoneNo,
+        businessRegNo: businessInfo?.regNo,
+        businessTaxNo: businessInfo?.taxNo,
+        businessAddress: businessInfo?.address,
+        businessPinLocation: businessInfo?.pinLocation,
+
+        // Business Info - Network Image URLs
+        businessPersonalProfileUrl: businessInfo?.personalProfile,
+        businessLetterHeadUrl: businessInfo?.letterHead,
+        businessStampUrl: businessInfo?.stamp,
+      ),
+    );
+
+    log("✅ KYC data loaded to AuthState successfully");
+    log("📸 Personal Profile URL: ${personalInfo?.profilePicture}");
+    log("📸 Store Profile URL: ${storeInfo?.profilePictureStore}");
+    log("📸 Documents Home Bill URL: ${documentsInfo?.homeBill}");
+    log("🎥 Documents Shop Video URL: ${documentsInfo?.shopVideo}");
   }
 }

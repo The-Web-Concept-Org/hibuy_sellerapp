@@ -172,6 +172,14 @@ class AppStrings {
   static const option1 = "Option 1";
   static const option2 = "Option 2";
   static const weight = "weight";
+  static const estimateweight = "Estimated Weight(kg)"; 
+  static const length = "Estimated Length(inches)";
+  static const width = " Estimated Width(inches)";
+  static const height = "Estimated Hight(inches)";
+  static const vechicle = "Vechicle Type";
+  static const price = "Price: Rs.00";
+  static const stock = "Stock: 00";
+
  
 
 
