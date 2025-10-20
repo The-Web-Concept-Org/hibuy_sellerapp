@@ -483,21 +483,19 @@ Widget _buildBexpansiontile(
   int index,
   List<VariantModel> allVariants,
 ) {
-  // Check if there is a secondary variant (e.g. Color)
+  // Check if there is a secondary variant 
   final VariantModel? subVariant =
       allVariants.length > 1 ? allVariants.last : null;
 
-  // ✅ Get the current main variant value (e.g. "Large", "Medium")
+  // ✅ Get the current main variant value (
   final String mainValue =
       (mainVariant.values.length > index) ? mainVariant.values[index] : '';
 
-  // ✅ Build subitems list: [Large, Red, Blue] or [Medium, Red, Blue]
- final List<String> subItems = [
-  mainValue,
-  if (subVariant != null)
-    ...subVariant.values.where((v) => v.toLowerCase() != mainValue.toLowerCase()),
-];
-
+  // ✅ Build subitems list: 
+  final List<String> subItems = [
+    mainValue,
+    if (subVariant != null) ...subVariant.values,
+  ];
 
   return Container(
     width: double.infinity,
