@@ -124,11 +124,13 @@ class PersonalInfo {
   final String? profilePicturePath;
   final String? frontImagePath;
   final String? backImagePath;
+  final String? reason;
 
   PersonalInfo({
     this.step,
     this.status,
     this.fullName,
+    this.reason,
     this.address,
     this.phoneNo,
     this.email,
@@ -155,6 +157,7 @@ class PersonalInfo {
     profilePicturePath: json['profile_picture_path']?.toString(),
     frontImagePath: json['front_image_path']?.toString(),
     backImagePath: json['back_image_path']?.toString(),
+    reason: json['reason']?.toString(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -250,6 +253,7 @@ class DocumentsInfo {
   final String? city;
   final String? homeBill;
   final String? shopVideo;
+  final String? reason;
 
   DocumentsInfo({
     this.step,
@@ -259,6 +263,7 @@ class DocumentsInfo {
     this.city,
     this.homeBill,
     this.shopVideo,
+    this.reason,
   });
 
   factory DocumentsInfo.fromJson(Map<String, dynamic> json) => DocumentsInfo(
@@ -269,6 +274,7 @@ class DocumentsInfo {
     city: json['city']?.toString(),
     homeBill: json['home_bill']?.toString(),
     shopVideo: json['shop_video']?.toString(),
+    reason: json['reason']?.toString(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -295,6 +301,7 @@ class BankInfo {
   final String? ibanNo;
   final String? canceledCheque;
   final String? verificationLetter;
+  final String? reason;
 
   BankInfo({
     this.step,
@@ -309,6 +316,7 @@ class BankInfo {
     this.ibanNo,
     this.canceledCheque,
     this.verificationLetter,
+    this.reason,
   });
 
   factory BankInfo.fromJson(Map<String, dynamic> json) => BankInfo(
@@ -324,6 +332,7 @@ class BankInfo {
     ibanNo: json['iban_no']?.toString(),
     canceledCheque: json['canceled_cheque']?.toString(),
     verificationLetter: json['verification_letter']?.toString(),
+    reason: json['reason']?.toString(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -359,6 +368,7 @@ class BusinessInfo {
   final String? personalProfilePath;
   final String? letterHeadPath;
   final String? stampPath;
+  final String? reason;
 
   BusinessInfo({
     this.step,
@@ -377,6 +387,7 @@ class BusinessInfo {
     this.personalProfilePath,
     this.letterHeadPath,
     this.stampPath,
+    this.reason,
   });
 
   factory BusinessInfo.fromJson(Map<String, dynamic> json) => BusinessInfo(
@@ -396,6 +407,7 @@ class BusinessInfo {
     personalProfilePath: json['personal_profile_path']?.toString(),
     letterHeadPath: json['letter_head_path']?.toString(),
     stampPath: json['stamp_path']?.toString(),
+    reason: json['reason']?.toString(),
   );
 
   Map<String, dynamic> toJson() => {

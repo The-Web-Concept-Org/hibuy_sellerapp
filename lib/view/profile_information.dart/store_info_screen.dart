@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
@@ -18,6 +19,7 @@ import 'package:hibuy/view/auth/bloc/auth_state.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/profile_image.dart';
+import 'package:hibuy/widgets/profile_widget.dart/reason_container.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 
 class StoreInfoScreen extends StatefulWidget {
@@ -119,7 +121,6 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
   Widget build(BuildContext context) {
     // ✅ Get AuthState to access network URLs
     final authState = context.watch<AuthBloc>().state;
-
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
@@ -144,6 +145,19 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                 ),
               ),
               SizedBox(height: context.heightPct(0.03)),
+              if (authState.storeInfoRejectReason != null &&
+                  authState.storeInfoRejectReason != '')
+                Padding(
+                  padding: EdgeInsetsGeometry.only(
+                    bottom: context.heightPct(0.02),
+                  ),
+                  child: reasonContainer(
+                    context: context,
+                    reason: authState.storeInfoRejectReason!,
+                  ),
+                ),
+
+              // SizedBox(height: context.heightPct(0.03)),
 
               // ✅ Pass Validators
               ReusableTextField(

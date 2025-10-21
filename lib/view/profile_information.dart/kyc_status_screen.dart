@@ -46,6 +46,11 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
               ),
             );
           }
+          if (state.status == KycStatus.success) {
+            context.read<AuthBloc>().add(
+              LoadKycDataToAuthStateEvent(kycResponse: state.kycResponse!),
+            );
+          }
         },
         builder: (context, state) {
           if (state.status == KycStatus.loading) {
@@ -129,6 +134,7 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                       final bankStatus = bankInfo?.status?.toLowerCase();
                       final businessStatus = businessInfo?.status
                           ?.toLowerCase();
+                      log("stats ==>==> ${personalStatus}");
                       final steps = [
                         {
                           "title": AppStrings.personalinfo,
@@ -226,11 +232,6 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                             child: GestureDetector(
                               onTap: () {
                                 // ✅ Load KYC data into AuthBloc for editing
-                                context.read<AuthBloc>().add(
-                                  LoadKycDataToAuthStateEvent(
-                                    kycResponse: kycResponse,
-                                  ),
-                                );
 
                                 final personalStatus = personalInfo?.status
                                     ?.toLowerCase();
@@ -251,6 +252,7 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                                   );
                                   return;
                                 }
+
                                 if (storeStatus == 'rejected') {
                                   Navigator.pushNamed(
                                     context,

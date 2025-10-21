@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hibuy/models/kyc_response_model.dart';
 import 'package:hibuy/models/user_model.dart';
 import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/services/api_key.dart';
@@ -138,13 +139,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // Call logout API with POST method (only token in header)
       await ApiService.postMethod(
         apiUrl: AppUrl.logOutApi,
-        authHeader: true, 
-        postData: {}, 
+        authHeader: true,
+        postData: {},
         executionMethod: (bool success, dynamic responseData) async {
           if (success) {
             log(" Logout API successful");
 
-            
             await LocalStorage.removeData(key: AppKeys.authToken);
             await LocalStorage.removeData(key: AppKeys.uRole);
             await LocalStorage.removeData(key: AppKeys.userData);
@@ -508,9 +508,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final documentsInfo = seller.documentsInfo;
     final bankInfo = seller.bankInfo;
     final businessInfo = seller.businessInfo;
-
+    log("personalInfo: ${personalInfo?.reason}");
+    log("storeInfo: ${storeInfo?.reason != null}");
+    log("documentsInfo: ${documentsInfo?.reason}");
+    log("bankInfo: ${bankInfo?.reason}");
+    log("businessInfo: ${businessInfo?.reason}");
     emit(
       state.copyWith(
+        personalInfoRejectReason: (personalInfo?.reason != null)
+            ? personalInfo?.reason
+            : null,
+        storeInfoRejectReason: (storeInfo?.reason != null)
+            ? storeInfo?.reason
+            : null,
+        documentInfoRejectReason: (documentsInfo?.reason != null)
+            ? documentsInfo?.reason
+            : null,
+        bankInfoRejectReason: (bankInfo?.reason != null)
+            ? bankInfo?.reason
+            : null,
+        businessInfoRejectReason: (businessInfo?.reason != null)
+            ? businessInfo?.reason
+            : null,
+
         // Set edit mode flag to true
         isEditMode: true,
 

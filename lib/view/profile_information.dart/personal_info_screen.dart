@@ -17,6 +17,7 @@ import 'package:hibuy/widgets/profile_widget.dart/profile_image.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
+import 'package:hibuy/widgets/profile_widget.dart/reason_container.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 
 class PersonalInfoScreen extends StatefulWidget {
@@ -110,7 +111,17 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
               ),
 
               SizedBox(height: context.heightPct(0.03)),
-
+              if (authState.personalInfoRejectReason != null &&
+                  authState.personalInfoRejectReason != '')
+                Padding(
+                  padding: EdgeInsetsGeometry.only(
+                    bottom: context.heightPct(0.02),
+                  ),
+                  child: reasonContainer(
+                    context: context,
+                    reason: authState.personalInfoRejectReason!,
+                  ),
+                ),
               // ✅ Text Fields with validation
               ReusableTextField(
                 controller: _fullNameController,

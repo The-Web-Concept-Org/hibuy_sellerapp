@@ -16,6 +16,7 @@ import 'package:hibuy/view/auth/bloc/auth_state.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
+import 'package:hibuy/widgets/profile_widget.dart/reason_container.dart';
 
 class DocumentVerificationScreen extends StatefulWidget {
   const DocumentVerificationScreen({super.key});
@@ -89,6 +90,17 @@ class _DocumentVerificationScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: context.heightPct(0.018)),
+              if (authState.documentInfoRejectReason != null &&
+                  authState.documentInfoRejectReason != '')
+                Padding(
+                  padding: EdgeInsetsGeometry.only(
+                    bottom: context.heightPct(0.02),
+                  ),
+                  child: reasonContainer(
+                    context: context,
+                    reason: authState.documentInfoRejectReason!,
+                  ),
+                ),
               Text(
                 AppStrings.shophome,
                 style: AppTextStyles.bodyRegular(context),

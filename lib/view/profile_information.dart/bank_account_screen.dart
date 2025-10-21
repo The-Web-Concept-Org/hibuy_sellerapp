@@ -18,6 +18,7 @@ import 'package:hibuy/view/auth/bloc/auth_state.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
+import 'package:hibuy/widgets/profile_widget.dart/reason_container.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 
 class BankAccountScreen extends StatefulWidget {
@@ -121,49 +122,59 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                       SizedBox(height: context.heightPct(0.018)),
 
                       // Top info card
-                      Container(
-                        width: double.maxFinite,
-                        height: context.heightPct(0.12),
-                        padding: EdgeInsets.all(context.widthPct(0.026)),
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(
-                            context.widthPct(0.04),
+                      if (authState.bankInfoRejectReason != null &&
+                          authState.bankInfoRejectReason != '')
+                        Padding(
+                          padding: EdgeInsetsGeometry.only(
+                            bottom: context.heightPct(0.02),
                           ),
-                          border: Border.all(
-                            width: 2,
-                            color: AppColors.profileborder.withOpacity(0.25),
+                          child: reasonContainer(
+                            context: context,
+                            reason: authState.bankInfoRejectReason!,
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              ImageAssets.kycstatus,
-                              height: context.heightPct(60 / 812),
-                              width: context.widthPct(60 / 375),
-                            ),
-                            SizedBox(width: context.widthPct(0.04)),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppStrings.reason,
-                                    style: AppTextStyles.samibold2(context),
-                                  ),
-                                  SizedBox(height: context.heightPct(0.005)),
-                                  Text(
-                                    AppStrings.reasontext,
-                                    style: AppTextStyles.greytext2(context),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: context.heightPct(0.03)),
+                      // Container(
+                      //   width: double.maxFinite,
+                      //   height: context.heightPct(0.12),
+                      //   padding: EdgeInsets.all(context.widthPct(0.026)),
+                      //   decoration: BoxDecoration(
+                      //     color: AppColors.white,
+                      //     borderRadius: BorderRadius.circular(
+                      //       context.widthPct(0.04),
+                      //     ),
+                      //     border: Border.all(
+                      //       width: 2,
+                      //       color: AppColors.profileborder.withOpacity(0.25),
+                      //     ),
+                      //   ),
+                      //   child: Row(
+                      //     children: [
+                      //       SvgPicture.asset(
+                      //         ImageAssets.kycstatus,
+                      //         height: context.heightPct(60 / 812),
+                      //         width: context.widthPct(60 / 375),
+                      //       ),
+                      //       SizedBox(width: context.widthPct(0.04)),
+                      //       Expanded(
+                      //         child: Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             Text(
+                      //               AppStrings.reason,
+                      //               style: AppTextStyles.samibold2(context),
+                      //             ),
+                      //             SizedBox(height: context.heightPct(0.005)),
+                      //             Text(
+                      //               authState.bankInfoRejectReason ??
+                      //                   'No reason provided',
+                      //               style: AppTextStyles.greytext2(context),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
 
                       // ✅ TextFields with validators
                       Text(

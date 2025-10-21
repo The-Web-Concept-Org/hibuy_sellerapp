@@ -22,9 +22,9 @@ class StatusStepTile extends StatelessWidget {
   /// ✅ Get color based on status
   Color _getStatusColor() {
     switch (status.toLowerCase()) {
-      case 'reject':
+      case 'rejected':
         return AppColors.profileborder; // green or success color
-      case 'approve':
+      case 'approved':
         return AppColors.primaryColor; // rejected
       case 'pending':
       default:
@@ -35,11 +35,12 @@ class StatusStepTile extends StatelessWidget {
   /// ✅ Get top-right icon based on status
   String _getStatusIcon() {
     switch (status.toLowerCase()) {
-      case 'approve':
+      case 'approved':
         return ImageAssets.statusapprove; // e.g. ✅ approved icon
-      case 'reject':
-        return ImageAssets.review; // e.g. ❌ rejected icon
+      case 'rejected':
+        return ImageAssets.profile; // e.g. ⏳ pending/default
       case 'pending':
+        return ImageAssets.review; // e.g. ❌ rejected icon
       default:
         return ImageAssets.profile; // e.g. ⏳ pending/default
     }
@@ -83,14 +84,14 @@ class StatusStepTile extends StatelessWidget {
               /// ✅ Top-right icon
               Positioned(
                 right: -context.widthPct(2 / 375),
-                top: -context.heightPct(2 / 812),
+                top: -context.heightPct(0.0001),
                 child: CircleAvatar(
                   radius: context.widthPct(10 / 375),
                   backgroundColor: color,
                   child: SvgPicture.asset(
                     statusIcon,
-                    height: context.heightPct(10 / 812),
-                    width: context.widthPct(10 / 375),
+                    // height: context.heightPct(10 / 812),
+                    // width: context.widthPct(10 / 375),
                     fit: BoxFit.contain,
                   ),
                 ),

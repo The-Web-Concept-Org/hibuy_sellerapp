@@ -29,7 +29,7 @@ class ImagePickerBloc extends Bloc<ImagePickerEvent, ImagePickerState> {
 
     _isPickerActive = true;
     try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
       if (pickedFile != null) {
         log('🖼️ Image picked: ${pickedFile.path}');

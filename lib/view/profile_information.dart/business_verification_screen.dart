@@ -18,6 +18,7 @@ import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
 import 'package:hibuy/widgets/profile_widget.dart/profile_image.dart';
+import 'package:hibuy/widgets/profile_widget.dart/reason_container.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 
 class BusinessVerificationScreen extends StatefulWidget {
@@ -122,6 +123,18 @@ class _BusinessVerificationScreenState
                       authState.businessPersonalProfileUrl, // ✅ Network URL
                 ),
               ),
+              if (authState.businessInfoRejectReason != null
+              &&
+                  authState.businessInfoRejectReason != '')
+            Padding(
+                  padding: EdgeInsetsGeometry.only(
+                    bottom: context.heightPct(0.02),
+                  ),
+                  child: reasonContainer(
+                    context: context,
+                    reason: authState.businessInfoRejectReason!,
+                  ),
+                ),
               SizedBox(height: context.heightPct(0.03)),
 
               // ✅ VALIDATED FIELDS

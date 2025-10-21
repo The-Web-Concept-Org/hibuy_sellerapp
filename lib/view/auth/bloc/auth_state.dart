@@ -27,6 +27,12 @@ class AuthState extends Equatable {
   // ✅ Flag to indicate if data is loaded from KYC (for showing network images)
   final bool isEditMode;
 
+  final String? personalInfoRejectReason;
+  final String? storeInfoRejectReason;
+  final String? documentInfoRejectReason;
+  final String? bankInfoRejectReason;
+  final String? businessInfoRejectReason;
+
   // Personal
   final PersonalStatus personalStatus;
   final String? personalFullName;
@@ -44,6 +50,7 @@ class AuthState extends Equatable {
 
   // Store
   final StoreStatus storeStatus;
+
   final String? storeName;
   final String? storeType;
   final String? storePhoneNo;
@@ -108,7 +115,11 @@ class AuthState extends Equatable {
     this.errorMessage = '',
     this.userModel,
     this.isEditMode = false,
-
+    this.personalInfoRejectReason,
+    this.storeInfoRejectReason,
+    this.documentInfoRejectReason,
+    this.bankInfoRejectReason,
+    this.businessInfoRejectReason,
     // Personal
     this.personalStatus = PersonalStatus.initial,
     this.personalFullName,
@@ -186,7 +197,11 @@ class AuthState extends Equatable {
     String? errorMessage,
     UserModel? userModel,
     bool? isEditMode,
-
+    String? personalInfoRejectReason,
+    String? storeInfoRejectReason,
+    String? documentInfoRejectReason,
+    String? bankInfoRejectReason,
+    String? businessInfoRejectReason,
     // Personal
     PersonalStatus? personalStatus,
     String? personalFullName,
@@ -263,6 +278,15 @@ class AuthState extends Equatable {
       errorMessage: errorMessage ?? this.errorMessage,
       userModel: userModel ?? this.userModel,
       isEditMode: isEditMode ?? this.isEditMode,
+      personalInfoRejectReason:
+          personalInfoRejectReason ?? this.personalInfoRejectReason,
+      storeInfoRejectReason:
+          storeInfoRejectReason ?? this.storeInfoRejectReason,
+      documentInfoRejectReason:
+          documentInfoRejectReason ?? this.documentInfoRejectReason,
+      bankInfoRejectReason: bankInfoRejectReason ?? this.bankInfoRejectReason,
+      businessInfoRejectReason:
+          businessInfoRejectReason ?? this.businessInfoRejectReason,
 
       // Personal
       personalStatus: personalStatus ?? this.personalStatus,
@@ -354,6 +378,11 @@ class AuthState extends Equatable {
     errorMessage,
     userModel,
     isEditMode,
+    personalInfoRejectReason,
+    storeInfoRejectReason,
+    documentInfoRejectReason,
+    bankInfoRejectReason,
+    businessInfoRejectReason,
 
     // Personal
     personalStatus,
