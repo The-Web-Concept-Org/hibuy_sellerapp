@@ -13,6 +13,7 @@ import 'package:hibuy/res/routes/routes.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/product_category/productcategory_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_bloc.dart';
@@ -32,10 +33,11 @@ void main() {
         BlocProvider(create: (_) => DropdownBloc()),
         BlocProvider(create: (_) => KycBloc()),
         BlocProvider(create: (_) => StoreDetailsBloc()),
-         BlocProvider(create: (_) => StoreBloc()),
-         BlocProvider(create: (_) => ProductCategoryBloc()),
+        BlocProvider(create: (_) => StoreBloc()),
+        BlocProvider(create: (_) => ProductCategoryBloc()),
         BlocProvider(create: (_) => VehicleTypeBloc()),
-         BlocProvider(create: (context) => VariantBloc()),
+        BlocProvider(create: (context) => VariantBloc()),
+        BlocProvider(create: (context) => OrdersBloc()),
       ],
       child: const MyApp(),
     ),

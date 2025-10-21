@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hibuy/models/orders_model.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc_bloc.dart';
 
 class OrderScreen extends StatelessWidget {
   const OrderScreen({super.key});
 
+  // TODO : Fix ui
+  // TODO : seitch for delievery status
+  // TODO : add filter by date
+  // TODO : SEARCH FUNCTINOALITY
+  // TODO : SORTING FUNCTINOALITY
+  // TODO : PAGINATION FUNCTINOALITY
+  // TODO: PRINT
+  // TODO: VIEW
+  // TODO: PRODUCT ID IS MISSING IN RESPONSE
+
   @override
   Widget build(BuildContext context) {
+    context.read<OrdersBloc>().add(GetOrdersEvent());
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Padding(
@@ -57,7 +71,7 @@ class OrderScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             SizedBox(height: context.heightPct(12 / 812)),
 
             /// Search Bar
@@ -102,174 +116,172 @@ class OrderScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: context.heightPct(12 / 812)),
-            Stack(
-              children: [
-                // Main container background
-                Container(
-                  width: double.maxFinite,
-                  height: context.heightPct(128 / 812),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: AppColors.stroke, width: 1),
-                  ),
-                ),
+            BlocBuilder<OrdersBloc, OrdersState>(
+              builder: (context, state) {
+                if (state.status == OrdersStatus.loading) {
+                  return SizedBox(
+                    height: context.heightPct(0.7),
+                    child: const Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (state.status == OrdersStatus.error) {
+                  return Center(
+                    child: Text(state.errorMessage ?? "Something went wrong"),
+                  );
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
 
-                // Top colored header
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    height: context.heightPct(32 / 812),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(4),
-                        topRight: Radius.circular(4),
-                      ),
-                    ),
-                    child: Padding(
+                  itemCount: state.ordersResponse?.data.length ?? 0,
+                  itemBuilder: (context, index) {
+                    OrderData? currentOrder = state.ordersResponse?.data[index];
+                    return Container(
                       padding: EdgeInsets.only(
-                        left: context.widthPct(10 / 375),
-                        right: context.widthPct(4 / 375),
-                        top: context.heightPct(7 / 812),
-                        bottom: context.heightPct(8 / 812),
+                        bottom: context.heightPct(0.025),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text(
-                            "3/ TRK-5848184331",
-                            style: AppTextStyles.medium(context),
-                          ),
+                          // Main container background
+                          // Container(
+                          //   width: double.maxFinite,
+                          //   height: context.heightPct(128 / 812),
+                          //   decoration: BoxDecoration(
+                          //     color: AppColors.white,
+                          //     borderRadius: BorderRadius.circular(5),
+                          //     border: Border.all(color: AppColors.stroke, width: 1),
+                          //   ),
+                          // ),
+
+                          // Top colored header
                           Container(
-                            width: context.widthPct(77 / 375),
-                            height: context.heightPct(17 / 812),
+                            height: context.heightPct(32 / 812),
                             decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(
-                                color: AppColors.stroke,
-                                width: 1,
+                              color: AppColors.primaryColor,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(4),
+                                topRight: Radius.circular(4),
                               ),
                             ),
-                            child: Center(
-                              child: Text(
-                                "In Progress",
-                                style: AppTextStyles.regular(context),
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: context.widthPct(10 / 375),
+                                right: context.widthPct(4 / 375),
+                                top: context.heightPct(7 / 812),
+                                bottom: context.heightPct(8 / 812),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    currentOrder?.trackingId ?? "",
+                                    style: AppTextStyles.medium(context),
+                                  ),
+                                  Container(
+                                    width: context.widthPct(77 / 375),
+                                    height: context.heightPct(17 / 812),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.white,
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(
+                                        color: AppColors.stroke,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        currentOrder?.status ?? "",
+                                        style: AppTextStyles.regular(context),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                          ),
+
+                          // Name + contact row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                currentOrder?.customerName ?? "",
+                                style: AppTextStyles.unselect(context),
+                              ),
+                              Text(
+                                currentOrder?.phone.toString() ?? "",
+                                style: AppTextStyles.regular2(context),
+                              ),
+                            ],
+                          ),
+
+                          // Rider + Date row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                currentOrder?.rider ?? "",
+                                style: AppTextStyles.regular2(context),
+                              ),
+                              Text(
+                                currentOrder?.orderDate ?? "",
+                                style: AppTextStyles.regular2(context),
+                              ),
+                            ],
+                          ),
+
+                          // Price row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                "Rs. ${currentOrder?.grandTotal ?? 0}",
+                                style: AppTextStyles.samibold3(context),
+                              ),
+                            ],
+                          ),
+
+                          // Divider
+                          Divider(color: AppColors.stroke),
+
+                          // Delivery Status + Icons
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "${AppStrings.deliveryStatus}: ${currentOrder?.orderStatus ?? ""}",
+                                style: AppTextStyles.unselect(context),
+                              ),
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    ImageAssets.eyes,
+                                    height: context.heightPct(24 / 812),
+                                    width: context.widthPct(24 / 375),
+                                    fit: BoxFit.contain,
+                                  ),
+                                  SizedBox(width: context.widthPct(7 / 375)),
+                                  SvgPicture.asset(
+                                    ImageAssets.print,
+                                    height: context.heightPct(24 / 812),
+                                    width: context.widthPct(24 / 375),
+                                    fit: BoxFit.contain,
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ),
-
-                // Name + contact row
-                Positioned(
-                  top: context.heightPct(43 / 812),
-                  left: context.widthPct(10 / 375),
-                  right: context.widthPct(10 / 375),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Awais Ansari",
-                        style: AppTextStyles.unselect(context),
-                      ),
-                      Text(
-                        "0300 1234567",
-                        style: AppTextStyles.regular2(context),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Rider + Date row
-                Positioned(
-                  top: context.heightPct(62 / 812),
-                  left: context.widthPct(10 / 375),
-                  right: context.widthPct(10 / 375),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Rider Name (Van)",
-                        style: AppTextStyles.regular2(context),
-                      ),
-                      Text(
-                        "27 Aug, 2025",
-                        style: AppTextStyles.regular2(context),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Price row
-                Positioned(
-                  top: context.heightPct(78 / 812),
-                  left: context.widthPct(10 / 375),
-                  right: context.widthPct(10 / 375),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        "Rs. 120.25",
-                        style: AppTextStyles.samibold3(context),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Divider
-                Positioned(
-                  top: context.heightPct(89 / 812),
-                  left: context.widthPct(10 / 375),
-                  right: context.widthPct(10 / 375),
-                  child: Divider(color: AppColors.stroke),
-                ),
-
-                // Delivery Status + Icons
-                Positioned(
-                  top: context.heightPct(98 / 812),
-                  left: context.widthPct(10 / 375),
-                  right: context.widthPct(10 / 375),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Delivery Status: In Transit",
-                        style: AppTextStyles.unselect(context),
-                      ),
-                      Row(
-                        children: [
-                          SvgPicture.asset(
-                            ImageAssets.eyes,
-                            height: context.heightPct(24 / 812),
-                            width: context.widthPct(24 / 375),
-                            fit: BoxFit.contain,
-                          ),
-                          SizedBox(width: context.widthPct(7 / 375)),
-                          SvgPicture.asset(
-                            ImageAssets.print,
-                            height: context.heightPct(24 / 812),
-                            width: context.widthPct(24 / 375),
-                            fit: BoxFit.contain,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
       ),
-    
     );
   }
 }

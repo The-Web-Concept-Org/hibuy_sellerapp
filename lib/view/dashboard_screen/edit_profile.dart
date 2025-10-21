@@ -36,42 +36,52 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   // Validate banner image
-  Future<bool> _validateBannerImage(String imagePath, BuildContext context) async {
+  Future<bool> _validateBannerImage(
+    String imagePath,
+    BuildContext context,
+  ) async {
     try {
       final file = File(imagePath);
-      
+
       // Check file size (max 2MB)
       final fileSizeInBytes = await file.length();
       final fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-      
+
       print('🖼️ Banner Image Validation:');
       print('   Path: $imagePath');
       print('   Size: ${fileSizeInMB.toStringAsFixed(2)} MB');
-      
+
       if (fileSizeInMB > 2) {
-        print('   ❌ Size validation failed: ${fileSizeInMB.toStringAsFixed(2)} MB > 2 MB');
+        print(
+          '   ❌ Size validation failed: ${fileSizeInMB.toStringAsFixed(2)} MB > 2 MB',
+        );
         _showErrorDialog(context, 'Banner image must be maximum 2MB');
         return false;
       }
-      
+
       // Check image dimensions (1280x320)
       final imageBytes = await file.readAsBytes();
       final image = img.decodeImage(imageBytes);
-      
+
       if (image == null) {
         print('   ❌ Failed to decode image');
         _showErrorDialog(context, 'Invalid image file');
         return false;
       }
-      
+
       print('   Dimensions: ${image.width}x${image.height} pixels');
-      
+
       if (image.width != 1280 || image.height != 320) {
-        print('   ❌ Dimension validation failed: Expected 1280x320, Got ${image.width}x${image.height}');
-        _showErrorDialog(context, 'Banner image size must be 1280x320 pixels.\nYour image: ${image.width}x${image.height}');
+        print(
+          '   ❌ Dimension validation failed: Expected 1280x320, Got ${image.width}x${image.height}',
+        );
+        _showErrorDialog(
+          context,
+          'Banner image size must be 1280x320 pixels.\nYour image: ${image.width}x${image.height}',
+        );
         return false;
       }
-      
+
       print('   ✅ Banner validation passed');
       return true;
     } catch (e) {
@@ -82,22 +92,25 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   // Validate post image
-  Future<bool> _validatePostImage(String imagePath, BuildContext context) async {
+  Future<bool> _validatePostImage(
+    String imagePath,
+    BuildContext context,
+  ) async {
     try {
       final file = File(imagePath);
-      
+
       print('\n📸 Post Image Validation:');
       print('   📁 Path: $imagePath');
-      
+
       // Check file size
       final fileSizeInBytes = await file.length();
       final fileSizeInMB = fileSizeInBytes / (1024 * 1024);
       print('   📊 Size: ${fileSizeInMB.toStringAsFixed(2)} MB');
-      
+
       // Check image dimensions (MUST be 1080x1080)
       final imageBytes = await file.readAsBytes();
       final image = img.decodeImage(imageBytes);
-      
+
       if (image == null) {
         print('   ❌ Failed to decode image');
         if (context.mounted) {
@@ -105,23 +118,23 @@ class _EditProfileState extends State<EditProfile> {
         }
         return false;
       }
-      
+
       print('   📐 Dimensions: ${image.width}x${image.height} pixels');
       print('   ✓ Required: 1080x1080 pixels');
-      
+
       if (image.width != 1080 || image.height != 270) {
         print('   ❌ Dimension validation FAILED!');
         print('   ❌ Expected: 1080x1080');
         print('   ❌ Got: ${image.width}x${image.height}');
         if (context.mounted) {
           _showErrorDialog(
-            context, 
-            'Post image MUST be exactly 1080x1080 pixels\n\nYour image: ${image.width}x${image.height} pixels\nRequired: 1080x1080 pixels'
+            context,
+            'Post image MUST be exactly 1080x1080 pixels\n\nYour image: ${image.width}x${image.height} pixels\nRequired: 1080x1080 pixels',
           );
         }
         return false;
       }
-      
+
       print('   ✅ All validations PASSED');
       return true;
     } catch (e) {
@@ -143,10 +156,7 @@ class _EditProfileState extends State<EditProfile> {
             'Invalid Image',
             style: AppTextStyles.bodyRegular(context),
           ),
-          content: Text(
-            message,
-            style: AppTextStyles.searchtext(context),
-          ),
+          content: Text(message, style: AppTextStyles.searchtext(context)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -178,12 +188,12 @@ class _EditProfileState extends State<EditProfile> {
 
   void _submitForm() async {
     final imageState = context.read<ImagePickerBloc>().state;
-    
+
     // Validate store name
     if (_storeNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter store name')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter store name')));
       return;
     }
 
@@ -194,7 +204,7 @@ class _EditProfileState extends State<EditProfile> {
     // Get profile image
     String? profileImagePath = imageState.images['profile_image'];
     File? storeImage = profileImagePath != null ? File(profileImagePath) : null;
-    
+
     if (storeImage != null) {
       print('\n👤 Profile Image:');
       print('   Path: $profileImagePath');
@@ -204,13 +214,14 @@ class _EditProfileState extends State<EditProfile> {
     // Get banner images and their IDs (if updating existing banners)
     List<File> bannerImages = [];
     List<int> bannerIds = [];
-    
+
     // Sort banner keys to maintain order
-    List<String> sortedBannerKeys = imageState.images.keys
-        .where((key) => key.startsWith('banner_image_'))
-        .toList()
-      ..sort();
-    
+    List<String> sortedBannerKeys =
+        imageState.images.keys
+            .where((key) => key.startsWith('banner_image_'))
+            .toList()
+          ..sort();
+
     print('\n🎨 Banner Images (${sortedBannerKeys.length}):');
     for (int i = 0; i < sortedBannerKeys.length; i++) {
       String key = sortedBannerKeys[i];
@@ -235,7 +246,9 @@ class _EditProfileState extends State<EditProfile> {
       }
     }
 
-    print('\n✅ Total Images: ${(storeImage != null ? 1 : 0) + bannerImages.length + postImages.length}');
+    print(
+      '\n✅ Total Images: ${(storeImage != null ? 1 : 0) + bannerImages.length + postImages.length}',
+    );
     print('📤 Sending to API:');
     print('   - storeName: ${_storeNameController.text.trim()}');
     print('   - storeTags: $_tags');
@@ -298,7 +311,7 @@ class _EditProfileState extends State<EditProfile> {
                   builder: (context, state) {
                     String? coverImagePath;
                     String? profileImagePath;
-                    
+
                     if (state is ImagePicked) {
                       coverImagePath = state.images['cover_image'];
                       profileImagePath = state.images['profile_image'];
@@ -325,12 +338,18 @@ class _EditProfileState extends State<EditProfile> {
                                 topLeft: Radius.circular(5),
                                 topRight: Radius.circular(5),
                               ),
-                              border: Border.all(color: AppColors.stroke, width: 0.3),
+                              border: Border.all(
+                                color: AppColors.stroke,
+                                width: 0.3,
+                              ),
                               gradient: coverImagePath == null
                                   ? LinearGradient(
                                       begin: Alignment.centerLeft,
                                       end: Alignment.centerRight,
-                                      colors: [AppColors.primaryColor, AppColors.yellow],
+                                      colors: [
+                                        AppColors.primaryColor,
+                                        AppColors.yellow,
+                                      ],
                                     )
                                   : null,
                             ),
@@ -367,7 +386,10 @@ class _EditProfileState extends State<EditProfile> {
                                 height: context.heightPct(74 / 812),
                                 decoration: BoxDecoration(
                                   color: AppColors.white,
-                                  border: Border.all(color: AppColors.stroke, width: 1),
+                                  border: Border.all(
+                                    color: AppColors.stroke,
+                                    width: 1,
+                                  ),
                                   borderRadius: BorderRadius.circular(100),
                                 ),
                                 child: ClipOval(
@@ -378,20 +400,32 @@ class _EditProfileState extends State<EditProfile> {
                                         )
                                       : Center(
                                           child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Icon(
                                                 Icons.cloud_upload_outlined,
                                                 color: AppColors.primaryColor,
-                                                size: context.widthPct(24 / 375),
+                                                size: context.widthPct(
+                                                  24 / 375,
+                                                ),
                                               ),
-                                              SizedBox(height: context.heightPct(2 / 812)),
+                                              SizedBox(
+                                                height: context.heightPct(
+                                                  2 / 812,
+                                                ),
+                                              ),
                                               Text(
                                                 'Upload',
-                                                style: AppTextStyles.searchtext(context).copyWith(
-                                                  color: AppColors.primaryColor,
-                                                  fontSize: context.widthPct(10 / 375),
-                                                ),
+                                                style:
+                                                    AppTextStyles.searchtext(
+                                                      context,
+                                                    ).copyWith(
+                                                      color: AppColors
+                                                          .primaryColor,
+                                                      fontSize: context
+                                                          .widthPct(10 / 375),
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -407,7 +441,7 @@ class _EditProfileState extends State<EditProfile> {
                 ),
               ),
               SizedBox(height: context.heightPct(15 / 812)),
-              
+
               // Store Name
               Text(
                 AppStrings.storename,
@@ -419,42 +453,53 @@ class _EditProfileState extends State<EditProfile> {
                 labelText: '',
               ),
               SizedBox(height: context.heightPct(12 / 812)),
-              
+
               // Tags
-              Text(
-                AppStrings.tags,
-                style: AppTextStyles.bodyRegular(context),
-              ),
-              Container(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ReusableTextField(
-                        controller: _tagController,
-                        hintText: AppStrings.enterhere,
-                        labelText: '',
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: _addTag,
-                      child: Container(
-                        height: 46,
+              Text(AppStrings.tags, style: AppTextStyles.bodyRegular(context)),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: ReusableTextField(
+                      controller: _tagController,
+                      hintText: AppStrings.enterhere,
+                      labelText: '',
+                      trailingWidget: Container(
+                        height: context.heightPct(0.06),
                         width: 43,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          border: Border.all(color: AppColors.stroke, width: 1),
-                          borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(5),
-                            bottomRight: Radius.circular(5),
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(context.widthPct(0.013)),
+                            bottomRight: Radius.circular(
+                              context.widthPct(0.013),
+                            ),
                           ),
+                          color: AppColors.primaryColor,
                         ),
                         child: Icon(Icons.add, color: AppColors.white),
                       ),
+                      onTrailingWidgetTap: _addTag,
                     ),
-                  ],
-                ),
+                  ),
+                  // GestureDetector(
+                  //   onTap: _addTag,
+                  //   child: Container(
+                  //     height: context.heightPct(0.06),
+                  //     width: 43,
+                  //     decoration: BoxDecoration(
+                  //       color: AppColors.primaryColor,
+                  //       border: Border.all(color: AppColors.stroke, width: 1),
+                  //       borderRadius: const BorderRadius.only(
+                  //         topRight: Radius.circular(5),
+                  //         bottomRight: Radius.circular(5),
+                  //       ),
+                  //     ),
+                  //     child: Icon(Icons.add, color: AppColors.white),
+                  //   ),
+                  // ),
+                ],
               ),
-              
+
               // Display added tags
               if (_tags.isNotEmpty)
                 Padding(
@@ -467,30 +512,36 @@ class _EditProfileState extends State<EditProfile> {
                         label: Text(entry.value),
                         deleteIcon: const Icon(Icons.close, size: 18),
                         onDeleted: () => _removeTag(entry.key),
-                        backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                        backgroundColor: AppColors.primaryColor.withOpacity(
+                          0.1,
+                        ),
                       );
                     }).toList(),
                   ),
                 ),
-              
+
               SizedBox(height: context.heightPct(12 / 812)),
-              
+
               // Banner Images
-              Text(AppStrings.banner, style: AppTextStyles.bodyRegular(context)),
+              Text(
+                AppStrings.banner,
+                style: AppTextStyles.bodyRegular(context),
+              ),
               Text(AppStrings.max2mb, style: AppTextStyles.searchtext(context)),
               SizedBox(height: context.heightPct(8 / 812)),
-              
+
               BlocBuilder<ImagePickerBloc, ImagePickerState>(
                 builder: (context, state) {
                   Map<String, String> allImages = {};
-                  
+
                   if (state is ImagePicked) {
                     allImages = state.images;
                   } else if (state is ImageInitial) {
                     allImages = state.images;
                   }
 
-                  List<MapEntry<String, String>> bannerImages = allImages.entries
+                  List<MapEntry<String, String>> bannerImages = allImages
+                      .entries
                       .where((entry) => entry.key.startsWith('banner_image_'))
                       .toList();
 
@@ -501,12 +552,13 @@ class _EditProfileState extends State<EditProfile> {
                           itemCount: bannerImages.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: context.widthPct(15 / 375),
-                            mainAxisSpacing: context.heightPct(15 / 812),
-                            childAspectRatio: 16 / 9,
-                          ),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: context.widthPct(15 / 375),
+                                mainAxisSpacing: context.heightPct(15 / 812),
+                                childAspectRatio: 16 / 9,
+                              ),
                           itemBuilder: (context, index) {
                             final bannerEntry = bannerImages[index];
                             final bannerKey = bannerEntry.key;
@@ -561,30 +613,39 @@ class _EditProfileState extends State<EditProfile> {
                             );
                           },
                         ),
-                      
+
                       if (bannerImages.isNotEmpty)
                         SizedBox(height: context.heightPct(15 / 812)),
-                      
+
                       GestureDetector(
                         onTap: () async {
                           int nextIndex = 0;
-                          while (allImages.containsKey('banner_image_$nextIndex')) {
+                          while (allImages.containsKey(
+                            'banner_image_$nextIndex',
+                          )) {
                             nextIndex++;
                           }
-                          
+
                           String newBannerKey = 'banner_image_$nextIndex';
-                          
+
                           context.read<ImagePickerBloc>().add(
                             PickImageEvent(newBannerKey),
                           );
-                          
-                          await Future.delayed(const Duration(milliseconds: 500));
-                          final updatedState = context.read<ImagePickerBloc>().state;
-                          
+
+                          await Future.delayed(
+                            const Duration(milliseconds: 500),
+                          );
+                          final updatedState = context
+                              .read<ImagePickerBloc>()
+                              .state;
+
                           if (updatedState is ImagePicked) {
                             final imagePath = updatedState.images[newBannerKey];
                             if (imagePath != null && imagePath.isNotEmpty) {
-                              final isValid = await _validateBannerImage(imagePath, context);
+                              final isValid = await _validateBannerImage(
+                                imagePath,
+                                context,
+                              );
                               if (!isValid) {
                                 context.read<ImagePickerBloc>().add(
                                   RemoveImageEvent(newBannerKey),
@@ -617,16 +678,17 @@ class _EditProfileState extends State<EditProfile> {
                                 SizedBox(height: context.heightPct(5 / 812)),
                                 Text(
                                   'Add Banner',
-                                  style: AppTextStyles.searchtext(context).copyWith(
-                                    color: AppColors.primaryColor,
-                                  ),
+                                  style: AppTextStyles.searchtext(
+                                    context,
+                                  ).copyWith(color: AppColors.primaryColor),
                                 ),
                                 SizedBox(height: context.heightPct(3 / 812)),
                                 Text(
                                   '1280x320 pixels, Max 2MB',
-                                  style: AppTextStyles.searchtext(context).copyWith(
-                                    fontSize: context.widthPct(10 / 375),
-                                  ),
+                                  style: AppTextStyles.searchtext(context)
+                                      .copyWith(
+                                        fontSize: context.widthPct(10 / 375),
+                                      ),
                                 ),
                               ],
                             ),
@@ -637,18 +699,21 @@ class _EditProfileState extends State<EditProfile> {
                   );
                 },
               ),
-              
+
               SizedBox(height: context.heightPct(12 / 812)),
-              
+
               // Post Images
               Text(AppStrings.post, style: AppTextStyles.bodyRegular(context)),
-              Text(AppStrings.eachpost, style: AppTextStyles.searchtext(context)),
+              Text(
+                AppStrings.eachpost,
+                style: AppTextStyles.searchtext(context),
+              ),
               SizedBox(height: context.heightPct(8 / 812)),
-              
+
               BlocBuilder<ImagePickerBloc, ImagePickerState>(
                 builder: (context, state) {
                   Map<String, String> postImages = {};
-                  
+
                   if (state is ImagePicked) {
                     postImages = state.images;
                   } else if (state is ImageInitial) {
@@ -667,21 +732,28 @@ class _EditProfileState extends State<EditProfile> {
                     ),
                     itemBuilder: (context, index) {
                       String postKey = 'post_image_$index';
-                      String?    postImagePath = postImages[postKey];
+                      String? postImagePath = postImages[postKey];
 
                       return GestureDetector(
                         onTap: () async {
                           context.read<ImagePickerBloc>().add(
                             PickImageEvent(postKey),
                           );
-                          
-                          await Future.delayed(const Duration(milliseconds: 500));
-                          final updatedState = context.read<ImagePickerBloc>().state;
-                          
+
+                          await Future.delayed(
+                            const Duration(milliseconds: 500),
+                          );
+                          final updatedState = context
+                              .read<ImagePickerBloc>()
+                              .state;
+
                           if (updatedState is ImagePicked) {
                             final imagePath = updatedState.images[postKey];
                             if (imagePath != null && imagePath.isNotEmpty) {
-                              final isValid = await _validatePostImage(imagePath, context);
+                              final isValid = await _validatePostImage(
+                                imagePath,
+                                context,
+                              );
                               if (!isValid) {
                                 context.read<ImagePickerBloc>().add(
                                   RemoveImageEvent(postKey),
@@ -718,34 +790,40 @@ class _EditProfileState extends State<EditProfile> {
                                         color: AppColors.primaryColor,
                                         size: context.widthPct(32 / 375),
                                       ),
-                                      SizedBox(height: context.heightPct(5 / 812)),
+                                      SizedBox(
+                                        height: context.heightPct(5 / 812),
+                                      ),
                                       Text(
                                         'Upload',
-                                        style: AppTextStyles.searchtext(context).copyWith(
-                                          color: AppColors.primaryColor,
-                                        ),
+                                        style: AppTextStyles.searchtext(context)
+                                            .copyWith(
+                                              color: AppColors.primaryColor,
+                                            ),
                                       ),
-                                      SizedBox(height: context.heightPct(2 / 812)),
+                                      SizedBox(
+                                        height: context.heightPct(2 / 812),
+                                      ),
                                       Text(
                                         '1080x270',
-                                        style: AppTextStyles.searchtext(context).copyWith(
-                                          fontSize: context.widthPct(9 / 375),
-                                        ),
+                                        style: AppTextStyles.searchtext(context)
+                                            .copyWith(
+                                              fontSize: context.widthPct(
+                                                9 / 375,
+                                              ),
+                                            ),
                                       ),
                                     ],
                                   ),
                                 ),
                         ),
-                      
                       );
                     },
                   );
-               
                 },
               ),
-              
+
               SizedBox(height: context.heightPct(23 / 812)),
-              
+
               // Submit Button
               BlocConsumer<StoreBloc, StoreUpdateState>(
                 listener: (context, state) {
@@ -762,9 +840,7 @@ class _EditProfileState extends State<EditProfile> {
                   } else if (state.status == StoreUpdateStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          state.message ?? "Something went wrong",
-                        ),
+                        content: Text(state.message ?? "Something went wrong"),
                         backgroundColor: Colors.red,
                       ),
                     );

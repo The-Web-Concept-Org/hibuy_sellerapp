@@ -75,4 +75,5 @@ class KycBloc extends Bloc<KycEvent, KycState> {
       emit(state.copyWith(status: KycStatus.error, errorMessage: e.toString()));
     }
   }
+
 }

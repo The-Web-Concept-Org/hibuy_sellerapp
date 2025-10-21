@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 import 'dart:io';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
@@ -159,7 +159,7 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
 
               // SizedBox(height: context.heightPct(0.03)),
 
-              // ✅ Pass Validators
+              // Pass Validators
               ReusableTextField(
                 controller: storeNameController,
                 hintText: AppStrings.enterhere,
@@ -229,6 +229,7 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
               //   focusNode: countryFocus,
               //   nextFocusNode: provinceregionFocus,
               // ),
+
               Text(
                 AppStrings.country,
                 style: AppTextStyles.bodyRegular(context),

@@ -9,7 +9,11 @@ class ReusableTextField extends StatelessWidget {
   final TextEditingController? controller;
   final TextInputType keyboardType;
   final IconData? trailingIcon;
+  final Widget? trailingWidget;
+  final Widget? sufixWidget;
   final VoidCallback? onIconTap;
+  final VoidCallback? onTrailingWidgetTap;
+  final VoidCallback? onSufixWidgetTap;
   final Color? iconColor;
   final String? Function(String?)? validator;
 
@@ -30,7 +34,11 @@ class ReusableTextField extends StatelessWidget {
     this.validator,
     this.focusNode,
     this.nextFocusNode,
-    this.textInputAction = TextInputAction.next,  // default "Next"
+    this.textInputAction = TextInputAction.next,
+    this.trailingWidget,
+    this.onTrailingWidgetTap,
+    this.sufixWidget,
+    this.onSufixWidgetTap, // default "Next"
   });
 
   @override
@@ -38,18 +46,19 @@ class ReusableTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (labelText != null) ...[
-          Text(
-            labelText!,
-            style: AppTextStyles.bodyRegular(context),
+        if (labelText != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3.0),
+            child: Text(labelText!, style: AppTextStyles.bodyRegular(context)),
           ),
-          const SizedBox(height: 6),
-        ],
+        if (sufixWidget != null)
+          GestureDetector(onTap: onSufixWidgetTap, child: sufixWidget),
         Container(
           width: double.maxFinite,
           height: context.heightPct(0.06),
-          padding: EdgeInsets.symmetric(
-            horizontal: context.widthPct(0.043),
+          padding: EdgeInsets.only(
+            left: context.widthPct(0.043),
+            right: trailingWidget != null ? 0 : context.widthPct(0.043),
           ),
           decoration: BoxDecoration(
             color: AppColors.white,
@@ -87,9 +96,13 @@ class ReusableTextField extends StatelessWidget {
                   child: Icon(
                     trailingIcon,
                     size: context.widthPct(0.05),
-                    color: iconColor ??
-                        AppColors.secondry.withOpacity(0.50),
+                    color: iconColor ?? AppColors.secondry.withOpacity(0.50),
                   ),
+                ),
+              if (trailingWidget != null)
+                GestureDetector(
+                  onTap: onTrailingWidgetTap,
+                  child: trailingWidget,
                 ),
             ],
           ),

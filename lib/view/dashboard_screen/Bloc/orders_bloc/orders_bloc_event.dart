@@ -1,7 +1,14 @@
 part of 'orders_bloc_bloc.dart';
 
-sealed class OrdersEvent extends Equatable {
+abstract class OrdersEvent extends Equatable {
   const OrdersEvent();
+
+  @override
+  List<Object> get props => [];
+}
+
+class GetOrdersEvent extends OrdersEvent {
+  const GetOrdersEvent();
 
   @override
   List<Object> get props => [];
