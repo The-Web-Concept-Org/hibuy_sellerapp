@@ -9,4 +9,5 @@ class AppUrl {
   static const String editStoreProfile = '$baseUrl/editStoreProfile';
   static const String productCategory = '$baseUrl/getCategories';
   static const String getVehicleTypes = '$baseUrl/getVehicleTypes';
+  static const String getSellerDashboard = '$baseUrl/sellerDashboard';
 }
