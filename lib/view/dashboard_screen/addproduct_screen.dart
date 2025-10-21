@@ -1,5 +1,5 @@
-
 import 'dart:io';
+import 'dart:math';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
@@ -42,17 +42,18 @@ class _AddproductScreenState extends State<AddproductScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _brandController = TextEditingController();
-  final TextEditingController _purchasePriceController = TextEditingController();
+  final TextEditingController _purchasePriceController =
+      TextEditingController();
   final TextEditingController _productPriceController = TextEditingController();
   final TextEditingController _discountController = TextEditingController();
-  final TextEditingController _discountedPriceController = TextEditingController();
+  final TextEditingController _discountedPriceController =
+      TextEditingController();
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _lengthController = TextEditingController();
   final TextEditingController _widthController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
-  final TextEditingController _pricecCntroller= TextEditingController();
-   final TextEditingController _stockCntroller= TextEditingController();
-
+  final TextEditingController _pricecCntroller = TextEditingController();
+  final TextEditingController _stockCntroller = TextEditingController();
 
   // Focus Nodes
   final FocusNode _titleFocus = FocusNode();
@@ -68,7 +69,6 @@ class _AddproductScreenState extends State<AddproductScreen> {
   final FocusNode _heightFocus = FocusNode();
   final FocusNode _priceFocus = FocusNode();
   final FocusNode _stockFocus = FocusNode();
-
 
   // Selected vehicle
   String? _selectedVehicle;
@@ -122,7 +122,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
 
   void _filterVehicles() {
     final vehicleState = context.read<VehicleTypeBloc>().state;
-    
+
     if (vehicleState.status != VehicleTypeStatus.success) return;
 
     final weight = double.tryParse(_weightController.text) ?? 0;
@@ -171,7 +171,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
         return weightMatch && lengthMatch && widthMatch && heightMatch;
       }).toList();
 
-      if (_selectedVehicle != null && 
+      if (_selectedVehicle != null &&
           !_filteredVehicles.any((v) => v.vehicleType == _selectedVehicle)) {
         _selectedVehicle = null;
       }
@@ -202,7 +202,10 @@ class _AddproductScreenState extends State<AddproductScreen> {
     }
   }
 
-  List<dynamic> _getCategoriesForLevel(int level, List<dynamic> rootCategories) {
+  List<dynamic> _getCategoriesForLevel(
+    int level,
+    List<dynamic> rootCategories,
+  ) {
     if (level == 0) {
       return rootCategories;
     }
@@ -239,23 +242,27 @@ class _AddproductScreenState extends State<AddproductScreen> {
         ? lastSelection.level + 1
         : lastSelection.level;
   }
-   // Validate post image
-  Future<bool> _validatePostImage(String imagePath, BuildContext context) async {
+
+  // Validate post image
+  Future<bool> _validatePostImage(
+    String imagePath,
+    BuildContext context,
+  ) async {
     try {
       final file = File(imagePath);
-      
+
       print('\n📸 Post Image Validation:');
       print('   📁 Path: $imagePath');
-      
+
       // Check file size
       final fileSizeInBytes = await file.length();
       final fileSizeInMB = fileSizeInBytes / (1024 * 1024);
       print('   📊 Size: ${fileSizeInMB.toStringAsFixed(2)} MB');
-      
+
       // Check image dimensions (MUST be 1080x1080)
       final imageBytes = await file.readAsBytes();
       final image = img.decodeImage(imageBytes);
-      
+
       if (image == null) {
         print('   ❌ Failed to decode image');
         if (context.mounted) {
@@ -263,23 +270,23 @@ class _AddproductScreenState extends State<AddproductScreen> {
         }
         return false;
       }
-      
+
       print('   📐 Dimensions: ${image.width}x${image.height} pixels');
       print('   ✓ Required: 1080x1080 pixels');
-      
+
       if (image.width != 1080 || image.height != 270) {
         print('   ❌ Dimension validation FAILED!');
         print('   ❌ Expected: 1080x1080');
         print('   ❌ Got: ${image.width}x${image.height}');
         if (context.mounted) {
           _showErrorDialog(
-            context, 
-            'Post image MUST be exactly 1080x1080 pixels\n\nYour image: ${image.width}x${image.height} pixels\nRequired: 1080x1080 pixels'
+            context,
+            'Post image MUST be exactly 1080x1080 pixels\n\nYour image: ${image.width}x${image.height} pixels\nRequired: 1080x1080 pixels',
           );
         }
         return false;
       }
-      
+
       print('   ✅ All validations PASSED');
       return true;
     } catch (e) {
@@ -290,7 +297,8 @@ class _AddproductScreenState extends State<AddproductScreen> {
       return false;
     }
   }
-// Show error dialog
+
+  // Show error dialog
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -300,10 +308,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
             'Invalid Image',
             style: AppTextStyles.bodyRegular(context),
           ),
-          content: Text(
-            message,
-            style: AppTextStyles.searchtext(context),
-          ),
+          content: Text(message, style: AppTextStyles.searchtext(context)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -318,16 +323,13 @@ class _AddproductScreenState extends State<AddproductScreen> {
     );
   }
 
-
   // ============= VARIANT DIALOG METHODS =============
-  
+
   void _showVariantDialog({VariantModel? existingVariant, int? index}) async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => VariantDialog(
-        existingVariant: existingVariant,
-        variantIndex: index,
-      ),
+      builder: (context) =>
+          VariantDialog(existingVariant: existingVariant, variantIndex: index),
     );
 
     if (result != null) {
@@ -342,9 +344,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
         );
       } else {
         // Add new variant
-        context.read<VariantBloc>().add(
-          AddVariantEvent(optionName, values),
-        );
+        context.read<VariantBloc>().add(AddVariantEvent(optionName, values));
       }
     }
   }
@@ -400,7 +400,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
   }
 
   // ============= VARIANTS SECTION =============
-  
+
   Widget _buildVariantsSection(BuildContext context) {
     return BlocBuilder<VariantBloc, VariantState>(
       builder: (context, state) {
@@ -423,12 +423,9 @@ class _AddproductScreenState extends State<AddproductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  AppStrings.variants,
-                  style: AppTextStyles.bold4(context),
-                ),
+                Text(AppStrings.variants, style: AppTextStyles.bold4(context)),
                 SizedBox(height: context.heightPct(8 / 812)),
-                
+
                 // Add Option Button - FIXED
                 GestureDetector(
                   onTap: () => _showVariantDialog(), // Call the method properly
@@ -451,7 +448,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
                     ),
                   ),
                 ),
-                
+
                 // Display added variants
                 if (state.variants.isNotEmpty) ...[
                   SizedBox(height: context.heightPct(10 / 812)),
@@ -477,128 +474,137 @@ class _AddproductScreenState extends State<AddproductScreen> {
       },
     );
   }
+  
+
 Widget _buildBexpansiontile(
   BuildContext context,
   VariantModel mainVariant,
   int index,
   List<VariantModel> allVariants,
 ) {
-  // Check if there is a secondary variant 
+  // 🧩 Identify secondary variant (e.g., color)
   final VariantModel? subVariant =
       allVariants.length > 1 ? allVariants.last : null;
 
-  // ✅ Get the current main variant value (
-  final String mainValue =
-      (mainVariant.values.length > index) ? mainVariant.values[index] : '';
+  // 🧠 Debug prints
+  print("➡️ Main Variant: ${mainVariant.optionName}");
+  print("   Values: ${mainVariant.values}");
+  if (subVariant != null) {
+    print("➡️ Sub Variant: ${subVariant.optionName}");
+    print("   Values: ${subVariant.values}");
+  }
 
-  // ✅ Build subitems list: 
-  final List<String> subItems = [
-    mainValue,
-    if (subVariant != null) ...subVariant.values,
-  ];
+  // 🧩 Create a list of ExpansionTiles — one for each main variant value
+  return Column(
+    children: List.generate(mainVariant.values.length, (i) {
+      // Current main value (e.g. Large, Medium)
+      final String mainValue = mainVariant.values[i];
 
-  return Container(
-    width: double.infinity,
-    margin: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
-    decoration: BoxDecoration(
-      color: AppColors.white,
-      borderRadius: BorderRadius.circular(8),
-      border: Border.all(
-        color: AppColors.stroke.withOpacity(0.5),
-      ),
-    ),
-    child: Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        title: Text(
-          mainValue, // ✅ Title shows "Large", "Medium"
-          style: AppTextStyles.bold4(context),
-        ),
-        tilePadding: EdgeInsets.symmetric(
-          horizontal: context.widthPct(12 / 375),
-        ),
-        childrenPadding: EdgeInsets.symmetric(
-          horizontal: context.widthPct(16 / 375),
-          vertical: context.heightPct(8 / 812),
-        ),
+      final List<String> subItems = [
+        mainValue,
+        if (subVariant != null) ...subVariant.values,
+      ];
 
-        // ✅ Sub-items (Large, Red, Blue) OR (Medium, Red, Blue)
-        children: subItems.map((value) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(
-                  color: AppColors.stroke.withOpacity(0.5),
-                ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(context.widthPct(10 / 375)),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // 🖼️ Image placeholder
-                    Container(
-                      width: context.widthPct(47 / 375),
-                      height: context.widthPct(47 / 375),
-                      decoration: BoxDecoration(
-                        color: AppColors.stroke.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: AppColors.stroke),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.add_photo_alternate_outlined,
-                          color: AppColors.black2,
-                          size: context.widthPct(18 / 375),
-                        ),
-                      ),
+      return Container(
+        width: double.infinity,
+        margin: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.stroke.withOpacity(0.5)),
+        ),
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            title: Text(
+              mainValue, // 👈 Each tile shows its own title (Large, Medium)
+              style: AppTextStyles.bold4(context),
+            ),
+            tilePadding:
+                EdgeInsets.symmetric(horizontal: context.widthPct(12 / 375)),
+            childrenPadding: EdgeInsets.symmetric(
+              horizontal: context.widthPct(16 / 375),
+              vertical: context.heightPct(8 / 812),
+            ),
+
+            // 🧱 Sub-items (Large, Red, Blue)
+            children: subItems.map((value) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                      color: AppColors.stroke.withOpacity(0.5),
                     ),
-                    SizedBox(width: context.widthPct(10 / 375)),
-
-                    // Variant name, Price & Stock fields
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            value,
-                            style: AppTextStyles.bold4(context),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(context.widthPct(10 / 375)),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // 🖼️ Image placeholder
+                        Container(
+                          width: context.widthPct(47 / 375),
+                          height: context.widthPct(47 / 375),
+                          decoration: BoxDecoration(
+                            color: AppColors.stroke.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(color: AppColors.stroke),
                           ),
-                          SizedBox(height: context.heightPct(6 / 812)),
-                          Row(
+                          child: Center(
+                            child: Icon(
+                              Icons.add_photo_alternate_outlined,
+                              color: AppColors.black2,
+                              size: context.widthPct(18 / 375),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: context.widthPct(10 / 375)),
+
+                        // Variant name, Price & Stock fields
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: ReusableTextField(
-                                  controller: TextEditingController(),
-                                  hintText: "Price",
-                                ),
+                              Text(
+                                value,
+                                style: AppTextStyles.bold4(context),
                               ),
-                              SizedBox(width: context.widthPct(10 / 375)),
-                              Expanded(
-                                child: ReusableTextField(
-                                  controller: TextEditingController(),
-                                  hintText: "Stock",
-                                ),
+                              SizedBox(height: context.heightPct(6 / 812)),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ReusableTextField(
+                                      controller: TextEditingController(),
+                                      hintText: "Price",
+                                    ),
+                                  ),
+                                  SizedBox(width: context.widthPct(10 / 375)),
+                                  Expanded(
+                                    child: ReusableTextField(
+                                      controller: TextEditingController(),
+                                      hintText: "Stock",
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    ),
+              );
+            }).toList(),
+          ),
+        ),
+      );
+    }),
   );
 }
-
 
   // Updated _buildVariantBox with proper edit functionality
   Widget _buildVariantBox(
@@ -632,11 +638,11 @@ Widget _buildBexpansiontile(
                 Text(title, style: AppTextStyles.bold4(context)),
                 GestureDetector(
                   onTap: () {
-                    final variant = context.read<VariantBloc>().state.variants[index];
-                    _showVariantDialog(
-                      existingVariant: variant,
-                      index: index,
-                    );
+                    final variant = context
+                        .read<VariantBloc>()
+                        .state
+                        .variants[index];
+                    _showVariantDialog(existingVariant: variant, index: index);
                   },
                   child: SvgPicture.asset(
                     ImageAssets.edit,
@@ -779,117 +785,146 @@ Widget _buildBexpansiontile(
                             TextSpan(text: AppStrings.note),
                             TextSpan(
                               text: AppStrings.spantext,
-                              style: AppTextStyles.regular(context)
-                                  .copyWith(fontWeight: FontWeight.w600),
+                              style: AppTextStyles.regular(
+                                context,
+                              ).copyWith(fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
                       ),
                       SizedBox(height: context.heightPct(10 / 812)),
- BlocBuilder<ImagePickerBloc, ImagePickerState>(
-                builder: (context, state) {
-                  Map<String, String> postImages = {};
-                  
-                  if (state is ImagePicked) {
-                    postImages = state.images;
-                  } else if (state is ImageInitial) {
-                    postImages = state.images;
-                  }
+                      BlocBuilder<ImagePickerBloc, ImagePickerState>(
+                        builder: (context, state) {
+                          Map<String, String> postImages = {};
 
-                 return GridView.builder(
-  itemCount: 5,
-  shrinkWrap: true,
-  physics: const NeverScrollableScrollPhysics(),
-  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: context.isMobile
-        ? 3
-        : (context.isTablet ? 4 : 6),
-    crossAxisSpacing: context.widthPct(20 / 375),
-    mainAxisSpacing: context.heightPct(20 / 812),
-  ),
-  itemBuilder: (context, index) {
-    String postKey = 'post_image_$index';
-    String? postImagePath = postImages[postKey];
+                          if (state is ImagePicked) {
+                            postImages = state.images;
+                          } else if (state is ImageInitial) {
+                            postImages = state.images;
+                          }
 
-    return GestureDetector(
-      onTap: () async {
-        context.read<ImagePickerBloc>().add(
-          PickImageEvent(postKey),
-        );
+                          return GridView.builder(
+                            itemCount: 5,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: context.isMobile
+                                      ? 3
+                                      : (context.isTablet ? 4 : 6),
+                                  crossAxisSpacing: context.widthPct(20 / 375),
+                                  mainAxisSpacing: context.heightPct(20 / 812),
+                                ),
+                            itemBuilder: (context, index) {
+                              String postKey = 'post_image_$index';
+                              String? postImagePath = postImages[postKey];
 
-        await Future.delayed(const Duration(milliseconds: 500));
-        final updatedState = context.read<ImagePickerBloc>().state;
+                              return GestureDetector(
+                                onTap: () async {
+                                  context.read<ImagePickerBloc>().add(
+                                    PickImageEvent(postKey),
+                                  );
 
-        if (updatedState is ImagePicked) {
-          final imagePath = updatedState.images[postKey];
-          if (imagePath != null && imagePath.isNotEmpty) {
-            final isValid = await _validatePostImage(imagePath, context);
-            if (!isValid) {
-              context.read<ImagePickerBloc>().add(
-                RemoveImageEvent(postKey),
-              );
-            }
-          }
-        }
-      },
-      child: Container(
-        width: context.widthPct(100 / 375),
-        height: context.heightPct(100 / 812),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(
-            context.widthPct(0.027),
-          ),
-          border: Border.all(
-            color: AppColors.stroke,
-            width: context.widthPct(0.0025),
-          ),
-        ),
-        child: postImagePath != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(
-                  context.widthPct(0.027),
-                ),
-                child: Image.file(
-                  File(postImagePath),
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
-              )
-            : Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.cloud_upload_outlined,
-                      color: AppColors.primaryColor,
-                      size: context.widthPct(32 / 375),
-                    ),
-                    SizedBox(height: context.heightPct(5 / 812)),
-                    Text(
-                      'Upload',
-                      style: AppTextStyles.searchtext(context).copyWith(
-                        color: AppColors.primaryColor,
-                      ),  
-                    ),
-                    SizedBox(height: context.heightPct(2 / 812)),
-                    Text(
-                      '1080x1080',
-                      style: AppTextStyles.searchtext(context).copyWith(
-                        fontSize: context.widthPct(9 / 375),
+                                  await Future.delayed(
+                                    const Duration(milliseconds: 500),
+                                  );
+                                  final updatedState = context
+                                      .read<ImagePickerBloc>()
+                                      .state;
+
+                                  if (updatedState is ImagePicked) {
+                                    final imagePath =
+                                        updatedState.images[postKey];
+                                    if (imagePath != null &&
+                                        imagePath.isNotEmpty) {
+                                      final isValid = await _validatePostImage(
+                                        imagePath,
+                                        context,
+                                      );
+                                      if (!isValid) {
+                                        context.read<ImagePickerBloc>().add(
+                                          RemoveImageEvent(postKey),
+                                        );
+                                      }
+                                    }
+                                  }
+                                },
+                                child: Container(
+                                  width: context.widthPct(100 / 375),
+                                  height: context.heightPct(100 / 812),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(
+                                      context.widthPct(0.027),
+                                    ),
+                                    border: Border.all(
+                                      color: AppColors.stroke,
+                                      width: context.widthPct(0.0025),
+                                    ),
+                                  ),
+                                  child: postImagePath != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            context.widthPct(0.027),
+                                          ),
+                                          child: Image.file(
+                                            File(postImagePath),
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                          ),
+                                        )
+                                      : Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.cloud_upload_outlined,
+                                                color: AppColors.primaryColor,
+                                                size: context.widthPct(
+                                                  32 / 375,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: context.heightPct(
+                                                  5 / 812,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Upload',
+                                                style:
+                                                    AppTextStyles.searchtext(
+                                                      context,
+                                                    ).copyWith(
+                                                      color: AppColors
+                                                          .primaryColor,
+                                                    ),
+                                              ),
+                                              SizedBox(
+                                                height: context.heightPct(
+                                                  2 / 812,
+                                                ),
+                                              ),
+                                              Text(
+                                                '1080x1080',
+                                                style:
+                                                    AppTextStyles.searchtext(
+                                                      context,
+                                                    ).copyWith(
+                                                      fontSize: context
+                                                          .widthPct(9 / 375),
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
-                    ),
-                  ],
-                ),
-              ),
-      ),
-    );
-  },
-);
-
-                },
- ),
                       SizedBox(height: context.heightPct(25 / 812)),
 
                       ReusableTextField(
@@ -1031,7 +1066,8 @@ Widget _buildBexpansiontile(
                       // VEHICLE TYPE DROPDOWN
                       BlocBuilder<VehicleTypeBloc, VehicleTypeState>(
                         builder: (context, vehicleState) {
-                          if (vehicleState.status == VehicleTypeStatus.loading) {
+                          if (vehicleState.status ==
+                              VehicleTypeStatus.loading) {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),
@@ -1119,22 +1155,33 @@ Widget _buildBexpansiontile(
                       _buildVariantsSection(context),
                       BlocBuilder<VariantBloc, VariantState>(
                         builder: (context, state) {
-                          if (state.variants.isEmpty) return const SizedBox.shrink();
+                          if (state.variants.isEmpty)
+                            return const SizedBox.shrink();
                           return Column(
-                            children: state.variants.asMap().entries.map((entry) {
+                            children: state.variants.asMap().entries.map((
+                              entry,
+                            ) {
                               final index = entry.key;
                               final variant = entry.value;
+                              print("ibde ====== $index");
                               return Padding(
-                                padding: EdgeInsets.only(bottom: context.heightPct(12 / 812)),
-                                child: _buildBexpansiontile(context, variant, index, state.variants),
+                                padding: EdgeInsets.only(
+                                  bottom: context.heightPct(12 / 812),
+                                ),
+                                child: _buildBexpansiontile(
+                                  context,
+                                  variant,
+                                  index,
+                                  state.variants,
+                                ),
                               );
                             }).toList(),
                           );
                         },
                       ),
-                      
+
                       SizedBox(height: context.heightPct(30 / 812)),
-                     ],
+                    ],
                   ),
                 ),
               );
