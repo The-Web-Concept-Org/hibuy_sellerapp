@@ -32,6 +32,10 @@ import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 import 'package:image/image.dart' as img;
 
+// todo: update varient logic because of api change
+//  todo: varient images before upload
+// todo: calculate discounted price logic
+// todo: data show in textfield after add product 
 class AddproductScreen extends StatefulWidget {
   const AddproductScreen({super.key});
 
