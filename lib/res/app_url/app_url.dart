@@ -12,4 +12,5 @@ class AppUrl {
   
   static const String getSellerDashboard = '$baseUrl/sellerDashboard';
   static const String getOrders = '$baseUrl/sellerOrders';
+  static const String storeProduct = '$baseUrl/storeProduct';
 }

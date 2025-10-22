@@ -8,11 +8,15 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_event.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_state.dart';
+import 'package:hibuy/models/addproduct_model.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/addproduct_bloc/add_product_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/addproduct_bloc/add_product_event.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/addproduct_bloc/add_product_state.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/product_category/productcategory_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/product_category/productcategory_event.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/product_category/productcategory_state.dart';
@@ -24,6 +28,7 @@ import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_even
 import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_state.dart';
 import 'package:hibuy/widgets/dashboard/variant_dialog.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
+import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 import 'package:image/image.dart' as img;
 
@@ -348,6 +353,148 @@ class _AddproductScreenState extends State<AddproductScreen> {
       }
     }
   }
+  void _submitForm() {
+    if (_titleController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter product title')),
+      );
+      return;
+    }
+
+    if (selectedCategories.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one category')),
+      );
+      return;
+    }
+
+    final imageState = context.read<ImagePickerBloc>().state;
+    List<String> productImages = [];
+
+    if (imageState is ImagePicked || imageState is ImageInitial) {
+      final images = imageState is ImagePicked
+          ? imageState.images
+          : (imageState as ImageInitial).images;
+      for (int i = 0; i < 5; i++) {
+        String postKey = 'addproduct_$i';
+        if (images.containsKey(postKey) && images[postKey] != null) {
+          productImages.add(images[postKey]!);
+        }
+      }
+    }
+
+    if (productImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please upload at least one product image')),
+      );
+      return;
+    }
+
+    final variantState = context.read<VariantBloc>().state;
+    List<Variants> apiVariants = [];
+
+    if (variantState.variants.isNotEmpty) {
+      final variantData = ((variantState as dynamic).variantCombinations ?? {}) as Map<String, dynamic>;
+
+      if (variantState.variants.length == 1) {
+        final mainVariant = variantState.variants[0];
+        for (var value in mainVariant.values) {
+          final key = value;
+          final data = variantData[key];
+
+          apiVariants.add(Variants(
+            parentName: value,
+            parentOptionName: mainVariant.optionName,
+            parentPrice: data?['price'] ?? '',
+            parentStock: data?['stock'] ?? '',
+            parentImage: data?['image'] ?? '',
+            children: [],
+          ));
+        }
+      } else if (variantState.variants.length >= 2) {
+        final mainVariant = variantState.variants[0];
+        final subVariant = variantState.variants[1];
+
+        for (var mainValue in mainVariant.values) {
+          List<Children> children = [];
+
+          for (var subValue in subVariant.values) {
+            final key = '$mainValue-$subValue';
+            final data = variantData[key];
+
+            children.add(Children(
+              name: subValue,
+              childOptionName: subVariant.optionName,
+              price: data?['price'] ?? '',
+              stock: data?['stock'] ?? '',
+              image: data?['image'] ?? '',
+            ));
+          }
+
+          final parentData = variantData[mainValue];
+          apiVariants.add(Variants(
+            parentName: mainValue,
+            parentOptionName: mainVariant.optionName,
+            parentPrice: parentData?['price'] ?? '',
+            parentStock: parentData?['stock'] ?? '',
+            parentImage: parentData?['image'] ?? '',
+            children: children,
+          ));
+        }
+      }
+    }
+
+    String? categoryId, subcategoryId, subSubcategoryId;
+    String? categoryLevel3, categoryLevel4, categoryLevel5;
+
+    if (selectedCategories.isNotEmpty) {
+      categoryId = selectedCategories[0].category.id?.toString();
+    }
+    if (selectedCategories.length > 1) {
+      subcategoryId = selectedCategories[1].category.id?.toString();
+    }
+    if (selectedCategories.length > 2) {
+      subSubcategoryId = selectedCategories[2].category.id?.toString();
+    }
+    if (selectedCategories.length > 3) {
+      categoryLevel3 = selectedCategories[3].category.id?.toString();
+    }
+    if (selectedCategories.length > 4) {
+      categoryLevel4 = selectedCategories[4].category.id?.toString();
+    }
+    if (selectedCategories.length > 5) {
+      categoryLevel5 = selectedCategories[5].category.id?.toString();
+    }
+
+    final vehicleState = context.read<VehicleTypeBloc>().state;
+    String? selectedVehicle = _selectedVehicle;
+
+    final product = AddProduct(
+      productImages: productImages,
+      title: _titleController.text,
+      company: _brandController.text,
+      categoryId: categoryId,
+      subcategoryId: subcategoryId,
+      subSubcategoryId: subSubcategoryId,
+      categoryLevel3: categoryLevel3,
+      categoryLevel4: categoryLevel4,
+      categoryLevel5: categoryLevel5,
+      purchasePrice: _purchasePriceController.text,
+      productPrice: _productPriceController.text,
+      discount: _discountController.text,
+      discountedPrice: _discountedPriceController.text,
+      description: _descriptionController.text,
+      weight: _weightController.text,
+      length: _lengthController.text,
+      width: _widthController.text,
+      height: _heightController.text,
+      vehicleType: selectedVehicle,
+      variants: apiVariants.isEmpty ? null : apiVariants,
+    );
+
+    context.read<AddProductBloc>().add(SubmitAddProductEvent(product));
+  }
+
 
   Widget _buildCategoryDropdown(
     int level,
@@ -474,137 +621,138 @@ class _AddproductScreenState extends State<AddproductScreen> {
       },
     );
   }
-  
 
-Widget _buildBexpansiontile(
-  BuildContext context,
-  VariantModel mainVariant,
-  int index,
-  List<VariantModel> allVariants,
-) {
-  // 🧩 Identify secondary variant (e.g., color)
-  final VariantModel? subVariant =
-      allVariants.length > 1 ? allVariants.last : null;
+  Widget _buildBexpansiontile(
+    BuildContext context,
+    VariantModel mainVariant,
+    int index,
+    List<VariantModel> allVariants,
+  ) {
+    // 🧩 Identify secondary variant (e.g., color)
+    final VariantModel? subVariant = allVariants.length > 1
+        ? allVariants.last
+        : null;
 
-  // 🧠 Debug prints
-  print("➡️ Main Variant: ${mainVariant.optionName}");
-  print("   Values: ${mainVariant.values}");
-  if (subVariant != null) {
-    print("➡️ Sub Variant: ${subVariant.optionName}");
-    print("   Values: ${subVariant.values}");
-  }
+    // 🧠 Debug prints
+    print("➡️ Main Variant: ${mainVariant.optionName}");
+    print("   Values: ${mainVariant.values}");
+    if (subVariant != null) {
+      print("➡️ Sub Variant: ${subVariant.optionName}");
+      print("   Values: ${subVariant.values}");
+    }
 
-  // 🧩 Create a list of ExpansionTiles — one for each main variant value
-  return Column(
-    children: List.generate(mainVariant.values.length, (i) {
-      // Current main value (e.g. Large, Medium)
-      final String mainValue = mainVariant.values[i];
+    // 🧩 Create a list of ExpansionTiles — one for each main variant value
+    return Column(
+      children: List.generate(mainVariant.values.length, (i) {
+        // Current main value (e.g. Large, Medium)
+        final String mainValue = mainVariant.values[i];
 
-      final List<String> subItems = [
-        mainValue,
-        if (subVariant != null) ...subVariant.values,
-      ];
+        final List<String> subItems = [
+          mainValue,
+          if (subVariant != null) ...subVariant.values,
+        ];
 
-      return Container(
-        width: double.infinity,
-        margin: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.stroke.withOpacity(0.5)),
-        ),
-        child: Theme(
-          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-          child: ExpansionTile(
-            title: Text(
-              mainValue, // 👈 Each tile shows its own title (Large, Medium)
-              style: AppTextStyles.bold4(context),
-            ),
-            tilePadding:
-                EdgeInsets.symmetric(horizontal: context.widthPct(12 / 375)),
-            childrenPadding: EdgeInsets.symmetric(
-              horizontal: context.widthPct(16 / 375),
-              vertical: context.heightPct(8 / 812),
-            ),
+        return Container(
+          width: double.infinity,
+          margin: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.stroke.withOpacity(0.5)),
+          ),
+          child: Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              title: Text(
+                mainValue, // 👈 Each tile shows its own title (Large, Medium)
+                style: AppTextStyles.bold4(context),
+              ),
+              tilePadding: EdgeInsets.symmetric(
+                horizontal: context.widthPct(12 / 375),
+              ),
+              childrenPadding: EdgeInsets.symmetric(
+                horizontal: context.widthPct(16 / 375),
+                vertical: context.heightPct(8 / 812),
+              ),
 
-            // 🧱 Sub-items (Large, Red, Blue)
-            children: subItems.map((value) {
-              return Padding(
-                padding: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(
-                      color: AppColors.stroke.withOpacity(0.5),
+              // 🧱 Sub-items (Large, Red, Blue)
+              children: subItems.map((value) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(
+                        color: AppColors.stroke.withOpacity(0.5),
+                      ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(context.widthPct(10 / 375)),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // 🖼️ Image placeholder
-                        Container(
-                          width: context.widthPct(47 / 375),
-                          height: context.widthPct(47 / 375),
-                          decoration: BoxDecoration(
-                            color: AppColors.stroke.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: AppColors.stroke),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.add_photo_alternate_outlined,
-                              color: AppColors.black2,
-                              size: context.widthPct(18 / 375),
+                    child: Padding(
+                      padding: EdgeInsets.all(context.widthPct(10 / 375)),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          // 🖼️ Image placeholder
+                          Container(
+                            width: context.widthPct(47 / 375),
+                            height: context.widthPct(47 / 375),
+                            decoration: BoxDecoration(
+                              color: AppColors.stroke.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: AppColors.stroke),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.add_photo_alternate_outlined,
+                                color: AppColors.black2,
+                                size: context.widthPct(18 / 375),
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(width: context.widthPct(10 / 375)),
+                          SizedBox(width: context.widthPct(10 / 375)),
 
-                        // Variant name, Price & Stock fields
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                value,
-                                style: AppTextStyles.bold4(context),
-                              ),
-                              SizedBox(height: context.heightPct(6 / 812)),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ReusableTextField(
-                                      controller: TextEditingController(),
-                                      hintText: "Price",
+                          // Variant name, Price & Stock fields
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  value,
+                                  style: AppTextStyles.bold4(context),
+                                ),
+                                SizedBox(height: context.heightPct(6 / 812)),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ReusableTextField(
+                                        controller: TextEditingController(),
+                                        hintText: "Price",
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(width: context.widthPct(10 / 375)),
-                                  Expanded(
-                                    child: ReusableTextField(
-                                      controller: TextEditingController(),
-                                      hintText: "Stock",
+                                    SizedBox(width: context.widthPct(10 / 375)),
+                                    Expanded(
+                                      child: ReusableTextField(
+                                        controller: TextEditingController(),
+                                        hintText: "Stock",
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      );
-    }),
-  );
-}
+        );
+      }),
+    );
+  }
 
   // Updated _buildVariantBox with proper edit functionality
   Widget _buildVariantBox(
@@ -816,7 +964,7 @@ Widget _buildBexpansiontile(
                                   mainAxisSpacing: context.heightPct(20 / 812),
                                 ),
                             itemBuilder: (context, index) {
-                              String postKey = 'post_image_$index';
+                              String postKey = 'addproduct_$index';
                               String? postImagePath = postImages[postKey];
 
                               return GestureDetector(
@@ -1157,31 +1305,54 @@ Widget _buildBexpansiontile(
                         builder: (context, state) {
                           if (state.variants.isEmpty)
                             return const SizedBox.shrink();
-                          return Column(
-                            children: state.variants.asMap().entries.map((
-                              entry,
-                            ) {
-                              final index = entry.key;
-                              final variant = entry.value;
-                              print("ibde ====== $index");
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                  bottom: context.heightPct(12 / 812),
-                                ),
-                                child: _buildBexpansiontile(
-                                  context,
-                                  variant,
-                                  index,
-                                  state.variants,
-                                ),
-                              );
-                            }).toList(),
+
+                          
+                          return _buildBexpansiontile(
+                            context,
+                            state.variants[0], 
+                            0,
+                            state
+                                .variants, 
                           );
                         },
                       ),
-
                       SizedBox(height: context.heightPct(30 / 812)),
-                    ],
+                       // Submit Button
+              BlocConsumer<AddProductBloc, AddProductState>(
+                listener: (context, state) {
+                  if (state.status == AddProductStatus.success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          state.message ?? "Add product  successfully",
+                        ),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    // Navigate or refresh as needed
+                  } else if (state.status == AddProductStatus.error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.message ?? "Something went wrong"),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  return ReusableButton(
+                    text: state.status == AddProductStatus.loading
+                        ? "Submitting..."
+                        : "Done",
+                    onPressed: state.status == AddProductStatus.loading
+                        ? () {}
+                        : _submitForm,
+                  );
+                  
+                },
+              ),
+               SizedBox(height: context.heightPct(0.04)),
+            ],
                   ),
                 ),
               );
