@@ -97,7 +97,7 @@ class ImagePickerBloc extends Bloc<ImagePickerEvent, ImagePickerState> {
 
     _isPickerActive = true;
     try {
-      final pickedFile = await _picker.pickVideo(source: ImageSource.gallery);
+      final pickedFile = await _picker.pickVideo(source: ImageSource.camera);
 
       if (pickedFile != null) {
         log('🎥 Video picked: ${pickedFile.path}');

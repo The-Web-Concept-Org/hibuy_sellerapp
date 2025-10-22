@@ -13,3 +13,12 @@ class GetOrdersEvent extends OrdersEvent {
   @override
   List<Object> get props => [];
 }
+
+class SetCurrentOrder extends OrdersEvent {
+  final OrderData currentOrder;
+  const SetCurrentOrder(this.currentOrder);
+
+  @override
+  List<Object> get props => [currentOrder];
+}
+

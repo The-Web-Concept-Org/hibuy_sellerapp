@@ -4,6 +4,7 @@ import 'package:hibuy/view/bottom_navigation_bar/bottom_nab_bar.dart';
 import 'package:hibuy/view/dashboard_screen/addproduct_screen.dart';
 import 'package:hibuy/view/dashboard_screen/dashboard_home_screen.dart';
 import 'package:hibuy/view/dashboard_screen/edit_profile.dart';
+import 'package:hibuy/view/dashboard_screen/order_details_screen.dart';
 import 'package:hibuy/view/dashboard_screen/product_details.dart';
 import 'package:hibuy/view/menu_screens/boost_product.dart';
 import 'package:hibuy/view/menu_screens/inquiries_screen.dart';
@@ -101,6 +102,7 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (BuildContext context) => OtherproductScreen(),
         );
+
       case RoutesName.purchasesscreen:
         return MaterialPageRoute(
           builder: (BuildContext context) => PurchasesScreen(),
@@ -109,10 +111,7 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (BuildContext context) => InquiriesScreen(),
         );
-      case RoutesName.boostProductsscreen:
-        return MaterialPageRoute(
-          builder: (BuildContext context) => BoostProduct(),
-        );
+
       case RoutesName.queriesscreen:
         return MaterialPageRoute(
           builder: (BuildContext context) => QueriesScreen(),
@@ -133,9 +132,9 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (BuildContext context) => ReferalSetting(),
         );
-         case RoutesName.kycstatusscreen:
+      case RoutesName.kycstatusscreen:
         return MaterialPageRoute(
-          builder: (BuildContext context) =>  KycStatusScreen(),
+          builder: (BuildContext context) => KycStatusScreen(),
         );
       default:
         return MaterialPageRoute(

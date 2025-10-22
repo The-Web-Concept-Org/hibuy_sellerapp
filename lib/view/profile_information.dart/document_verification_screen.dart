@@ -429,6 +429,40 @@ class _DocumentVerificationScreenState
                             .read<ImagePickerBloc>()
                             .state;
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
                         final homeBillPath = imageState.images['profileimage'];
                         final shopVideoPath = imageState.images['shopVideo'];
 

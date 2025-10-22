@@ -29,7 +29,7 @@ class ReusableImageContainer extends StatelessWidget {
     this.heightFactor = 0.25,
     this.fit = BoxFit.cover,
     this.isVideo = false,
-    this.autoPlayOnReturn = true,
+    this.autoPlayOnReturn = false,
     this.networkImageUrl, // ✅ Optional network URL
   });
 

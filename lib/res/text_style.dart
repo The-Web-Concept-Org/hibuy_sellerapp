@@ -4,9 +4,22 @@ import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 
 class AppTextStyles {
-  headingText({required String title,Color textolor=Colors.black,double fontSize=16,FontWeight fontWeight=FontWeight.w700}){
-    return Text(title,style: TextStyle(color: textolor,fontSize: fontSize,fontWeight: fontWeight));
+  headingText({
+    required String title,
+    Color textolor = Colors.black,
+    double fontSize = 16,
+    FontWeight fontWeight = FontWeight.w700,
+  }) {
+    return Text(
+      title,
+      style: TextStyle(
+        color: textolor,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+      ),
+    );
   }
+
   static TextStyle h4(BuildContext context) => GoogleFonts.poppins(
     fontWeight: FontWeight.w700,
     fontSize: context.scaledFont(16), //16
@@ -198,6 +211,13 @@ class AppTextStyles {
   );
   static TextStyle samibold4(BuildContext context) => GoogleFonts.poppins(
     fontWeight: FontWeight.w600,
+    fontSize: context.scaledFont(16), // 16
+    height: 1.5,
+    letterSpacing: 0.5,
+    color: AppColors.black3,
+  );
+  static TextStyle samibold16(BuildContext context) => GoogleFonts.poppins(
+    fontWeight: FontWeight.w500,
     fontSize: context.scaledFont(16), // 16
     height: 1.5,
     letterSpacing: 0.5,

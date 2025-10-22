@@ -1,8 +1,18 @@
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
+import 'package:hibuy/models/orders_model.dart';
+import 'package:hibuy/res/app_url/app_url.dart';
+import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/order_update/order_update_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc_bloc.dart';
 
 import '../../res/app_string/app_string.dart';
-import '../../res/assets/image_assets.dart';
 import '../../res/colors/app_color.dart';
 import '../../res/text_style.dart';
 import '../../widgets/profile_widget.dart/app_bar.dart';
@@ -11,7 +21,8 @@ import '../../widgets/profile_widget.dart/id_image.dart';
 import '../../widgets/profile_widget.dart/text_field.dart';
 
 class OrderDetailScreen extends StatefulWidget {
-  const OrderDetailScreen({super.key});
+  final OrderData currentOrder;
+  const OrderDetailScreen({super.key, required this.currentOrder});
 
   @override
   State<OrderDetailScreen> createState() => _OrderDetailScreenState();
@@ -19,6 +30,17 @@ class OrderDetailScreen extends StatefulWidget {
 
 class _OrderDetailScreenState extends State<OrderDetailScreen> {
   bool isProductsExpanded = false;
+  final SingleSelectController<String> delieveryStatusController =
+      SingleSelectController<String>(null);
+  TextEditingController weightController = TextEditingController();
+  TextEditingController sizeController = TextEditingController();
+  @override
+  initState() {
+    super.initState();
+    context.read<OrderUpdateBloc>().add(
+      GetCompleteOrderEvent(widget.currentOrder.orderId?.toString() ?? ''),
+    );
+  }
 
   final OrderDataModel orderData = OrderDataModel(
     trackingId: "TRK-5848184331",
@@ -68,45 +90,89 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       ),
       body: SingleChildScrollView(
         padding: context.responsiveAll(0.05),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const ReusableImageContainer(
-              widthFactor: 0.9,
-              heightFactor: 0.25,
-              placeholderSvg: 'ImageAssets.profileimage',
-              imageKey: 'ordder',
-            ),
-            SizedBox(height: context.heightPct(0.02)),
-            const ShipmentDetailsWidget(),
-            SizedBox(height: context.heightPct(0.02)),
-            OrderInfoWidget(orderData: orderData),
-            SizedBox(height: context.heightPct(0.02)),
-            ProductDetailsWidget(
-              products: orderData.products,
-              isExpanded: isProductsExpanded,
-              onToggle: () =>
-                  setState(() => isProductsExpanded = !isProductsExpanded),
-            ),
-          ],
+        child: BlocConsumer<OrderUpdateBloc, OrderUpdateState>(
+          listener: (context, state) {
+            if (state.orderUpdateStatus == OrderUpdateStatus.success) {
+              Navigator.pop(context);
+            }
+          },
+          builder: (context, state) {
+            if (state.status == GetOrderStatus.loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state.status == GetOrderStatus.error) {
+              return Center(
+                child: Text(state.errorMessage ?? 'Something went wrong'),
+              );
+            }
+
+            if (state.status == GetOrderStatus.success) {
+              weightController.text =
+                  state.ordersResponse?.orderItems.first.orderWeight
+                      .toString() ??
+                  '';
+              sizeController.text =
+                  state.ordersResponse?.orderItems.first.orderSize.toString() ??
+                  '';
+              Future.delayed(Duration(milliseconds: 100), () {
+                delieveryStatusController.value = getOrderStatusLabel(
+                  state.ordersResponse?.status ?? '',
+                );
+              });
+              log(
+                "${AppUrl.baseUrl}/${state.ordersResponse?.orderItems.first.statusVideo}",
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // const ReusableImageContainer(
+                //   widthFactor: 0.9,
+                //   heightFactor: 0.25,
+                //   placeholderSvg: 'ImageAssets.profileimage',
+                //   imageKey: 'ordder',
+                // ),
+                ReusableImageContainer(
+                  widthFactor: 0.9,
+                  heightFactor: 0.25,
+                  placeholderSvg: ImageAssets.profileimage,
+                  imageKey: 'ordervideo',
+                  isVideo: true,
+
+                  networkImageUrl:
+                      "${AppUrl.baseUrl}/${state.ordersResponse?.orderItems.first.statusVideo}",
+                  // networkImageUrl:
+                  //     authState.documentsShopVideoUrl, // ✅ Network URL
+                ),
+                SizedBox(height: context.heightPct(0.02)),
+                shipmentDetailsWidget(),
+                SizedBox(height: context.heightPct(0.02)),
+                OrderInfoWidget(currentOrder: widget.currentOrder),
+                SizedBox(height: context.heightPct(0.02)),
+                ProductDetailsWidget(
+                  products: orderData.products,
+                  isExpanded: isProductsExpanded,
+                  onToggle: () =>
+                      setState(() => isProductsExpanded = !isProductsExpanded),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
-}
 
-// shipment_details_widget.dart
-class ShipmentDetailsWidget extends StatelessWidget {
-  const ShipmentDetailsWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
+  shipmentDetailsWidget() {
     return Column(
       children: [
         Row(
           children: [
             Expanded(
               child: ReusableTextField(
+                controller: weightController,
                 hintText: AppStrings.enterhere,
                 labelText: AppStrings.weight,
               ),
@@ -114,6 +180,7 @@ class ShipmentDetailsWidget extends StatelessWidget {
             SizedBox(width: context.widthPct(0.03)),
             Expanded(
               child: ReusableTextField(
+                controller: sizeController,
                 hintText: AppStrings.sizeHint,
                 labelText: AppStrings.size,
               ),
@@ -123,25 +190,110 @@ class ShipmentDetailsWidget extends StatelessWidget {
         ),
         SizedBox(height: context.heightPct(0.02)),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Expanded(
+            //   child: ReusableTextField(
+            //     hintText: AppStrings.select,
+            //     labelText: AppStrings.deliveryStatus,
+            //     trailingIcon: Icons.expand_more,
+            //   ),
+            // ),
             Expanded(
-              child: ReusableTextField(
-                hintText: AppStrings.select,
-                labelText: AppStrings.deliveryStatus,
-                trailingIcon: Icons.expand_more,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.stroke, width: 1),
+                  borderRadius: BorderRadius.circular(context.widthPct(0.013)),
+                ),
+                height: context.heightPct(0.06),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.widthPct(0.043),
+                ),
+                child: CustomDropdown<String>(
+                  hintText: 'Select ',
+                  closedHeaderPadding: EdgeInsets.zero,
+                  decoration: CustomDropdownDecoration(
+                    hintStyle: AppTextStyles.normal(context),
+                    headerStyle: TextStyle(fontSize: 10),
+                    listItemStyle: AppTextStyles.normal(context),
+                  ),
+                  items: const [
+                    'Order Placed',
+                    'Pending',
+                    'Processing',
+                    'Shipped',
+                    'Delivered',
+                    'Cancelled',
+                  ],
+                  controller: delieveryStatusController,
+                  onChanged: (value) async {
+                    String selectedValue = getOrderStatusKey(value!);
+                    log("selected value ------>  $selectedValue}");
+                  },
+                ),
               ),
             ),
             SizedBox(width: context.widthPct(0.03)),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: ReusableButton(
-                  text: "Submit",
-                  // userHeight: context.heightPct(0.07), // proper height
-                  // userPadding: context.widthPct(0.10),
-                  // userBorderRadius: 50, // half-circular
-                  onPressed: () {},
-                ),
+              child: ReusableButton(
+                text:
+                    context.read<OrderUpdateBloc>().state.orderUpdateStatus ==
+                        OrderUpdateStatus.loading
+                    ? "Update"
+                    : "Submit",
+
+                // userHeight: context.heightPct(0.07), // proper height
+                // userPadding: context.widthPct(0.10),
+                // userBorderRadius: 50, // half-circular
+                onPressed: () {
+                  final homeBillPath = context
+                      .read<ImagePickerBloc>()
+                      .state
+                      .images['ordervideo'];
+                  final orderId = widget.currentOrder.orderId?.toString();
+                  final String status = delieveryStatusController.value!;
+                  final billPath = homeBillPath;
+                  final size = sizeController.text.trim();
+                  final weight = weightController.text.trim();
+
+                  if (orderId == null || orderId.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Order ID is missing')),
+                    );
+                  } else if (status.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please select a delivery status'),
+                      ),
+                    );
+                  } else if (billPath == null || billPath.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please upload the home bill file'),
+                      ),
+                    );
+                  } else if (size.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please enter the size')),
+                    );
+                  } else if (weight.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please enter the weight')),
+                    );
+                  } else {
+                    // ✅ All fields valid → Dispatch event
+                    context.read<OrderUpdateBloc>().add(
+                      UpdateOrderEvent(
+                        orderId,
+                        status,
+                        File(billPath),
+                        size,
+                        weight,
+                      ),
+                    );
+                  }
+                  log("home bill path ${homeBillPath}");
+                },
               ),
             ),
           ],
@@ -151,11 +303,13 @@ class ShipmentDetailsWidget extends StatelessWidget {
   }
 }
 
+// shipment_details_widget.dart
+
 // order_info_widget.dart
 class OrderInfoWidget extends StatelessWidget {
-  final OrderDataModel orderData;
+  final OrderData currentOrder;
 
-  const OrderInfoWidget({super.key, required this.orderData});
+  const OrderInfoWidget({super.key, required this.currentOrder});
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +349,7 @@ class OrderInfoWidget extends StatelessWidget {
                 SizedBox(height: context.heightPct(0.01)),
                 const Divider(),
                 SizedBox(height: context.heightPct(0.01)),
-                _buildRiderDetails(context),
+                if (currentOrder.rider != null) _buildRiderDetails(context),
               ],
             ),
           ),
@@ -218,13 +372,13 @@ class OrderInfoWidget extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              "${orderData.orderNumber}/ ${orderData.trackingId}",
+              "${currentOrder.orderId}/ ${currentOrder.trackingId}",
               style: AppTextStyles.samibold2(
                 context,
               ).copyWith(color: AppColors.white),
             ),
           ),
-          StatusChipWidget(status: orderData.status),
+          StatusChipWidget(status: currentOrder.status ?? ''),
         ],
       ),
     );
@@ -232,36 +386,35 @@ class OrderInfoWidget extends StatelessWidget {
 
   Widget _buildCustomerInfo(BuildContext context) {
     return InfoRowWidget(
-      left: "${AppStrings.customer}: ${orderData.customer.name}",
-      right: "${AppStrings.contact}: ${orderData.customer.contact}",
+      left: "${AppStrings.customer}: ${currentOrder.customerName}",
+      right: "${AppStrings.contact}: ${currentOrder.paid}",
     );
   }
 
   Widget _buildOrderInfo(BuildContext context) {
     return InfoRowWidget(
-      left: "${AppStrings.items}: ${orderData.orderDetails.itemCount}",
-      right: "(${AppStrings.date}: ${orderData.orderDetails.date})",
+      left: "${AppStrings.items}: 1",
+      right: "(${AppStrings.date}: ${currentOrder.orderDate})",
     );
   }
 
   Widget _buildTotalInfo(BuildContext context) {
     return InfoRowWidget(
-      left: "${AppStrings.total}: ${orderData.orderDetails.total}",
-      right:
-          "(${AppStrings.deliveryFee}: ${orderData.orderDetails.deliveryFee})",
+      left: "${AppStrings.total}: ${currentOrder.total}",
+      right: "(${AppStrings.deliveryFee}: ${currentOrder.deliveryFee})",
     );
   }
 
   Widget _buildGrandTotal(BuildContext context) {
     return Text(
-      "${AppStrings.grandTotal}: ${AppStrings.rs} ${orderData.orderDetails.grandTotal}",
+      "${AppStrings.grandTotal}: ${AppStrings.rs} ${currentOrder.grandTotal}",
       style: AppTextStyles.samibold2(context),
     );
   }
 
   Widget _buildAddress(BuildContext context) {
     return Text(
-      "${AppStrings.address}: ${orderData.customer.address}",
+      "${AppStrings.address}: ${currentOrder.address}",
       style: AppTextStyles.bodyRegular(context),
     );
   }
@@ -278,13 +431,14 @@ class OrderInfoWidget extends StatelessWidget {
         ),
         SizedBox(height: context.heightPct(0.01)),
         InfoRowWidget(
-          left: "${AppStrings.rider}: ${orderData.rider.name}",
+          left: "${AppStrings.rider}: ${currentOrder.rider?.riderName ?? ''}",
           right:
-              "${AppStrings.vehicleNumber} : ${orderData.rider.vehicleNumber}",
+              "${AppStrings.vehicleNumber} : ${currentOrder.rider?.vehicleType ?? ''}",
         ),
         InfoRowWidget(
-          left: "${AppStrings.contactNumber}: ${orderData.rider.contact}",
-          right: "${AppStrings.email}: ${orderData.rider.email}",
+          left:
+              "${AppStrings.contactNumber}: ${currentOrder.rider?.phone ?? ''}",
+          right: "${AppStrings.email}: ${currentOrder.rider?.riderEmail ?? ''}",
         ),
       ],
     );
@@ -546,6 +700,25 @@ class InfoRowWidget extends StatelessWidget {
   }
 }
 
+String getOrderStatusKey(String label) {
+  switch (label) {
+    case 'Order Placed':
+      return 'order_placed';
+    case 'Pending':
+      return 'pending';
+    case 'Processing':
+      return 'processing';
+    case 'Shipped':
+      return 'shipped';
+    case 'Delivered':
+      return 'delivered';
+    case 'Cancelled':
+      return 'cancelled';
+    default:
+      return 'unknown';
+  }
+}
+
 // Data Models
 class OrderDataModel {
   final String trackingId;
@@ -621,4 +794,23 @@ class ProductInfoModel {
     required this.size,
     required this.unitPrice,
   });
+}
+
+String getOrderStatusLabel(String status) {
+  switch (status) {
+    case 'order_placed':
+      return 'Order Placed';
+    case 'pending':
+      return 'Pending';
+    case 'processing':
+      return 'Processing';
+    case 'shipped':
+      return 'Shipped';
+    case 'delivered':
+      return 'Delivered';
+    case 'cancelled':
+      return 'Cancelled';
+    default:
+      return 'Unknown Status';
+  }
 }

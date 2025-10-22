@@ -10,14 +10,16 @@ class OrdersState extends Equatable {
   final String filterStartDate;
   final String? errorMessage;
   final String filterEndDate;
+  final OrderData? currentOrder;
   const OrdersState({
+    this.currentOrder,
     this.message,
     this.status,
     this.ordersResponse,
     this.errorMessage,
-    this.filterStatus = "order_placed",
+    this.filterStatus = "all",
     this.filterStartDate = "2025-10-18",
-    this.filterEndDate = "2025-10-22",
+    this.filterEndDate = "2025-10-23",
   });
 
   OrdersState copyWith({
@@ -27,6 +29,7 @@ class OrdersState extends Equatable {
     final String? filterEndDate,
     OrdersStatus? status,
     OrdersResponse? ordersResponse,
+    OrderData? currentOrder,
     String? message,
   }) {
     return OrdersState(
@@ -34,6 +37,7 @@ class OrdersState extends Equatable {
       filterStartDate: filterStartDate ?? this.filterStartDate,
       filterEndDate: filterEndDate ?? this.filterEndDate,
       status: status ?? this.status,
+      currentOrder: currentOrder ?? this.currentOrder,
       ordersResponse: ordersResponse ?? this.ordersResponse,
       message: message ?? this.message,
       errorMessage: errorMessage ?? this.errorMessage,

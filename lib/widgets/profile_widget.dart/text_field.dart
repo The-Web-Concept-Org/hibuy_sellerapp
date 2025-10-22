@@ -51,11 +51,10 @@ class ReusableTextField extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 3.0),
             child: Text(labelText!, style: AppTextStyles.bodyRegular(context)),
           ),
-        if (sufixWidget != null)
-          GestureDetector(onTap: onSufixWidgetTap, child: sufixWidget),
+
         Container(
           width: double.maxFinite,
-          height: context.heightPct(0.06),
+          height: context.heightPct(0.05),
           padding: EdgeInsets.only(
             left: context.widthPct(0.043),
             right: trailingWidget != null ? 0 : context.widthPct(0.043),
@@ -68,6 +67,14 @@ class ReusableTextField extends StatelessWidget {
           alignment: Alignment.center,
           child: Row(
             children: [
+              if (sufixWidget != null)
+                GestureDetector(
+                  onTap: onSufixWidgetTap,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: sufixWidget,
+                  ),
+                ),
               Expanded(
                 child: TextFormField(
                   controller: controller,

@@ -14,6 +14,7 @@ import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/addproduct_bloc/add_product_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/order_update/order_update_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/product_category/productcategory_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_bloc.dart';
@@ -40,6 +41,7 @@ void main() {
         BlocProvider(create: (context) => VariantBloc()),
         BlocProvider(create: (context) => OrdersBloc()),
         BlocProvider(create: (context) => AddProductBloc()),
+        BlocProvider(create: (context) => OrderUpdateBloc()),
       ],
       child: const MyApp(),
     ),

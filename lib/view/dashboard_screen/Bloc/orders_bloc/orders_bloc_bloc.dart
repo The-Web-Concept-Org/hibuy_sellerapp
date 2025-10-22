@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -14,7 +15,16 @@ part 'orders_bloc_state.dart';
 class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   OrdersBloc() : super(OrdersState()) {
     on<GetOrdersEvent>(_fetchOrders);
+    on<SetCurrentOrder>(_setCurrentOrder);
   }
+  Future<void> _setCurrentOrder(
+    SetCurrentOrder event,
+    Emitter<OrdersState> emit,
+  ) async {
+    log(" boc ------>  ${event.currentOrder.orderDate}");
+    emit(state.copyWith(currentOrder: event.currentOrder));
+  }
+
   Future<void> _fetchOrders(
     GetOrdersEvent event,
     Emitter<OrdersState> emit,
@@ -83,4 +93,5 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
       );
     }
   }
+
 }
