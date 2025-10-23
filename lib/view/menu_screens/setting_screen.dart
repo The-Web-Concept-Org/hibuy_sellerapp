@@ -5,8 +5,7 @@ import 'package:hibuy/Bloc/setting_tab_bloc.dart/tab_state.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
-import 'package:hibuy/res/routes/routes.dart';
-import 'package:hibuy/res/routes/routes_name.dart';
+
 import 'package:hibuy/view/menu_screens/password_setting.dart';
 import 'package:hibuy/view/menu_screens/profile_setting.dart';
 import 'package:hibuy/view/menu_screens/referal_setting.dart';

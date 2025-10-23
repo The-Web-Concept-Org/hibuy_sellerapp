@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
 import 'package:hibuy/widgets/auth/button.dart';
 
 class ReferalSetting extends StatelessWidget {
@@ -17,7 +20,7 @@ class ReferalSetting extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: context.widthPct(20 / 375),
+            horizontal: 20,
             vertical: context.heightPct(16 / 812),
           ),
           child: Column(
@@ -27,11 +30,21 @@ class ReferalSetting extends StatelessWidget {
                 width: double.infinity,
                 height: context.heightPct(108 / 812),
                 decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(ImageAssets.refealBg),
+                    fit: BoxFit.contain,
+                  ),
                   borderRadius: BorderRadius.circular(5),
                 ),
-                child: SvgPicture.asset(
-                  ImageAssets.referalfriend,
-                  fit: BoxFit.contain,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Reffer Freinds. \nGet 100 Credits",
+                      style: AppTextStyles.bold2(context),
+                    ),
+                  ],
                 ),
               ),
 
@@ -51,7 +64,13 @@ class ReferalSetting extends StatelessWidget {
                     _buildInfoRow(
                       context,
                       title: AppStrings.referralid,
-                      value: "A1B2C3D4",
+                      value:
+                          context
+                              .read<SettingBloc>()
+                              .state
+                              .sellerDetails
+                              ?.encodedUserId ??
+                          '',
                       icon: ImageAssets.copyicon,
                     ),
 
@@ -61,7 +80,13 @@ class ReferalSetting extends StatelessWidget {
                     _buildInfoRow(
                       context,
                       title: AppStrings.referrallink,
-                      value: "https://www....123",
+                      value:
+                          context
+                              .read<SettingBloc>()
+                              .state
+                              .sellerDetails
+                              ?.referralLink ??
+                          '',
                       icon: ImageAssets.copyicon,
                     ),
 
@@ -99,9 +124,7 @@ class ReferalSetting extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: context.heightPct(44.75 / 812),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-      ),
+      decoration: BoxDecoration(color: AppColors.white),
       padding: EdgeInsets.symmetric(horizontal: context.widthPct(14 / 375)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,9 +132,21 @@ class ReferalSetting extends StatelessWidget {
           Text(title, style: AppTextStyles.referal(context)),
           Row(
             children: [
-              Text(value, style: AppTextStyles.referal(context)),
+              Text(
+                value.length > 10 ? '${value.substring(0, 15)}...' : value,
+                style: AppTextStyles.referal(context),
+                overflow: TextOverflow.ellipsis,
+              ),
               SizedBox(width: context.widthPct(5 / 375)),
-              SvgPicture.asset(icon),
+              GestureDetector(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: value));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Copied to clipboard')),
+                  );
+                },
+                child: SvgPicture.asset(icon),
+              ),
             ],
           ),
         ],

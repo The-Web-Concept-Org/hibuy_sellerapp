@@ -8,14 +8,16 @@ import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/services/api_key.dart';
 import 'package:hibuy/services/api_service.dart';
 import 'package:hibuy/services/local_storage.dart';
+import 'package:intl/intl.dart';
 
-part 'orders_bloc_event.dart';
-part 'orders_bloc_state.dart';
+part 'orders_event.dart';
+part 'orders_state.dart';
 
 class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   OrdersBloc() : super(OrdersState()) {
     on<GetOrdersEvent>(_fetchOrders);
     on<SetCurrentOrder>(_setCurrentOrder);
+    on<ApplyFilterEvent>(_applyFilter);
   }
   Future<void> _setCurrentOrder(
     SetCurrentOrder event,
@@ -45,11 +47,16 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
         );
         return;
       }
-
+      log(
+        "api url ---------------------------> ${AppUrl.getOrders}?status=${state.filterStatus}&from=${state.filterStartDate}&to=${state.filterEndDate}",
+      );
+      final filterStatus = event.status ?? state.filterStatus;
+      final filterStartDate = event.fromDate ?? state.filterStartDate;
+      final filterEndDate = event.toDate ?? state.filterEndDate;
       // ✅ Call your ApiService using GET method
       await ApiService.getMethod(
         apiUrl:
-            "${AppUrl.getOrders}?status=${state.filterStatus}&from=${state.filterStartDate}&to=${state.filterEndDate}",
+            "${AppUrl.getOrders}?status=$filterStatus&from=$filterStartDate&to=$filterEndDate",
         authHeader: true,
         executionMethod: (bool success, dynamic responseData) {
           if (success && responseData != null) {
@@ -94,4 +101,31 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     }
   }
 
+  Future<void> _applyFilter(
+    ApplyFilterEvent event,
+    Emitter<OrdersState> emit,
+  ) async {
+    // emit(state.copyWith(status: OrdersStatus.loading));
+    String formattedDate = DateFormat('yyyy-MM-dd').format(event.fromDate);
+    String formattedDateTo = DateFormat('yyyy-MM-dd').format(event.toDate);
+    log("formattedDate ---------------------------> $formattedDate");
+    log("formattedDateTo ---------------------------> $formattedDateTo");
+    log("event.orderStatus ---------------------------> ${event.orderStatus}");
+    emit(
+      state.copyWith(
+        filterStartDate: formattedDate,
+        filterEndDate: formattedDateTo,
+        filterStatus: event.orderStatus,
+      ),
+    );
+    Future.delayed(const Duration(milliseconds: 100), () {
+      add(
+        GetOrdersEvent(
+          fromDate: formattedDate,
+          toDate: formattedDateTo,
+          status: event.orderStatus,
+        ),
+      );
+    });
+  }
 }

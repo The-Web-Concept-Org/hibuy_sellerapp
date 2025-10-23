@@ -21,7 +21,7 @@ class RoutesName {
   static const String otherproductscreen = 'OtherproductScreen';
   static const String purchasesscreen = 'PurchasesScreen';
   static const String inquiriesscreen = 'InquiriesScreen';
-  static const String boostProductsscreen = 'ProductDetailScreen';
+  static const String boostProductsscreen = 'bostProductScreen';
   static const String queriesscreen = 'QueriesScreen';
   static const String saleReportscreen = 'SaleReportScreen';
   static const String profile = 'profile';

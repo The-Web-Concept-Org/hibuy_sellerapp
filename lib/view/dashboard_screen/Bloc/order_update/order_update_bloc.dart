@@ -151,4 +151,5 @@ class OrderUpdateBloc extends Bloc<OrderUpdateEvent, OrderUpdateState> {
       );
     }
   }
+
 }

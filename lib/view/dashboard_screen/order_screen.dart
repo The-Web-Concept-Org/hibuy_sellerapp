@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,28 +12,41 @@ import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/routes/routes.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
-import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/order_detail_filter_dialog.dart';
 import 'package:hibuy/view/dashboard_screen/order_details_screen.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
+import 'package:intl/intl.dart';
 
-class OrderScreen extends StatelessWidget {
+// TODO : Fix ui
+// TODO : seitch for delievery status
+// TODO : add filter by date
+// TODO : SEARCH FUNCTINOALITY
+// TODO : SORTING FUNCTINOALITY
+// TODO : PAGINATION FUNCTINOALITY
+// TODO: PRINT
+// TODO: VIEW
+// TODO: PRODUCT ID IS MISSING IN RESPONSE
+// TODO: ID have multiple items but video url is same
+
+class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
 
-  // TODO : Fix ui
-  // TODO : seitch for delievery status
-  // TODO : add filter by date
-  // TODO : SEARCH FUNCTINOALITY
-  // TODO : SORTING FUNCTINOALITY
-  // TODO : PAGINATION FUNCTINOALITY
-  // TODO: PRINT
-  // TODO: VIEW
-  // TODO: PRODUCT ID IS MISSING IN RESPONSE
-  // TODO: ID have multiple items but video url is same
+  @override
+  State<OrderScreen> createState() => _OrderScreenState();
+}
 
+class _OrderScreenState extends State<OrderScreen> {
+  final SingleSelectController<String> delieveryStatusController =
+      SingleSelectController<String>(null);
+  @override
+  void initState() {
+    super.initState();
+    context.read<OrdersBloc>().add(GetOrdersEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
-    context.read<OrdersBloc>().add(GetOrdersEvent());
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Padding(
@@ -128,12 +142,24 @@ class OrderScreen extends StatelessWidget {
                   // ),
                 ),
                 SizedBox(width: context.widthPct(9 / 375)),
-                SvgPicture.asset(
-                  ImageAssets.searchicon,
-                  height: context.heightPct(20 / 812),
-                  width: context.widthPct(20 / 375),
-                  fit: BoxFit.contain,
+                GestureDetector(
+                  onTap: () {
+                    // _showCustomDialog(context);
+                    showDialog(
+  context: context,
+  barrierDismissible: true,
+  builder: (_) => const FilterDialog(),
+);
+                  },
+                  child: SvgPicture.asset(
+                    ImageAssets.searchicon,
+                    height: context.heightPct(20 / 812),
+                    width: context.widthPct(20 / 375),
+                    fit: BoxFit.contain,
+                  ),
                 ),
+
+                //
               ],
             ),
             BlocBuilder<OrdersBloc, OrdersState>(
@@ -380,8 +406,195 @@ class OrderScreen extends StatelessWidget {
         return 'Delivered';
       case 'cancelled':
         return 'Cancelled';
+      case 'returned':
+        return 'Returned';
       default:
         return 'Unknown Status';
     }
   }
+
+  // void _showCustomDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: true, // allows tap outside to close
+  //     builder: (BuildContext context) {
+  //       final screenWidth = MediaQuery.of(context).size.width;
+  //       final dialogWidth = screenWidth * 0.8; // 80% of screen width
+
+  //       return Dialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(20),
+  //         ),
+  //         backgroundColor: Colors.white,
+  //         child: Container(
+  //           width: dialogWidth,
+  //           // height:  context.heightPct(0.),
+  //           padding: const EdgeInsets.all(20),
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             mainAxisSize: MainAxisSize.min, // Wraps content
+  //             children: [
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Text("Filter"),
+  //                   GestureDetector(
+  //                     onTap: () {
+  //                       Navigator.pop(context);
+  //                     },
+  //                     child: Icon(Icons.close),
+  //                   ),
+  //                 ],
+  //               ),
+  //               Padding(
+  //                 padding: const EdgeInsets.only(bottom: 10.0),
+  //                 child: Text(
+  //                   'Order Status',
+  //                   style: AppTextStyles.bold4(context),
+  //                 ),
+  //               ),
+  //               Container(
+  //                 decoration: BoxDecoration(
+  //                   border: Border.all(color: AppColors.stroke, width: 1),
+  //                   borderRadius: BorderRadius.circular(
+  //                     context.widthPct(0.013),
+  //                   ),
+  //                 ),
+  //                 padding: EdgeInsets.symmetric(
+  //                   horizontal: context.widthPct(0.043),
+  //                 ),
+  //                 child: CustomDropdown<String>(
+  //                   hintText: 'Select ',
+  //                   closedHeaderPadding: EdgeInsets.zero,
+  //                   decoration: CustomDropdownDecoration(
+  //                     hintStyle: AppTextStyles.normal(context),
+  //                     headerStyle: TextStyle(fontSize: 10),
+  //                     listItemStyle: AppTextStyles.normal(context),
+  //                   ),
+  //                   items: const [
+  //                     'Order Placed',
+  //                     'Pending',
+  //                     'Processing',
+  //                     'Shipped',
+  //                     'Delivered',
+  //                     'Cancelled',
+  //                   ],
+  //                   controller: delieveryStatusController,
+  //                   onChanged: (value) async {
+  //                     String selectedValue = getOrderStatusKey(value!);
+  //                     log("selected value ------>  $selectedValue}");
+  //                   },
+  //                 ),
+  //               ),
+
+  //               Padding(
+  //                 padding: const EdgeInsets.symmetric(vertical: 10.0),
+  //                 child: Text('From', style: AppTextStyles.bold4(context)),
+  //               ),
+
+  //               DatePickerContainer(isFirst: true),
+  //               Padding(
+  //                 padding: const EdgeInsets.symmetric(vertical: 10.0),
+  //                 child: Text('To', style: AppTextStyles.bold4(context)),
+  //               ),
+  //               DatePickerContainer(isFirst: false),
+  //               const SizedBox(height: 20),
+  //               ElevatedButton(
+  //                 onPressed: () => Navigator.pop(context),
+  //                 style: ElevatedButton.styleFrom(
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(12),
+  //                   ),
+  //                 ),
+  //                 child: const Text('Close'),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
 }
+
+// class DatePickerContainer extends StatelessWidget {
+//   final bool isFirst;
+
+//   const DatePickerContainer({super.key, required this.isFirst});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return StatefulBuilder(
+//       builder: (context, setState) {
+//         DateTime? selectedDate = DateTime.now();
+
+//         return GestureDetector(
+//           onTap: () async {
+//             final pickedDate = await showDatePicker(
+//               context: context,
+//               initialDate: selectedDate,
+//               firstDate: DateTime(2000),
+//               lastDate: DateTime(2100),
+//               builder: (context, child) {
+//                 // Optional: rounded corners on the calendar dialog
+//                 return Theme(
+//                   data: Theme.of(context).copyWith(
+//                     colorScheme: const ColorScheme.light(
+//                       primary: Colors.black, // header background color
+//                       onPrimary: Colors.white, // header text color
+//                       onSurface: Colors.black, // body text color
+//                     ),
+//                     dialogBackgroundColor: Colors.white,
+//                     scaffoldBackgroundColor: Colors.white,
+//                     dialogTheme: DialogThemeData(
+//                       shape: RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.circular(16),
+//                       ),
+//                     ),
+//                   ),
+//                   child: child!,
+//                 );
+//               },
+//             );
+
+//             if (pickedDate != null) {
+//               setState(() {
+//                 selectedDate = pickedDate;
+//               });
+//             }
+//           },
+//           child: Container(
+//             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+//             decoration: BoxDecoration(
+//               color: Colors.white,
+//               borderRadius: BorderRadius.circular(12),
+//               border: Border.all(color: Colors.grey.shade300),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.grey.shade200,
+//                   blurRadius: 4,
+//                   offset: const Offset(0, 2),
+//                 ),
+//               ],
+//             ),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 Text(
+//                   DateFormat('dd/MM/yyyy').format(selectedDate),
+//                   style: const TextStyle(fontSize: 16, color: Colors.grey),
+//                 ),
+//                 const Icon(
+//                   Icons.calendar_today_outlined,
+//                   color: Colors.grey,
+//                   size: 20,
+//                 ),
+//               ],
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }

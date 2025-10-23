@@ -13,7 +13,7 @@ class BoostProduct extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
-        title: AppStrings.returnorders,
+        title: AppStrings.boostproducts,
         previousPageTitle: "Back",
       ),
       body: Padding(
@@ -26,12 +26,12 @@ class BoostProduct extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Benefits Card
-            Card(
-              shape: RoundedRectangleBorder(
+            Container(
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
-                side: BorderSide(color: AppColors.stroke, width: 1),
+                border: Border.all(color: AppColors.lightBorderGrey, width: 1),
               ),
-              elevation: 1,
+
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -42,27 +42,38 @@ class BoostProduct extends StatelessWidget {
                       style: AppTextStyles.samibold2(context),
                     ),
                     const SizedBox(height: 10),
-                    _buildBullet(context,
-                        "Boost your products to appear at the top of listings"),
-                    _buildBullet(context,
-                        "Increase product visibility and reach more buyers"),
-                    _buildBullet(context,
-                        "Get higher chances of sales with promoted products"),
-                    _buildBullet(context,
-                        "Stand out from competitors in your category"),
-                    _buildBullet(context,
-                        "Real-time performance insights on boosted items"),
+                    _buildBullet(
+                      context,
+                      "Boost your products to appear at the top of listings",
+                    ),
+                    _buildBullet(
+                      context,
+                      "Increase product visibility and reach more buyers",
+                    ),
+                    _buildBullet(
+                      context,
+                      "Get higher chances of sales with promoted products",
+                    ),
+                    _buildBullet(
+                      context,
+                      "Stand out from competitors in your category",
+                    ),
+                    _buildBullet(
+                      context,
+                      "Real-time performance insights on boosted items",
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 12),
             // Account Details Card
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: AppColors.lightBorderGrey, width: 1),
               ),
-              elevation: 1,
+
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -89,26 +100,45 @@ class BoostProduct extends StatelessWidget {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        OutlinedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.upload_file),
-                          label: const Text("Browse Files"),
+                        Expanded(
+                          child: Container(
+                            height: 40,
+
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.gray2),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                const Icon(Icons.upload_file),
+                                Text(
+                                  "Browse Files",
+                                  style: AppTextStyles.medium5(context),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Done",
+                                style: AppTextStyles.allproducts(context),
                               ),
                             ),
-                            child: const Text("Done"),
                           ),
-                        )
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -126,12 +156,7 @@ class BoostProduct extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text("• "),
-          Expanded(
-            child: Text(
-              text,
-              style: AppTextStyles.medium5(context),
-            ),
-          ),
+          Expanded(child: Text(text, style: AppTextStyles.medium5(context))),
         ],
       ),
     );

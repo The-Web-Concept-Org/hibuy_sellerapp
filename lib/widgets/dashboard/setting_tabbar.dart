@@ -7,7 +7,6 @@ import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/text_style.dart';
 
-
 class CustomTabBar extends StatelessWidget {
   final List<String> tabs;
 
@@ -27,23 +26,28 @@ class CustomTabBar extends StatelessWidget {
           children: List.generate(tabs.length, (index) {
             final isSelected = selectedIndex == index;
 
-            return GestureDetector(
-              onTap: () =>
-                  context.read<TabBloc>().add(TabSelected(index)),
-              child: Container(
-                width: context.widthPct(83.81/375),
-                height: context.heightPct(15/812),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primaryColor : AppColors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color:  AppColors.stroke , width: 1),
-                ),
-                child: Text(
-                  tabs[index],
-                  style:  isSelected ? AppTextStyles.allproducts(context) : AppTextStyles.settingtab(context),
-                
-                 
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => context.read<TabBloc>().add(TabSelected(index)),
+                child: Container(
+                  // width: context.widthPct(83.81 / 375),
+                  // height: context.heightPct(15/812),
+                  padding: EdgeInsets.symmetric(vertical: 5),
+                  margin: EdgeInsets.only(right: index == 2 ? 0 : 10),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primaryColor
+                        : AppColors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.stroke, width: 1),
+                  ),
+                  child: Text(
+                    tabs[index],
+                    style: isSelected
+                        ? AppTextStyles.allproducts(context)
+                        : AppTextStyles.settingtab(context),
+                  ),
                 ),
               ),
             );

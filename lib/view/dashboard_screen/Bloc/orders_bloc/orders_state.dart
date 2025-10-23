@@ -1,4 +1,4 @@
-part of 'orders_bloc_bloc.dart';
+part of 'orders_bloc.dart';
 
 enum OrdersStatus { initial, loading, success, error }
 

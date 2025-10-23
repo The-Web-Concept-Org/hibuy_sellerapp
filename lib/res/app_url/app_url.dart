@@ -1,5 +1,6 @@
 class AppUrl {
   static const String baseUrl = 'https://dashboard.hibuyo.com/api';
+  static const String websiteUrl = 'https://dashboard.hibuyo.com';
   static const String loginApi = '$baseUrl/sellerLogin';
   static const String logOutApi = '$baseUrl/sellerLogout';
   static const String registerApi = '$baseUrl/register';
@@ -13,4 +14,7 @@ class AppUrl {
   static const String getSellerDashboard = '$baseUrl/sellerDashboard';
   static const String getOrders = '$baseUrl/sellerOrders';
   static const String storeProduct = '$baseUrl/storeProduct';
+  static const String settingDetail = '$baseUrl/settings';
+  static const String updatePersonalInfo = '$baseUrl/updatePersonalInfo';
+  static const String updatePassword = '$baseUrl/updateSellerPassword';
 }

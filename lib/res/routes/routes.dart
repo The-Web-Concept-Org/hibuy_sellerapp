@@ -90,6 +90,10 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (BuildContext context) => ProductDetailScreen(),
         );
+      case RoutesName.boostProductsscreen:
+        return MaterialPageRoute(
+          builder: (BuildContext context) => BoostProduct(),
+        );
       case RoutesName.settingscreen:
         return MaterialPageRoute(
           builder: (BuildContext context) => SettingScreen(),

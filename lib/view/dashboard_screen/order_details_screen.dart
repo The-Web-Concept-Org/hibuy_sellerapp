@@ -10,7 +10,7 @@ import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/order_update/order_update_bloc.dart';
-import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
 
 import '../../res/app_string/app_string.dart';
 import '../../res/colors/app_color.dart';
@@ -714,6 +714,8 @@ String getOrderStatusKey(String label) {
       return 'delivered';
     case 'Cancelled':
       return 'cancelled';
+    case 'Returned':
+      return 'returned';
     default:
       return 'unknown';
   }
@@ -810,6 +812,8 @@ String getOrderStatusLabel(String status) {
       return 'Delivered';
     case 'cancelled':
       return 'Cancelled';
+    case 'returned':
+      return 'Returned';
     default:
       return 'Unknown Status';
   }

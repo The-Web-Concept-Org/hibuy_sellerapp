@@ -1,17 +1,52 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hibuy/models/seller_details.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
+import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/routes/routes.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/services/app_const.dart';
+import 'package:hibuy/services/hive_helper.dart';
+import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
 
-class MenuScreen extends StatelessWidget {
+class MenuScreen extends StatefulWidget {
   MenuScreen({super.key});
 
-final List<MenuOption> options = [
+  @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  @override
+  void initState() {
+    super.initState();
+    checkOldData();
+  }
+
+  checkOldData() async {
+    final sellerDetails = await HiveHelper.getData<SellerDetails>(
+      AppConst.sellerHiveBox,
+      AppConst.sellerHiveKey,
+    );
+    if (sellerDetails != null) {
+      context.read<SettingBloc>().add(
+        CheckOldData(sellerDetails: sellerDetails),
+      );
+    } else {
+      context.read<SettingBloc>().add(GetUserDataEvent());
+    }
+  }
+
+  final List<MenuOption> options = [
     MenuOption(
       svgAsset: ImageAssets.setting,
       title: AppStrings.settings,
@@ -67,78 +102,106 @@ final List<MenuOption> options = [
         child: Column(
           children: [
             /// Profile Header Card
-            Container(
-              width: double.infinity,
-              height: context.heightPct(139 / 812),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.stroke, width: 1),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.widthPct(19 / 375),
-                  vertical: context.heightPct(21 / 812),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Container(
-                            width: context.widthPct(64 / 375),
-                            height: context.heightPct(64 / 812),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppColors.white,
-                                width: 2.85,
-                              ),
-                            ),
-                            child: const CircleAvatar(
-                              backgroundColor: Colors.white,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: context.widthPct(9 / 375)),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
+            BlocBuilder<SettingBloc, SettingState>(
+              builder: (context, state) {
+                if (state.status == SettingStatus.loading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state.status == SettingStatus.success) {
+                  return Container(
+                    width: double.infinity,
+                    height: context.heightPct(139 / 812),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.stroke, width: 1),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.widthPct(19 / 375),
+                        vertical: context.heightPct(21 / 812),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Text(
-                                'Awais Ansari',
-                                style: AppTextStyles.buttontext(context),
+                              Flexible(
+                                child: Container(
+                                  width: context.widthPct(64 / 375),
+                                  height: context.heightPct(64 / 812),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.white,
+                                      width: 2.85,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadiusGeometry.circular(
+                                      100,
+                                    ),
+                                    child:
+                                        state.sellerDetails?.profilePicture !=
+                                            null
+                                        ? Image.network(
+                                            fit: BoxFit.fill,
+                                            "${AppUrl.websiteUrl}/${state.sellerDetails?.profilePicture ?? ''}",
+                                          )
+                                        : const SizedBox.shrink(),
+                                  ),
+                                ),
                               ),
-                              SizedBox(height: context.heightPct(5 / 812)),
-                              Text(
-                                '+92 300 1234567',
-                                style: AppTextStyles.medium(context),
-                              ),
-                              SizedBox(height: context.heightPct(5 / 812)),
-                              Text(
-                                'email@gmail.com',
-                                style: AppTextStyles.medium(context),
+                              SizedBox(width: context.widthPct(9 / 375)),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      state.sellerDetails?.name ?? '',
+                                      style: AppTextStyles.buttontext(context),
+                                    ),
+                                    SizedBox(
+                                      height: context.heightPct(5 / 812),
+                                    ),
+                                    Text(
+                                      state.sellerDetails?.phone.toString() ??
+                                          '',
+                                      style: AppTextStyles.medium(context),
+                                    ),
+                                    SizedBox(
+                                      height: context.heightPct(5 / 812),
+                                    ),
+                                    Text(
+                                      state.sellerDetails?.email ?? '',
+                                      style: AppTextStyles.medium(context),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: context.heightPct(10 / 812)),
-                    Flexible(
-                      child: Text(
-                        'TheWebConcept Chenab Market, Madina Town Faisalabad',
-                        style: AppTextStyles.medium(context),
-                        overflow: TextOverflow.ellipsis,
+                          SizedBox(height: context.heightPct(10 / 812)),
+                          Flexible(
+                            child: Text(
+                              state.sellerDetails?.address ?? '',
+                              style: AppTextStyles.medium(context),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
+                  );
+                } else {
+                  return Center(
+                    child: Text(state.message ?? "Something went wrong"),
+                  );
+                }
+              },
             ),
 
-            SizedBox(height: context.heightPct(20 / 812)),
+            // SizedBox(height: context.heightPct(20 / 812)),
 
             /// Menu List
             Expanded(
@@ -148,8 +211,9 @@ final List<MenuOption> options = [
                   final item = options[index];
                   return GestureDetector(
                     onTap: () {
-                    if (item.route != null) {
-                        Navigator.pushNamed(context, item.route!);}
+                      if (item.route != null) {
+                        Navigator.pushNamed(context, item.route!);
+                      }
                     },
                     child: Container(
                       width: double.infinity,

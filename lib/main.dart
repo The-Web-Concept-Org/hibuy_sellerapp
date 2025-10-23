@@ -8,6 +8,7 @@ import 'package:hibuy/Bloc/product_details_bloc/product_detail_bloc.dart';
 
 import 'package:hibuy/Bloc/profile_bloc.dart/steptile_bloc/steptile_bloc.dart';
 import 'package:hibuy/Bloc/setting_tab_bloc.dart/tab_bloc.dart';
+import 'package:hibuy/models/seller_details.dart';
 
 import 'package:hibuy/res/routes/routes.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
@@ -15,14 +16,27 @@ import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/addproduct_bloc/add_product_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/order_update/order_update_bloc.dart';
-import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/product_category/productcategory_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/variant_bloc/variant_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_bloc.dart';
+import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive
+  await Hive.initFlutter();
+
+  // Register Hive Adapter
+  Hive.registerAdapter(SellerDetailsAdapter());
+
+  // Open a Hive box
+   await Hive.openBox<SellerDetails>('sellerBox');
   runApp(
     MultiBlocProvider(
       providers: [
@@ -38,10 +52,11 @@ void main() {
         BlocProvider(create: (_) => StoreBloc()),
         BlocProvider(create: (_) => ProductCategoryBloc()),
         BlocProvider(create: (_) => VehicleTypeBloc()),
-        BlocProvider(create: (context) => VariantBloc()),
-        BlocProvider(create: (context) => OrdersBloc()),
-        BlocProvider(create: (context) => AddProductBloc()),
-        BlocProvider(create: (context) => OrderUpdateBloc()),
+        BlocProvider(create: (_) => VariantBloc()),
+        BlocProvider(create: (_) => OrdersBloc()),
+        BlocProvider(create: (_) => AddProductBloc()),
+        BlocProvider(create: (_) => OrderUpdateBloc()),
+        BlocProvider(create: (_) => SettingBloc()),
       ],
       child: const MyApp(),
     ),
