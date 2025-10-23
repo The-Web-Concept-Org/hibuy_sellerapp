@@ -16,6 +16,7 @@ class ReusableTextField extends StatelessWidget {
   final VoidCallback? onSufixWidgetTap;
   final Color? iconColor;
   final String? Function(String?)? validator;
+  final ValueChanged<String>? onChanged;
 
   // ✅ Added Focus
   final FocusNode? focusNode;
@@ -38,7 +39,7 @@ class ReusableTextField extends StatelessWidget {
     this.trailingWidget,
     this.onTrailingWidgetTap,
     this.sufixWidget,
-    this.onSufixWidgetTap, // default "Next"
+    this.onSufixWidgetTap, this.onChanged,
   });
 
   @override
@@ -89,6 +90,7 @@ class ReusableTextField extends StatelessWidget {
                       FocusScope.of(context).unfocus(); // last field
                     }
                   },
+                  onChanged: onChanged,
                   decoration: InputDecoration(
                     hintText: hintText,
                     hintStyle: AppTextStyles.normal(context),
@@ -111,10 +113,15 @@ class ReusableTextField extends StatelessWidget {
                   onTap: onTrailingWidgetTap,
                   child: trailingWidget,
                 ),
+                
             ],
+            
           ),
+          
         ),
+        
       ],
+      
     );
   }
 }

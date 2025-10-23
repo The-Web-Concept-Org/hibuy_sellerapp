@@ -1,3 +1,4 @@
+
 import 'dart:io';
 import 'dart:math';
 
@@ -32,10 +33,7 @@ import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 import 'package:image/image.dart' as img;
 
-// todo: update varient logic because of api change
-//  todo: varient images before upload
-// todo: calculate discounted price logic
-// todo: data show in textfield after add product 
+
 class AddproductScreen extends StatefulWidget {
   const AddproductScreen({super.key});
 
@@ -51,18 +49,14 @@ class _AddproductScreenState extends State<AddproductScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _brandController = TextEditingController();
-  final TextEditingController _purchasePriceController =
-      TextEditingController();
+  final TextEditingController _purchasePriceController = TextEditingController();
   final TextEditingController _productPriceController = TextEditingController();
   final TextEditingController _discountController = TextEditingController();
-  final TextEditingController _discountedPriceController =
-      TextEditingController();
+  final TextEditingController _discountedPriceController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _lengthController = TextEditingController();
   final TextEditingController _widthController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
-  final TextEditingController _pricecCntroller = TextEditingController();
-  final TextEditingController _stockCntroller = TextEditingController();
 
   // Focus Nodes
   final FocusNode _titleFocus = FocusNode();
@@ -76,12 +70,14 @@ class _AddproductScreenState extends State<AddproductScreen> {
   final FocusNode _lengthFocus = FocusNode();
   final FocusNode _widthFocus = FocusNode();
   final FocusNode _heightFocus = FocusNode();
-  final FocusNode _priceFocus = FocusNode();
-  final FocusNode _stockFocus = FocusNode();
 
   // Selected vehicle
   String? _selectedVehicle;
+  String? _selectedVehicleId; 
   List<dynamic> _filteredVehicles = [];
+
+  // Store variant data (price, stock, image) for each combination
+  Map<String, Map<String, dynamic>> _variantData = {};
 
   @override
   void initState() {
@@ -89,6 +85,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
     _loadCategories();
     _vechiletype();
     _setupDimensionListeners();
+    _setupPriceCalculationListeners();
   }
 
   @override
@@ -121,7 +118,21 @@ class _AddproductScreenState extends State<AddproductScreen> {
 
     super.dispose();
   }
+ // ✅ AUTO-CALCULATE DISCOUNTED PRICE
+  void _setupPriceCalculationListeners() {
+    _productPriceController.addListener(_calculateDiscountedPrice);
+    _discountController.addListener(_calculateDiscountedPrice);
+  }
 
+  void _calculateDiscountedPrice() {
+    final productPrice = double.tryParse(_productPriceController.text) ?? 0;
+    final discount = double.tryParse(_discountController.text) ?? 0;
+
+    if (productPrice > 0 && discount >= 0) {
+      final discountedPrice = productPrice - (productPrice * discount / 100);
+      _discountedPriceController.text = discountedPrice.toStringAsFixed(2);
+    }
+  }
   void _setupDimensionListeners() {
     _weightController.addListener(_filterVehicles);
     _lengthController.addListener(_filterVehicles);
@@ -183,6 +194,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
       if (_selectedVehicle != null &&
           !_filteredVehicles.any((v) => v.vehicleType == _selectedVehicle)) {
         _selectedVehicle = null;
+        _selectedVehicleId = null; // ✅ ADD THIS
       }
     });
   }
@@ -283,7 +295,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
       print('   📐 Dimensions: ${image.width}x${image.height} pixels');
       print('   ✓ Required: 1080x1080 pixels');
 
-      if (image.width != 1080 || image.height != 270) {
+      if (image.width != 1080 || image.height != 1080) {
         print('   ❌ Dimension validation FAILED!');
         print('   ❌ Expected: 1080x1080');
         print('   ❌ Got: ${image.width}x${image.height}');
@@ -357,7 +369,9 @@ class _AddproductScreenState extends State<AddproductScreen> {
       }
     }
   }
+
   void _submitForm() {
+    // Validate title
     if (_titleController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter product title')),
@@ -365,6 +379,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
       return;
     }
 
+    // Validate categories
     if (selectedCategories.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select at least one category')),
@@ -372,6 +387,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
       return;
     }
 
+    // Get product images
     final imageState = context.read<ImagePickerBloc>().state;
     List<String> productImages = [];
 
@@ -394,60 +410,67 @@ class _AddproductScreenState extends State<AddproductScreen> {
       return;
     }
 
+    // Build variants properly
     final variantState = context.read<VariantBloc>().state;
     List<Variants> apiVariants = [];
 
     if (variantState.variants.isNotEmpty) {
+      // Get variant data from the state
       final variantData = ((variantState as dynamic).variantCombinations ?? {}) as Map<String, dynamic>;
 
       if (variantState.variants.length == 1) {
+        // Single variant (e.g., only Size)
         final mainVariant = variantState.variants[0];
         for (var value in mainVariant.values) {
-          final key = value;
-          final data = variantData[key];
+          final data = variantData[value] as Map<String, dynamic>?;
 
           apiVariants.add(Variants(
             parentName: value,
             parentOptionName: mainVariant.optionName,
-            parentPrice: data?['price'] ?? '',
-            parentStock: data?['stock'] ?? '',
-            parentImage: data?['image'] ?? '',
+            parentPrice: data?['price']?.toString() ?? '',
+            parentStock: data?['stock']?.toString() ?? '',
+            parentImage: data?['image']?.toString(),
             children: [],
           ));
         }
       } else if (variantState.variants.length >= 2) {
+        // Two variants (e.g., Size and Color)
         final mainVariant = variantState.variants[0];
         final subVariant = variantState.variants[1];
 
         for (var mainValue in mainVariant.values) {
           List<Children> children = [];
 
+          // Build children for this parent
           for (var subValue in subVariant.values) {
             final key = '$mainValue-$subValue';
-            final data = variantData[key];
+            final data = variantData[key] as Map<String, dynamic>?;
 
             children.add(Children(
               name: subValue,
               childOptionName: subVariant.optionName,
-              price: data?['price'] ?? '',
-              stock: data?['stock'] ?? '',
-              image: data?['image'] ?? '',
+              price: data?['price']?.toString() ?? '',
+              stock: data?['stock']?.toString() ?? '',
+              image: data?['image']?.toString(),
             ));
           }
 
-          final parentData = variantData[mainValue];
+          // Get parent data
+          final parentData = variantData[mainValue] as Map<String, dynamic>?;
+          
           apiVariants.add(Variants(
             parentName: mainValue,
             parentOptionName: mainVariant.optionName,
-            parentPrice: parentData?['price'] ?? '',
-            parentStock: parentData?['stock'] ?? '',
-            parentImage: parentData?['image'] ?? '',
+            parentPrice: parentData?['price']?.toString() ?? '',
+            parentStock: parentData?['stock']?.toString() ?? '',
+            parentImage: parentData?['image']?.toString(),
             children: children,
           ));
         }
       }
     }
 
+    // Extract category IDs
     String? categoryId, subcategoryId, subSubcategoryId;
     String? categoryLevel3, categoryLevel4, categoryLevel5;
 
@@ -470,35 +493,64 @@ class _AddproductScreenState extends State<AddproductScreen> {
       categoryLevel5 = selectedCategories[5].category.id?.toString();
     }
 
-    final vehicleState = context.read<VehicleTypeBloc>().state;
-    String? selectedVehicle = _selectedVehicle;
+    // Validate required fields
+    if (_purchasePriceController.text.isEmpty ||
+        _productPriceController.text.isEmpty ||
+        _discountController.text.isEmpty ||
+        _discountedPriceController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all price fields')),
+      );
+      return;
+    }
 
+    if (_weightController.text.isEmpty ||
+        _lengthController.text.isEmpty ||
+        _widthController.text.isEmpty ||
+        _heightController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all dimension fields')),
+      );
+      return;
+    }
+
+    // Create product object
     final product = AddProduct(
       productImages: productImages,
-      title: _titleController.text,
-      company: _brandController.text,
+      title: _titleController.text.trim(),
+      company: _brandController.text.trim(),
       categoryId: categoryId,
       subcategoryId: subcategoryId,
       subSubcategoryId: subSubcategoryId,
-      categoryLevel3: categoryLevel3,
-      categoryLevel4: categoryLevel4,
-      categoryLevel5: categoryLevel5,
-      purchasePrice: _purchasePriceController.text,
-      productPrice: _productPriceController.text,
-      discount: _discountController.text,
-      discountedPrice: _discountedPriceController.text,
-      description: _descriptionController.text,
-      weight: _weightController.text,
-      length: _lengthController.text,
-      width: _widthController.text,
-      height: _heightController.text,
-      vehicleType: selectedVehicle,
+      categoryLevel3: categoryLevel3 ?? '',
+      categoryLevel4: categoryLevel4 ?? '',
+      categoryLevel5: categoryLevel5 ?? '',
+      purchasePrice: _purchasePriceController.text.trim(),
+      productPrice: _productPriceController.text.trim(),
+      discount: _discountController.text.trim(),
+      discountedPrice: _discountedPriceController.text.trim(),
+      description: _descriptionController.text.trim(),
+      weight: _weightController.text.trim(),
+      length: _lengthController.text.trim(),
+      width: _widthController.text.trim(),
+      height: _heightController.text.trim(),
+      vehicleType: _selectedVehicleId, // ✅ Use vehicle ID instead of name
       variants: apiVariants.isEmpty ? null : apiVariants,
     );
 
+    print('🚀 Submitting Product:');
+    print('   Title: ${product.title}');
+    print('   Images: ${product.productImages?.length}');
+    print('   Variants: ${product.variants?.length ?? 0}');
+    if (product.variants != null) {
+      for (var v in product.variants!) {
+        print('   - ${v.parentOptionName}: ${v.parentName} (${v.children?.length} children)');
+      }
+    }
+
+    // Submit to BLoC
     context.read<AddProductBloc>().add(SubmitAddProductEvent(product));
   }
-
 
   Widget _buildCategoryDropdown(
     int level,
@@ -577,9 +629,9 @@ class _AddproductScreenState extends State<AddproductScreen> {
                 Text(AppStrings.variants, style: AppTextStyles.bold4(context)),
                 SizedBox(height: context.heightPct(8 / 812)),
 
-                // Add Option Button - FIXED
+                // Add Option Button
                 GestureDetector(
-                  onTap: () => _showVariantDialog(), // Call the method properly
+                  onTap: () => _showVariantDialog(),
                   child: Container(
                     width: double.maxFinite,
                     height: context.heightPct(46 / 812),
@@ -632,12 +684,12 @@ class _AddproductScreenState extends State<AddproductScreen> {
     int index,
     List<VariantModel> allVariants,
   ) {
-    // 🧩 Identify secondary variant (e.g., color)
+    // Identify secondary variant (e.g., color)
     final VariantModel? subVariant = allVariants.length > 1
-        ? allVariants.last
+        ? allVariants[1]
         : null;
 
-    // 🧠 Debug prints
+    // Debug prints
     print("➡️ Main Variant: ${mainVariant.optionName}");
     print("   Values: ${mainVariant.values}");
     if (subVariant != null) {
@@ -645,12 +697,13 @@ class _AddproductScreenState extends State<AddproductScreen> {
       print("   Values: ${subVariant.values}");
     }
 
-    // 🧩 Create a list of ExpansionTiles — one for each main variant value
+    // Create a list of ExpansionTiles — one for each main variant value
     return Column(
       children: List.generate(mainVariant.values.length, (i) {
         // Current main value (e.g. Large, Medium)
         final String mainValue = mainVariant.values[i];
 
+        // Build list of sub-items
         final List<String> subItems = [
           mainValue,
           if (subVariant != null) ...subVariant.values,
@@ -668,7 +721,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
               title: Text(
-                mainValue, // 👈 Each tile shows its own title (Large, Medium)
+                mainValue,
                 style: AppTextStyles.bold4(context),
               ),
               tilePadding: EdgeInsets.symmetric(
@@ -679,8 +732,44 @@ class _AddproductScreenState extends State<AddproductScreen> {
                 vertical: context.heightPct(8 / 812),
               ),
 
-              // 🧱 Sub-items (Large, Red, Blue)
+              // Sub-items
               children: subItems.map((value) {
+                // Determine the key for variant data
+                String dataKey = value;
+                if (subVariant != null && value != mainValue) {
+                  // This is a child variant
+                  dataKey = '$mainValue-$value';
+                }
+
+                // Controllers for this variant combination
+                final priceController = TextEditingController(
+                  text: _variantData[dataKey]?['price'] ?? '',
+                );
+                final stockController = TextEditingController(
+                  text: _variantData[dataKey]?['stock'] ?? '',
+                );
+
+                // Add listeners to update BLoC when values change
+                priceController.addListener(() {
+                  context.read<VariantBloc>().add(
+                    UpdateVariantDataEvent(dataKey, {
+                      'price': priceController.text,
+                      'stock': stockController.text,
+                      'image': _variantData[dataKey]?['image'],
+                    }),
+                  );
+                });
+
+                stockController.addListener(() {
+                  context.read<VariantBloc>().add(
+                    UpdateVariantDataEvent(dataKey, {
+                      'price': priceController.text,
+                      'stock': stockController.text,
+                      'image': _variantData[dataKey]?['image'],
+                    }),
+                  );
+                });
+
                 return Padding(
                   padding: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
                   child: Container(
@@ -696,20 +785,61 @@ class _AddproductScreenState extends State<AddproductScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // 🖼️ Image placeholder
-                          Container(
-                            width: context.widthPct(47 / 375),
-                            height: context.widthPct(47 / 375),
-                            decoration: BoxDecoration(
-                              color: AppColors.stroke.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: AppColors.stroke),
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.add_photo_alternate_outlined,
-                                color: AppColors.black2,
-                                size: context.widthPct(18 / 375),
+                          // Image placeholder
+                          GestureDetector(
+                            onTap: () async {
+                              // Pick image for this variant
+                              context.read<ImagePickerBloc>().add(
+                                PickImageEvent('variant_$dataKey'),
+                              );
+
+                              await Future.delayed(
+                                const Duration(milliseconds: 500),
+                              );
+                              final imageState = context.read<ImagePickerBloc>().state;
+
+                              if (imageState is ImagePicked) {
+                                final imagePath = imageState.images['variant_$dataKey'];
+                                if (imagePath != null) {
+                                  // Update BLoC with the image
+                                  context.read<VariantBloc>().add(
+                                    UpdateVariantDataEvent(dataKey, {
+                                      'price': priceController.text ,
+                                      'stock': stockController.text,
+                                      'image': imagePath,
+                                    }),
+                                  );
+                                }
+                              }
+                            },
+                            child: Container(
+                              width: context.widthPct(47 / 375),
+                              height: context.widthPct(47 / 375),
+                              decoration: BoxDecoration(
+                                color: AppColors.stroke.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: AppColors.stroke),
+                              ),
+                              child: BlocBuilder<VariantBloc, VariantState>(
+                                builder: (context, variantState) {
+                                  final variantImage = variantState.variantCombinations[dataKey]?['image'];
+                                  
+                                  return variantImage != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(5),
+                                          child: Image.file(
+                                            File(variantImage),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Center(
+                                          child: Icon(
+                                            Icons.add_photo_alternate_outlined,
+                                            color: AppColors.black2,
+                                            size: context.widthPct(18 / 375),
+                                          ),
+                                        );
+                                },
                               ),
                             ),
                           ),
@@ -727,17 +857,23 @@ class _AddproductScreenState extends State<AddproductScreen> {
                                 SizedBox(height: context.heightPct(6 / 812)),
                                 Row(
                                   children: [
-                                    Expanded(
-                                      child: ReusableTextField(
-                                        controller: TextEditingController(),
-                                        hintText: "Price",
-                                      ),
-                                    ),
+                                Expanded(
+  child: ReusableTextField(
+    controller: priceController,
+    hintText: "Price",
+    keyboardType: TextInputType.number,
+    onChanged: (value) {
+      print("💰 Price entered: $value");
+    },
+  ),
+),
+
                                     SizedBox(width: context.widthPct(10 / 375)),
                                     Expanded(
                                       child: ReusableTextField(
-                                        controller: TextEditingController(),
+                                        controller: stockController,
                                         hintText: "Stock",
+                                        keyboardType: TextInputType.number,
                                       ),
                                     ),
                                   ],
@@ -758,7 +894,6 @@ class _AddproductScreenState extends State<AddproductScreen> {
     );
   }
 
-  // Updated _buildVariantBox with proper edit functionality
   Widget _buildVariantBox(
     BuildContext context,
     String title,
@@ -857,6 +992,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(
@@ -891,7 +1027,6 @@ class _AddproductScreenState extends State<AddproductScreen> {
               }
             },
           ),
-          // Add VariantBloc listener for error messages
           BlocListener<VariantBloc, VariantState>(
             listener: (context, state) {
               if (state.errorMessage != null) {
@@ -961,12 +1096,12 @@ class _AddproductScreenState extends State<AddproductScreen> {
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: context.isMobile
-                                      ? 3
-                                      : (context.isTablet ? 4 : 6),
-                                  crossAxisSpacing: context.widthPct(20 / 375),
-                                  mainAxisSpacing: context.heightPct(20 / 812),
-                                ),
+                              crossAxisCount: context.isMobile
+                                  ? 3
+                                  : (context.isTablet ? 4 : 6),
+                              crossAxisSpacing: context.widthPct(20 / 375),
+                              mainAxisSpacing: context.heightPct(20 / 812),
+                            ),
                             itemBuilder: (context, index) {
                               String postKey = 'addproduct_$index';
                               String? postImagePath = postImages[postKey];
@@ -1270,10 +1405,16 @@ class _AddproductScreenState extends State<AddproductScreen> {
                                   onChanged: _filteredVehicles.isEmpty
                                       ? null
                                       : (value) {
+                                          // Find the selected vehicle and get its ID
+                                          final selectedVehicle = _filteredVehicles.firstWhere(
+                                            (v) => v.vehicleType.toString() == value,
+                                          );
+                                          
                                           setState(() {
                                             _selectedVehicle = value;
+                                            _selectedVehicleId = selectedVehicle.id?.toString(); // Store the ID
                                           });
-                                          print('Selected vehicle: $value');
+                                          print('Selected vehicle: $value (ID: $_selectedVehicleId)');
                                         },
                                 ),
                               ),
@@ -1303,60 +1444,81 @@ class _AddproductScreenState extends State<AddproductScreen> {
                       ),
                       SizedBox(height: context.heightPct(12 / 812)),
 
-                      // VARIANTS SECTION - NOW PROPERLY INTEGRATED
+                      // VARIANTS SECTION
                       _buildVariantsSection(context),
+                      SizedBox(height: context.heightPct(12 / 812)),
+
+                      // VARIANT EXPANSION TILES
                       BlocBuilder<VariantBloc, VariantState>(
                         builder: (context, state) {
                           if (state.variants.isEmpty)
                             return const SizedBox.shrink();
 
-                          
                           return _buildBexpansiontile(
                             context,
-                            state.variants[0], 
+                            state.variants[0],
                             0,
-                            state
-                                .variants, 
+                            state.variants,
                           );
                         },
                       ),
                       SizedBox(height: context.heightPct(30 / 812)),
-                       // Submit Button
-              BlocConsumer<AddProductBloc, AddProductState>(
-                listener: (context, state) {
-                  if (state.status == AddProductStatus.success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          state.message ?? "Add product  successfully",
-                        ),
-                        backgroundColor: Colors.green,
+
+                      // Submit Button
+                      BlocConsumer<AddProductBloc, AddProductState>(
+                        listener: (context, state) {
+                          if (state.status == AddProductStatus.success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  state.message ?? "Product added successfully",
+                                ),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                            // Clear form after successful submission
+                            _titleController.clear();
+                            _descriptionController.clear();
+                            _brandController.clear();
+                            _purchasePriceController.clear();
+                            _productPriceController.clear();
+                            _discountController.clear();
+                            _discountedPriceController.clear();
+                            _weightController.clear();
+                            _lengthController.clear();
+                            _widthController.clear();
+                            _heightController.clear();
+                            setState(() {
+                              selectedCategories.clear();
+                              _selectedVehicle = null;
+                              _selectedVehicleId = null; // ✅ ADD THIS
+                              _variantData.clear();
+                            });
+                            context.read<VariantBloc>().add(const ClearAllVariantImagesEvent());
+
+                            context.read<VariantBloc>().add(ClearVariantsEvent());
+                          } else if (state.status == AddProductStatus.error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(state.message ?? "Something went wrong"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          return ReusableButton(
+                            text: state.status == AddProductStatus.loading
+                                ? "Submitting..."
+                                : "Done",
+                            onPressed: state.status == AddProductStatus.loading
+                                ? () {}
+                                : _submitForm,
+                          );
+                        },
                       ),
-                    );
-                    // Navigate or refresh as needed
-                  } else if (state.status == AddProductStatus.error) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(state.message ?? "Something went wrong"),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                builder: (context, state) {
-                  return ReusableButton(
-                    text: state.status == AddProductStatus.loading
-                        ? "Submitting..."
-                        : "Done",
-                    onPressed: state.status == AddProductStatus.loading
-                        ? () {}
-                        : _submitForm,
-                  );
-                  
-                },
-              ),
-               SizedBox(height: context.heightPct(0.04)),
-            ],
+                      SizedBox(height: context.heightPct(0.04)),
+                    ],
                   ),
                 ),
               );
