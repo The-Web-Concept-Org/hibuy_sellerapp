@@ -17,6 +17,7 @@ import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 import 'package:image/image.dart' as img;
 
 class EditProfile extends StatefulWidget {
+  
   const EditProfile({super.key});
 
   @override
