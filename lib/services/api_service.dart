@@ -288,170 +288,179 @@ class ApiService {
     }
   }
 
-  static Future<void> postMultipartMultipleFilesMethod({
-    required String apiUrl,
-    required Map<String, dynamic> formData,
-    required Function(bool success, dynamic data) executionMethod,
-    bool authHeader = false,
-    dynamic queryParameters,
-  }) async {
-    dio_instance.Response response;
-    dio_instance.Dio dio = dio_instance.Dio();
+static Future<void> postMultipartMultipleFilesMethod({
+  required String apiUrl,
+  required Map<String, dynamic> formData,
+  required Function(bool success, dynamic data) executionMethod,
+  bool authHeader = false,
+  dynamic queryParameters,
+}) async {
+  dio_instance.Response response;
+  dio_instance.Dio dio = dio_instance.Dio();
 
-    dio.options.connectTimeout = const Duration(milliseconds: 10000);
-    dio.options.receiveTimeout = const Duration(milliseconds: 6000);
+  dio.options.connectTimeout = const Duration(milliseconds: 10000);
+  dio.options.receiveTimeout = const Duration(milliseconds: 6000);
 
-    setAcceptHeader(dio);
+  setAcceptHeader(dio);
 
-    if (authHeader) {
-      log("@@@ token ${await LocalStorage.getData(key: AppKeys.authToken)}");
-      await setCustomHeader(
-        dio,
-        'Authorization',
-        'Bearer ${await LocalStorage.getData(key: AppKeys.authToken)}',
-      );
-    }
+  if (authHeader) {
+    log("@@@ token ${await LocalStorage.getData(key: AppKeys.authToken)}");
+    await setCustomHeader(
+      dio,
+      'Authorization',
+      'Bearer ${await LocalStorage.getData(key: AppKeys.authToken)}',
+    );
+  }
 
-    try {
-      var connectivityResult = await Connectivity().checkConnectivity();
+  try {
+    var connectivityResult = await Connectivity().checkConnectivity();
 
-      if (connectivityResult != ConnectivityResult.none) {
-        log('[log] Internet Connected');
+    if (connectivityResult != ConnectivityResult.none) {
+      log('[log] Internet Connected');
 
-        try {
-          final dioFormData = dio_instance.FormData();
+      try {
+        final dioFormData = dio_instance.FormData();
 
-          for (var entry in formData.entries) {
-            final key = entry.key;
-            final value = entry.value;
+        for (var entry in formData.entries) {
+          final key = entry.key;
+          final value = entry.value;
 
-            if (value is File) {
-              // Check if file exists before uploading
-              if (!await value.exists()) {
-                log(" File does not exist: ${value.path}");
-                continue;
-              }
+          // ✅ FIXED: Handle both File objects AND file path strings
+          if (value is File) {
+            if (!await value.exists()) {
+              log("❌ File does not exist: ${value.path}");
+              continue;
+            }
 
+            final fileName = value.path.split('/').last;
+            final extension = fileName.split('.').last.toLowerCase();
+            MediaType? contentType = _getContentType(extension);
 
-              // Auto-detect content type from file extension
-              final fileName = value.path.split('/').last;
-              final extension = fileName.split('.').last.toLowerCase();
-
-              MediaType? contentType;
-              switch (extension) {
-                case 'jpg':
-                case 'jpeg':
-                  contentType = MediaType('image', 'jpeg');
-                  break;
-                case 'png':
-                  contentType = MediaType('image', 'png');
-                  break;
-                case 'gif':
-                  contentType = MediaType('image', 'gif');
-                  break;
-                case 'webp':
-                  contentType = MediaType('image', 'webp');
-                  break;
-                case 'mp4':
-                  contentType = MediaType('video', 'mp4');
-                  break;
-                case 'mov':
-                  contentType = MediaType('video', 'quicktime');
-                  break;
-                case 'avi':
-                  contentType = MediaType('video', 'x-msvideo');
-                  break;
-                case 'pdf':
-                  contentType = MediaType('application', 'pdf');
-                  break;
-                default:
-                  // Let Dio auto-detect
-                  contentType = null;
-              }
-
-              dioFormData.files.add(
-                MapEntry(
-                  key,
-                  await dio_instance.MultipartFile.fromFile(
-                    value.path,
-                    filename: fileName,
-                    contentType: contentType,
-                  ),
+            dioFormData.files.add(
+              MapEntry(
+                key,
+                await dio_instance.MultipartFile.fromFile(
+                  value.path,
+                  filename: fileName,
+                  contentType: contentType,
                 ),
-              );
-              log(
-                "✅ $key uploaded: $fileName (${contentType?.mimeType ?? 'auto-detected'})",
-              );
-            } else if (value != null) {
-              // Convert all non-file values to strings
-              final stringValue = value.toString();
-              if (stringValue.isNotEmpty && stringValue != 'null') {
-                dioFormData.fields.add(MapEntry(key, stringValue));
-                log("📝 Field added: $key = $stringValue");
-              }
+              ),
+            );
+            log("✅ $key uploaded: $fileName (${contentType?.mimeType ?? 'auto-detected'})");
+          } 
+          // ✅ NEW: Handle file path strings (convert to File)
+          else if (value is String && value.isNotEmpty && await File(value).exists()) {
+            final file = File(value);
+            final fileName = file.path.split('/').last;
+            final extension = fileName.split('.').last.toLowerCase();
+            MediaType? contentType = _getContentType(extension);
+
+            dioFormData.files.add(
+              MapEntry(
+                key,
+                await dio_instance.MultipartFile.fromFile(
+                  file.path,
+                  filename: fileName,
+                  contentType: contentType,
+                ),
+              ),
+            );
+            log("✅ $key uploaded (from path): $fileName (${contentType?.mimeType ?? 'auto-detected'})");
+          } 
+          else if (value != null) {
+            // Non-file values as text fields
+            final stringValue = value.toString();
+            if (stringValue.isNotEmpty && stringValue != 'null') {
+              dioFormData.fields.add(MapEntry(key, stringValue));
+              log("📝 Field added: $key = $stringValue");
             }
           }
-
-          response = await dio.post(
-            apiUrl,
-            data: dioFormData,
-            queryParameters: queryParameters,
-          );
-
-          if (response.statusCode == 200 || response.statusCode == 201) {
-            executionMethod(true, response.data);
-            return;
-          }
-
-          executionMethod(false, {'success': false});
-        } on dio_instance.DioError catch (e) {
-          int statusCode = e.response?.statusCode ?? 500;
-
-          if (e.response != null) {
-            // Try to parse error details
-            try {
-              if (e.response!.data is Map) {
-                final errorData = e.response!.data as Map;
-                errorData.forEach((key, value) {
-                  log('   • $key: $value');
-                });
-              }
-            } catch (_) {
-              log('Could not parse error details');
-            }
-          }
-
-          if (statusCode >= 500) {
-            executionMethod(false, {'message': 'Server Error'});
-            return;
-          }
-
-          if (dio_instance.DioExceptionType.receiveTimeout == e.type ||
-              dio_instance.DioExceptionType.connectionTimeout == e.type) {
-            showSnackBar('Error', 'Internet Not Connected');
-            executionMethod(false, {'message': null});
-            return;
-          } else if (dio_instance.DioExceptionType.unknown == e.type) {
-            if (e.message!.contains('SocketException')) {
-              showSnackBar('Error', 'Connection failed');
-              executionMethod(false, {'success': false});
-              return;
-            }
-          }
-
-          var data = json.decode(e.response.toString());
-          executionMethod(false, data);
         }
-      } else {
-        showSnackBar('Error', 'Internet Not Connected');
-        log('[log] Internet Not Connected');
-        executionMethod(false, {'message': 'Internet Not Connected'});
+
+        response = await dio.post(
+          apiUrl,
+          data: dioFormData,
+          queryParameters: queryParameters,
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          executionMethod(true, response.data);
+          return;
+        }
+
+        executionMethod(false, {'success': false});
+      } on dio_instance.DioError catch (e) {
+        int statusCode = e.response?.statusCode ?? 500;
+
+        if (e.response != null) {
+          try {
+            if (e.response!.data is Map) {
+              final errorData = e.response!.data as Map;
+              log('❌ Server Error Details:');
+              errorData.forEach((key, value) {
+                log('   • $key: $value');
+              });
+            }
+          } catch (_) {
+            log('Could not parse error details');
+          }
+        }
+
+        if (statusCode >= 500) {
+          executionMethod(false, {'message': 'Server Error'});
+          return;
+        }
+
+        if (dio_instance.DioExceptionType.receiveTimeout == e.type ||
+            dio_instance.DioExceptionType.connectionTimeout == e.type) {
+          showSnackBar('Error', 'Internet Not Connected');
+          executionMethod(false, {'message': null});
+          return;
+        } else if (dio_instance.DioExceptionType.unknown == e.type) {
+          if (e.message!.contains('SocketException')) {
+            showSnackBar('Error', 'Connection failed');
+            executionMethod(false, {'success': false});
+            return;
+          }
+        }
+
+        var data = json.decode(e.response.toString());
+        executionMethod(false, data);
       }
-    } on SocketException catch (_) {
+    } else {
       showSnackBar('Error', 'Internet Not Connected');
       log('[log] Internet Not Connected');
       executionMethod(false, {'message': 'Internet Not Connected'});
     }
+  } on SocketException catch (_) {
+    showSnackBar('Error', 'Internet Not Connected');
+    log('[log] Internet Not Connected');
+    executionMethod(false, {'message': 'Internet Not Connected'});
   }
+}
 
+// ✅ Helper function to determine content type
+static MediaType? _getContentType(String extension) {
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return MediaType('image', 'jpeg');
+    case 'png':
+      return MediaType('image', 'png');
+    case 'gif':
+      return MediaType('image', 'gif');
+    case 'webp':
+      return MediaType('image', 'webp');
+    case 'mp4':
+      return MediaType('video', 'mp4');
+    case 'mov':
+      return MediaType('video', 'quicktime');
+    case 'avi':
+      return MediaType('video', 'x-msvideo');
+    case 'pdf':
+      return MediaType('application', 'pdf');
+    default:
+      return null;
+  }
+}
 }
