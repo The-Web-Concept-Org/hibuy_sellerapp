@@ -6,6 +6,8 @@ import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/services/api_key.dart';
 import 'package:hibuy/services/local_storage.dart';
+import 'package:hibuy/view/auth/select_type.dart';
+import 'package:hibuy/view/profile_information.dart/kyc_status_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -28,10 +30,12 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () {
       if (token != null && token.isNotEmpty) {
         // Agar token hai to KYC screen
-        Navigator.pushReplacementNamed(context, RoutesName.kycstatusscreen);
+        // Navigator.pushReplacementNamed(context, RoutesName.kycstatusscreen);
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => KycStatusScreen()), (route) => false);
       } else {
         // Agar token nahi hai to select_type
-        Navigator.pushReplacementNamed(context, RoutesName.selectType);
+        // Navigator.pushReplacementNamed(context, RoutesName.selectType);
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => SelectType()), (route) => false);
       }
     });
   }

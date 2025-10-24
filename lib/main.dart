@@ -14,6 +14,7 @@ import 'package:hibuy/res/routes/routes.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
+import 'package:hibuy/view/auth/splash_screen.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/addproduct_bloc/add_product_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/order_update/order_update_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
@@ -76,8 +77,9 @@ class MyApp extends StatelessWidget {
       // useInheritedMediaQuery: true,
       // builder: DevicePreview.appBuilder,
       // locale: DevicePreview.locale(context),
-      initialRoute: RoutesName.splash,
-      onGenerateRoute: AppRoutes.generateRoute,
+      // initialRoute: RoutesName.splash,
+      // onGenerateRoute: AppRoutes.generateRoute,
+      home: const SplashScreen(),
     );
   }
 }

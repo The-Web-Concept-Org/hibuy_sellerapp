@@ -10,6 +10,9 @@ import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/view/auth/signup_screen.dart';
+import 'package:hibuy/view/profile_information.dart/kyc_main.dart';
+import 'package:hibuy/view/profile_information.dart/kyc_status_screen.dart';
 import 'package:hibuy/widgets/auth/button.dart';
 import 'package:hibuy/widgets/auth/text_field.dart';
 
@@ -74,9 +77,11 @@ class SigninScreen extends StatelessWidget {
                 listener: (context, state) {
                   if (state.authStatus == AuthStatus.success) {
                     if ((state.userModel?.steps?.length ?? 0) < 5) {
-                      Navigator.pushNamed(context, RoutesName.kycMain);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => KycMain()));
+                      // Navigator.pushNamed(context, RoutesName.kycMain);
                     } else {
-                      Navigator.pushNamed(context, RoutesName.kycstatusscreen);
+                      // Navigator.pushNamed(context, RoutesName.kycstatusscreen);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => KycStatusScreen()));
                     }
                   } else if (state.authStatus == AuthStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -142,7 +147,8 @@ class SigninScreen extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, RoutesName.signupScreen);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen(role: 'seller',)));
+                      // Navigator.pushNamed(context, RoutesName.signupScreen);
                     },
                     child: Text(
                       AppStrings.register,

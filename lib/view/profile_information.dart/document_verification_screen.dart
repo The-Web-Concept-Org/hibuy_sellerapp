@@ -13,6 +13,7 @@ import 'package:hibuy/res/text_style.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart';
+import 'package:hibuy/view/profile_information.dart/business_verification_screen.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
@@ -399,10 +400,11 @@ class _DocumentVerificationScreenState
                   if (state.documentsStatus == DocumentsStatus.success &&
                       !_hasNavigated) {
                     _hasNavigated = true;
-                    Navigator.pushNamed(
-                      context,
-                      RoutesName.businessVerification,
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => BusinessVerificationScreen()));
+                    // Navigator.pushNamed(
+                    //   context,
+                    //   RoutesName.businessVerification,
+                    // );
                   } else if (state.documentsStatus == DocumentsStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

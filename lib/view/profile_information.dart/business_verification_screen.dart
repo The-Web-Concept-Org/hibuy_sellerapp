@@ -14,6 +14,7 @@ import 'package:hibuy/services/location_service.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart';
+import 'package:hibuy/view/profile_information.dart/bank_account_screen.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
@@ -253,10 +254,11 @@ class _BusinessVerificationScreenState
                   if (state.businessStatus == BusinessStatus.success &&
                       !_hasNavigated) {
                     _hasNavigated = true;
-                    Navigator.pushNamed(
-                      context,
-                      RoutesName.bankAccountVerification,
-                    );
+                    // Navigator.pushNamed(
+                    //   context,
+                    //   RoutesName.bankAccountVerification,
+                    // );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => BankAccountScreen()));
                   } else if (state.businessStatus == BusinessStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

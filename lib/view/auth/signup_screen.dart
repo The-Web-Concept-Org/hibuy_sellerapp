@@ -10,6 +10,7 @@ import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart'
     show AuthState, AuthStatus;
+import 'package:hibuy/view/auth/signin_screen.dart';
 import 'package:hibuy/widgets/auth/button.dart';
 
 import 'package:hibuy/widgets/auth/text_field.dart';
@@ -91,7 +92,8 @@ class SignupScreen extends StatelessWidget {
                     // context.FlushBarErrorMessage(message: state.errorMessage ?? 'An error occurred');
                   } else if (state.authStatus == AuthStatus.success) {
                     // Navigate to another screen or show success message
-                    Navigator.pushNamed(context, RoutesName.signinScreen);
+                    // Navigator.pushNamed(context, RoutesName.signinScreen);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => SigninScreen()));
                   }
                 },
                 builder: (context, state) {
@@ -141,7 +143,8 @@ class SignupScreen extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, RoutesName.signinScreen);
+                      // Navigator.pushNamed(context, RoutesName.signinScreen);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => SigninScreen()));
                       debugPrint("Register clicked");
                     },
                     child: Text(

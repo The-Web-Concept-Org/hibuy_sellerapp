@@ -13,6 +13,11 @@ import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
 import 'package:hibuy/services/api_key.dart';
 import 'package:hibuy/services/local_storage.dart';
+import 'package:hibuy/view/profile_information.dart/bank_account_screen.dart';
+import 'package:hibuy/view/profile_information.dart/business_verification_screen.dart';
+import 'package:hibuy/view/profile_information.dart/document_verification_screen.dart';
+import 'package:hibuy/view/profile_information.dart/personal_info_screen.dart';
+import 'package:hibuy/view/profile_information.dart/store_info_screen.dart';
 
 import 'package:hibuy/widgets/profile_widget.dart/step_tile.dart'; // Import BLoC
 
@@ -90,27 +95,27 @@ class _KycMainState extends State<KycMain> {
                                 {
                                   "title": AppStrings.personalInformation,
                                   "subtitle": AppStrings.text,
-                                  "route": RoutesName.personalinformation,
+                                  "route": MaterialPageRoute(builder: (context) => PersonalInfoScreen()),
                                 },
                                 {
                                   "title": AppStrings.myStoreInformation,
                                   "subtitle": AppStrings.text,
-                                  "route": RoutesName.myStoreInformation,
+                                  "route": MaterialPageRoute(builder: (context) => StoreInfoScreen()),
                                 },
                                 {
                                   "title": AppStrings.documentVerification,
                                   "subtitle": AppStrings.text,
-                                  "route": RoutesName.documentVerification,
+                                  "route": MaterialPageRoute(builder: (context) => DocumentVerificationScreen()),
                                 },
                                 {
                                   "title": AppStrings.businessVerification,
                                   "subtitle": AppStrings.text,
-                                  "route": RoutesName.businessVerification,
+                                  "route": MaterialPageRoute(builder: (context) => BusinessVerificationScreen()),
                                 },
                                 {
                                   "title": AppStrings.bankAccountVerification,
                                   "subtitle": AppStrings.text,
-                                  "route": RoutesName.bankAccountVerification,
+                                  "route": MaterialPageRoute(builder: (context) => BankAccountScreen()),
                                 },
                               ];
                               // Set default value for selectedStep
@@ -126,16 +131,17 @@ class _KycMainState extends State<KycMain> {
                                       state.selectedStep == index;
                                   return StepTile(
                                     index: index,
-                                    title: steps[index]["title"]!,
-                                    subtitle: steps[index]["subtitle"]!,
+                                    title: steps[index]["title"]!.toString(),
+                                    subtitle: steps[index]["subtitle"]!.toString(),
                                     isSelected: selectedStep == index,
                                     isCompleted: index < selectedStep,
                                     isLast: index == steps.length - 1,
                                     onTap: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        steps[index]["route"]!,
-                                      );
+                                      // Navigator.pushNamed(
+                                      //   context,
+                                      //   steps[index]["route"]!,
+                                      // );
+                                      Navigator.push(context, steps[index]["route"]as MaterialPageRoute);
                                       context.read<StepBloc>().add(
                                         StepChangedEvent(index),
                                       );

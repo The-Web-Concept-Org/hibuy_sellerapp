@@ -6,6 +6,8 @@ import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/view/dashboard_screen/addproduct_screen.dart';
+import 'package:hibuy/view/dashboard_screen/product_details.dart';
 
 class ProductScreen extends StatelessWidget {
   const ProductScreen({super.key});
@@ -105,7 +107,8 @@ class ProductScreen extends StatelessWidget {
             SizedBox(height: context.heightPct(20 / 812)),
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, RoutesName.productdetailscreen);
+                // Navigator.pushNamed(context, RoutesName.productdetailscreen);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailScreen()));
               },
               child: Container(
                 width: double.maxFinite,
@@ -205,7 +208,8 @@ class ProductScreen extends StatelessWidget {
         backgroundColor: AppColors.primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
         onPressed: () {
-          Navigator.pushNamed(context, RoutesName.addproductscreen);
+          // Navigator.pushNamed(context, RoutesName.addproductscreen);
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddproductScreen()));
         },
         child: const Icon(Icons.add, color: AppColors.white),
       ),

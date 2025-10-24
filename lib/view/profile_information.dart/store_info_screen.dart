@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
@@ -16,6 +15,7 @@ import 'package:hibuy/services/location_service.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart';
+import 'package:hibuy/view/profile_information.dart/document_verification_screen.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/profile_image.dart';
@@ -229,7 +229,6 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
               //   focusNode: countryFocus,
               //   nextFocusNode: provinceregionFocus,
               // ),
-
               Text(
                 AppStrings.country,
                 style: AppTextStyles.bodyRegular(context),
@@ -519,9 +518,15 @@ class _StoreInfoScreenState extends State<StoreInfoScreen> {
                   if (state.storeStatus == StoreStatus.success &&
                       !_hasNavigated) {
                     _hasNavigated = true;
-                    Navigator.pushNamed(
+                    // Navigator.pushNamed(
+                    //   context,
+                    //   RoutesName.documentVerification,
+                    // );
+                    Navigator.push(
                       context,
-                      RoutesName.documentVerification,
+                      MaterialPageRoute(
+                        builder: (context) => DocumentVerificationScreen(),
+                      ),
                     );
                   } else if (state.storeStatus == StoreStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(

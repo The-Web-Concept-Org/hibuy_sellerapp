@@ -15,6 +15,7 @@ import 'package:hibuy/res/utils/validations.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart';
+import 'package:hibuy/view/profile_information.dart/kyc_status_screen.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
@@ -333,10 +334,11 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
                                 ),
                               ),
                             );
-                            Navigator.pushNamed(
-                              context,
-                              RoutesName.kycstatusscreen,
-                            );
+                            // Navigator.pushNamed(
+                            //   context,
+                            //   RoutesName.kycstatusscreen,
+                            // );
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => KycStatusScreen()));
                           } else if (state.authStatus == AuthStatus.error) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

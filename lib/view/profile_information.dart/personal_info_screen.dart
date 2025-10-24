@@ -13,6 +13,7 @@ import 'package:hibuy/res/utils/validations.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/auth_event.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart';
+import 'package:hibuy/view/profile_information.dart/store_info_screen.dart';
 import 'package:hibuy/widgets/profile_widget.dart/profile_image.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
@@ -213,7 +214,8 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                   if (state.personalStatus == PersonalStatus.success &&
                       !_hasNavigated) {
                     _hasNavigated = true;
-                    Navigator.pushNamed(context, RoutesName.myStoreInformation);
+                    // Navigator.pushNamed(context, RoutesName.myStoreInformation);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => StoreInfoScreen()));
                   } else if (state.personalStatus == PersonalStatus.error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

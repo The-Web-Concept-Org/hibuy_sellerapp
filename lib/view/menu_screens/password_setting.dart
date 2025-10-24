@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
-import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
-import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
-import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 
 class PasswordSetting extends StatefulWidget {
@@ -33,9 +30,26 @@ class _PasswordSettingState extends State<PasswordSetting> {
         ),
         child: BlocConsumer<SettingBloc, SettingState>(
           listener: (context, state) {
-            if (state.updatePasswordStatus == UpdatePasswordStatus.error) {
+            if (state.updatePasswordStatus == UpdatePasswordStatus.success) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Password updated successfully')),
+                SnackBar(
+                  content: Text(
+                    state.message ?? 'Password updated successfully',
+                  ),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              // Clear the form after successful update
+              currentPasswordController.clear();
+              newPasswordController.clear();
+              confirmPasswordController.clear();
+            } else if (state.updatePasswordStatus ==
+                UpdatePasswordStatus.error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message ?? 'Failed to update password'),
+                  backgroundColor: Colors.red,
+                ),
               );
             }
           },

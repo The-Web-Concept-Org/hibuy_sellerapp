@@ -6,6 +6,8 @@ import 'package:hibuy/models/user_model.dart';
 import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/services/api_key.dart';
 import 'package:hibuy/services/api_service.dart';
+import 'package:hibuy/services/app_const.dart';
+import 'package:hibuy/services/hive_helper.dart';
 import 'package:hibuy/services/local_storage.dart';
 import 'package:hibuy/view/auth/bloc/auth_state.dart';
 import 'auth_event.dart';
@@ -148,6 +150,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             await LocalStorage.removeData(key: AppKeys.authToken);
             await LocalStorage.removeData(key: AppKeys.uRole);
             await LocalStorage.removeData(key: AppKeys.userData);
+            await HiveHelper.deleteData(
+              AppConst.sellerHiveBox,
+              AppConst.sellerHiveKey,
+            );
 
             log(" Local storage cleared");
 

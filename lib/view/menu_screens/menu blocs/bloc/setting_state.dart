@@ -3,7 +3,9 @@ part of 'setting_bloc.dart';
 enum SettingStatus { initial, loading, success, error }
 
 enum SavingProfileStatus { initial, loading, success, error }
+
 enum UpdatePasswordStatus { initial, loading, success, error }
+
 class SettingState extends Equatable {
   final String? message;
   final SettingStatus? status;
@@ -11,11 +13,11 @@ class SettingState extends Equatable {
   final UpdatePasswordStatus? updatePasswordStatus;
   final SellerDetails? sellerDetails;
   const SettingState({
-    this.savingDataStatus,
+    this.savingDataStatus = SavingProfileStatus.initial,
     this.message,
     this.status,
     this.sellerDetails,
-    this.updatePasswordStatus
+    this.updatePasswordStatus = UpdatePasswordStatus.initial,
   });
 
   SettingState copyWith({
@@ -23,7 +25,7 @@ class SettingState extends Equatable {
     String? message,
     SavingProfileStatus? savingDataStatus,
     SellerDetails? sellerDetails,
-    UpdatePasswordStatus? updatePasswordStatus
+    UpdatePasswordStatus? updatePasswordStatus,
   }) {
     return SettingState(
       updatePasswordStatus: updatePasswordStatus ?? this.updatePasswordStatus,
@@ -35,5 +37,11 @@ class SettingState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [message, status];
+  List<Object?> get props => [
+    message,
+    status,
+    savingDataStatus,
+    updatePasswordStatus,
+    sellerDetails,
+  ];
 }

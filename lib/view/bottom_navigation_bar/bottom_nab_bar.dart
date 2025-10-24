@@ -21,7 +21,7 @@ class BottomNabBar extends StatelessWidget {
           return Scaffold(
             body: state.screen,
             bottomNavigationBar: Container(
-              height: 59.23,
+              height: 70,
               width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.white,
@@ -34,16 +34,16 @@ class BottomNabBar extends StatelessWidget {
                 elevation: 0,
                 currentIndex: state.index,
                 onTap: (index) {
-                  context
-                      .read<BottomNavBloc>()
-                      .add(BottomNavItemSelected(index));
+                  context.read<BottomNavBloc>().add(
+                    BottomNavItemSelected(index),
+                  );
                 },
                 type: BottomNavigationBarType.fixed,
                 selectedItemColor: AppColors.primaryColor,
                 unselectedItemColor: AppColors.secondry,
                 showUnselectedLabels: true,
-                selectedLabelStyle:AppTextStyles.normalbold(context),
-                unselectedLabelStyle:AppTextStyles.unselect(context) ,
+                selectedLabelStyle: AppTextStyles.normalbold(context),
+                unselectedLabelStyle: AppTextStyles.unselect(context),
                 items: [
                   _navItem(
                     context,
@@ -97,7 +97,7 @@ class BottomNabBar extends StatelessWidget {
         height: context.heightPct(18 / 812),
         width: context.widthPct(18 / 375),
         fit: BoxFit.contain,
-        color: isSelected ? AppColors.primaryColor  : AppColors.secondry,
+        color: isSelected ? AppColors.primaryColor : AppColors.secondry,
       ),
       label: label,
       tooltip: "",

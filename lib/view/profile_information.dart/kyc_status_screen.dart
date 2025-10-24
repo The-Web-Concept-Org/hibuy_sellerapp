@@ -17,6 +17,14 @@ import 'package:hibuy/view/auth/bloc/auth_state.dart';
 import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
 import 'package:hibuy/view/auth/bloc/kyc_event.dart';
 import 'package:hibuy/view/auth/bloc/kyc_state.dart';
+import 'package:hibuy/view/auth/signin_screen.dart';
+import 'package:hibuy/view/bottom_navigation_bar/bottom_nab_bar.dart';
+import 'package:hibuy/view/profile_information.dart/bank_account_screen.dart';
+import 'package:hibuy/view/profile_information.dart/business_verification_screen.dart';
+import 'package:hibuy/view/profile_information.dart/document_verification_screen.dart';
+import 'package:hibuy/view/profile_information.dart/kyc_main.dart';
+import 'package:hibuy/view/profile_information.dart/personal_info_screen.dart';
+import 'package:hibuy/view/profile_information.dart/store_info_screen.dart';
 import 'package:hibuy/widgets/profile_widget.dart/status_step_tile.dart';
 
 class KycStatusScreen extends StatefulWidget {
@@ -78,7 +86,12 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
 
     if (seller == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamed(context, RoutesName.bottomnabBar);
+        // Navigator.pushNamed(context, RoutesName.bottomnabBar);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => BottomNabBar()),
+          (route) => false,
+        );
       });
       return const SizedBox.shrink();
     }
@@ -138,27 +151,37 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                       final steps = [
                         {
                           "title": AppStrings.personalinfo,
-                          "route": RoutesName.personalinformation,
+                          "route": MaterialPageRoute(
+                            builder: (context) => PersonalInfoScreen(),
+                          ),
                           "status": personalStatus,
                         },
                         {
                           "title": AppStrings.mystore,
-                          "route": RoutesName.myStoreInformation,
+                          "route": MaterialPageRoute(
+                            builder: (context) => StoreInfoScreen(),
+                          ),
                           "status": storeStatus,
                         },
                         {
                           "title": AppStrings.document,
-                          "route": RoutesName.documentVerification,
+                          "route": MaterialPageRoute(
+                            builder: (context) => DocumentVerificationScreen(),
+                          ),
                           "status": documentStatus,
                         },
                         {
                           "title": AppStrings.business,
-                          "route": RoutesName.businessVerification,
+                          "route": MaterialPageRoute(
+                            builder: (context) => BusinessVerificationScreen(),
+                          ),
                           "status": bankStatus,
                         },
                         {
                           "title": AppStrings.account,
-                          "route": RoutesName.bankAccountVerification,
+                          "route": MaterialPageRoute(
+                            builder: (context) => BankAccountScreen(),
+                          ),
                           "status": businessStatus,
                         },
                       ];
@@ -174,12 +197,16 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                               ),
                               child: StatusStepTile(
                                 index: index,
-                                title: steps[index]["title"]!,
-                                status: steps[index]["status"]!,
+                                title: steps[index]["title"].toString(),
+                                status: steps[index]["status"].toString(),
                                 onTap: () {
-                                  Navigator.pushNamed(
+                                  // Navigator.pushNamed(
+                                  //   context,
+                                  //   steps[index]["route"]!,
+                                  // );
+                                  Navigator.push(
                                     context,
-                                    steps[index]["route"]!,
+                                    steps[index]["route"] as MaterialPageRoute,
                                   );
                                   context.read<StepBloc>().add(
                                     StepChangedEvent(index),
@@ -246,46 +273,81 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
 
                                 // ✅ Navigate to rejected step
                                 if (personalStatus == 'rejected') {
-                                  Navigator.pushNamed(
+                                  Navigator.push(
                                     context,
-                                    RoutesName.personalinformation,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          PersonalInfoScreen(),
+                                    ),
                                   );
                                   return;
                                 }
 
                                 if (storeStatus == 'rejected') {
-                                  Navigator.pushNamed(
+                                  // Navigator.pushNamed(
+                                  //   context,
+                                  //   RoutesName.myStoreInformation,
+                                  // );
+                                  Navigator.push(
                                     context,
-                                    RoutesName.myStoreInformation,
+                                    MaterialPageRoute(
+                                      builder: (context) => StoreInfoScreen(),
+                                    ),
                                   );
                                   return;
                                 }
                                 if (documentStatus == 'rejected') {
-                                  Navigator.pushNamed(
+                                  // Navigator.pushNamed(
+                                  //   context,
+                                  //   RoutesName.documentVerification,
+                                  // );
+                                  Navigator.push(
                                     context,
-                                    RoutesName.documentVerification,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DocumentVerificationScreen(),
+                                    ),
                                   );
                                   return;
                                 }
                                 if (bankStatus == 'rejected') {
-                                  Navigator.pushNamed(
+                                  // Navigator.pushNamed(
+                                  //   context,
+                                  //   RoutesName.bankAccountVerification,
+                                  // );
+                                  Navigator.push(
                                     context,
-                                    RoutesName.bankAccountVerification,
+                                    MaterialPageRoute(
+                                      builder: (context) => BankAccountScreen(),
+                                    ),
                                   );
                                   return;
                                 }
                                 if (businessStatus == 'rejected') {
-                                  Navigator.pushNamed(
+                                  // Navigator.pushNamed(
+                                  //   context,
+                                  //   RoutesName.businessVerification,
+                                  // );
+                                  Navigator.push(
                                     context,
-                                    RoutesName.businessVerification,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          BusinessVerificationScreen(),
+                                    ),
                                   );
                                   return;
                                 }
 
                                 // If no rejection, go to summary or dashboard
-                                Navigator.pushNamed(
+                                // Navigator.pushNamed(
+                                //   context,
+                                //   RoutesName.kycMain,
+                                // );
+                                Navigator.push(
                                   context,
-                                  RoutesName.kycMain,
+                                  MaterialPageRoute(
+                                    builder: (context) => KycMain(),
+                                  ),
                                 );
                               },
                               child: Container(
@@ -317,9 +379,16 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                                     .toString()
                                     .toLowerCase();
                                 if (status == 'approved') {
-                                  Navigator.pushNamed(
+                                  // Navigator.pushNamed(
+                                  //   context,
+                                  //   RoutesName.bottomnabBar,
+                                  // );
+                                  Navigator.pushAndRemoveUntil(
                                     context,
-                                    RoutesName.bottomnabBar,
+                                    MaterialPageRoute(
+                                      builder: (context) => BottomNabBar(),
+                                    ),
+                                    (route) => false,
                                   );
                                   return;
                                 } else {
@@ -356,10 +425,17 @@ class _KycStatusScreenState extends State<KycStatusScreen> {
                         listener: (context, authState) {
                           if (authState.logoutStatus == LogoutStatus.success) {
                             // ✅ Navigate to login screen on successful logout
-                            Navigator.pushNamedAndRemoveUntil(
+                            // Navigator.pushNamedAndRemoveUntil(
+                            //   context,
+                            //   RoutesName.signinScreen,
+                            //   (route) => false, // Remove all previous routes
+                            // );
+                            Navigator.pushAndRemoveUntil(
                               context,
-                              RoutesName.signinScreen,
-                              (route) => false, // Remove all previous routes
+                              MaterialPageRoute(
+                                builder: (context) => SigninScreen(),
+                              ),
+                              (route) => false,
                             );
                           } else if (authState.logoutStatus ==
                               LogoutStatus.error) {

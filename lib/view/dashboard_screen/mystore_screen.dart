@@ -11,6 +11,7 @@ import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_blo
 import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_event.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_state.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:hibuy/view/dashboard_screen/edit_profile.dart';
 
 class MystoreScreen extends StatefulWidget {
   const MystoreScreen({super.key});
@@ -66,7 +67,8 @@ class _MystoreScreenState extends State<MystoreScreen> {
                         Text("My Store", style: AppTextStyles.bold2(context)),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, RoutesName.editprofile);
+                            // Navigator.pushNamed(context, RoutesName.editprofile);
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
                           },
                           child: Container(
                             width: context.widthPct(119 / 375),

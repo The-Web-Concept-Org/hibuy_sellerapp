@@ -3,8 +3,8 @@ import 'package:hibuy/res/app_string/app_string.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
-import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/view/auth/signup_screen.dart';
 
 class SelectType extends StatelessWidget {
   const SelectType({super.key});
@@ -73,10 +73,9 @@ class SelectType extends StatelessWidget {
     return Flexible(
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(
+          Navigator.push(
             context,
-            RoutesName.signupScreen,
-            arguments: role,
+            MaterialPageRoute(builder: (context) => SignupScreen(role: role)),
           );
         },
         child: Container(
