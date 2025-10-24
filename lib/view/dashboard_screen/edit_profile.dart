@@ -28,6 +28,7 @@ class _EditProfileState extends State<EditProfile> {
   final TextEditingController _storeNameController = TextEditingController();
   final TextEditingController _tagController = TextEditingController();
   final List<String> _tags = [];
+  
 
   @override
   void dispose() {

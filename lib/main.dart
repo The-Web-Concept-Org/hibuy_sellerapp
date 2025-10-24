@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/Bloc/bottomnavbar_bloc/bottom_nav_bloc.dart';
 import 'package:hibuy/Bloc/droupdown_list/dropdown_bloc.dart';
-import 'package:hibuy/Bloc/droupdown_list/dropdown_event.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
 import 'package:hibuy/Bloc/product_details_bloc/product_detail_bloc.dart';
 
@@ -10,12 +9,11 @@ import 'package:hibuy/Bloc/profile_bloc.dart/steptile_bloc/steptile_bloc.dart';
 import 'package:hibuy/Bloc/setting_tab_bloc.dart/tab_bloc.dart';
 import 'package:hibuy/models/seller_details.dart';
 
-import 'package:hibuy/res/routes/routes.dart';
-import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/view/auth/bloc/auth_bloc.dart';
 import 'package:hibuy/view/auth/bloc/kyc_bloc.dart';
 import 'package:hibuy/view/auth/splash_screen.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/addproduct_bloc/add_product_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/dashboard%20bloc/dashboard_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/order_update/order_update_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/product_category/productcategory_bloc.dart';
@@ -24,10 +22,9 @@ import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_bloc.
 import 'package:hibuy/view/dashboard_screen/Bloc/variant_bloc/variant_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_bloc.dart';
 import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-void main()async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Hive
@@ -37,10 +34,11 @@ void main()async {
   Hive.registerAdapter(SellerDetailsAdapter());
 
   // Open a Hive box
-   await Hive.openBox<SellerDetails>('sellerBox');
+  await Hive.openBox<SellerDetails>('sellerBox');
   runApp(
     MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => DashboardBloc()),
         BlocProvider(create: (_) => StepBloc()),
         BlocProvider(create: (_) => BottomNavBloc()),
         BlocProvider(create: (_) => ProductDetailBloc()),

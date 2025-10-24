@@ -17,4 +17,5 @@ class AppUrl {
   static const String settingDetail = '$baseUrl/settings';
   static const String updatePersonalInfo = '$baseUrl/updatePersonalInfo';
   static const String updatePassword = '$baseUrl/updateSellerPassword';
+  static const String dashboardData = '$baseUrl/sellerDashboard';
 }

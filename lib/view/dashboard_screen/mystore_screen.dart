@@ -48,7 +48,9 @@ class _MystoreScreenState extends State<MystoreScreen> {
 
           if (state.storeDetailsStatus == StoreDetailsStatus.success) {
             final store = state.storeDetailsModel?.storeData;
+            
             final banners = store?.storeBanners ?? [];
+            
             final posts = store?.storePosts ?? [];
 
             return SingleChildScrollView(

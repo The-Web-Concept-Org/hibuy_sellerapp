@@ -106,4 +106,4 @@ class SellerDetails extends HiveObject {
       'encodedUserId': encodedUserId,
     };
   }
-}
+} 

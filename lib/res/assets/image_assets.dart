@@ -36,4 +36,5 @@ class ImageAssets {
   static const String review = 'assets/images/review.svg';
   static const String statusapprove = 'assets/images/status_approve.svg';
   static const String refealBg = 'assets/images/refral_bg.png';
+  static const String storeBanner = 'assets/images/temp_banner.png';
 }
