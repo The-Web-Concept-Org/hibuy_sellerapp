@@ -17,10 +17,12 @@ import 'package:hibuy/view/dashboard_screen/Bloc/dashboard%20bloc/dashboard_bloc
 import 'package:hibuy/view/dashboard_screen/Bloc/order_update/order_update_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/product_category/productcategory_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/product_list/product_list_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/variant_bloc/variant_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_bloc.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/view_produc/product_details_bloc.dart';
 import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -56,6 +58,8 @@ void main() async {
         BlocProvider(create: (_) => AddProductBloc()),
         BlocProvider(create: (_) => OrderUpdateBloc()),
         BlocProvider(create: (_) => SettingBloc()),
+        BlocProvider(create: (_) => ProductListBloc()),
+        BlocProvider(create: (_) => ProductDetailsBloc()),
       ],
       child: const MyApp(),
     ),
