@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:developer';
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -12,8 +11,6 @@ import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
-import 'package:hibuy/res/routes/routes.dart';
-import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/res/text_style.dart';
 import 'package:hibuy/services/app_const.dart';
 import 'package:hibuy/services/hive_helper.dart';
@@ -30,9 +27,10 @@ import 'package:hibuy/view/menu_screens/queries_screen.dart';
 import 'package:hibuy/view/menu_screens/returnorder_screen.dart';
 import 'package:hibuy/view/menu_screens/salereport_screen.dart';
 import 'package:hibuy/view/menu_screens/setting_screen.dart';
+import 'package:hibuy/widgets/tappable_profile_image.dart';
 
 class MenuScreen extends StatefulWidget {
-  MenuScreen({super.key});
+  const MenuScreen({super.key});
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
@@ -70,31 +68,17 @@ class _MenuScreenState extends State<MenuScreen> {
       title: AppStrings.returnorders,
       route: MaterialPageRoute(builder: (context) => ReturnorderScreen()),
     ),
-    MenuOption(
-      svgAsset: ImageAssets.products,
-      title: AppStrings.sellerproducts,
-      route: MaterialPageRoute(builder: (context) => OtherproductScreen()),
-    ),
-    MenuOption(
-      svgAsset: ImageAssets.purhases,
-      title: AppStrings.purchases,
-      route: MaterialPageRoute(builder: (context) => PurchasesScreen()),
-    ),
-    MenuOption(
-      svgAsset: ImageAssets.inqueries,
-      title: AppStrings.inquiries,
-      route: MaterialPageRoute(builder: (context) => InquiriesScreen()),
-    ),
+
     MenuOption(
       svgAsset: ImageAssets.boost,
       title: AppStrings.boostproducts,
       route: MaterialPageRoute(builder: (context) => BoostProduct()),
     ),
-    MenuOption(
-      svgAsset: ImageAssets.queries,
-      title: AppStrings.queries,
-      route: MaterialPageRoute(builder: (context) => QueriesScreen()),
-    ),
+    // MenuOption(
+    //   svgAsset: ImageAssets.queries,
+    //   title: AppStrings.queries,
+    //   route: MaterialPageRoute(builder: (context) => QueriesScreen()),
+    // ),
     MenuOption(
       svgAsset: ImageAssets.setting,
       title: AppStrings.salereport,
@@ -140,28 +124,36 @@ class _MenuScreenState extends State<MenuScreen> {
                             Row(
                               children: [
                                 Flexible(
-                                  child: Container(
+                                  child: TappableProfileImage(
+                                    networkImageUrl:
+                                        state.sellerDetails?.profilePicture !=
+                                            null
+                                        ? "${AppUrl.websiteUrl}/${state.sellerDetails?.profilePicture ?? ''}"
+                                        : null,
+                                    profileImageBytes:
+                                        state.sellerDetails?.profileImageFile,
+                                    imageKey: 'menu_profile',
                                     width: context.widthPct(64 / 375),
                                     height: context.heightPct(64 / 812),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.white,
-                                        width: 2.85,
-                                      ),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius:
-                                          BorderRadiusGeometry.circular(100),
-                                      child:
-                                          state.sellerDetails?.profilePicture !=
-                                              null
-                                          ? Image.network(
-                                              fit: BoxFit.fill,
-                                              "${AppUrl.websiteUrl}/${state.sellerDetails?.profilePicture ?? ''}",
-                                            )
-                                          : const SizedBox.shrink(),
-                                    ),
+                                    onImagePicked: (File? pickedImage) {
+                                      // Handle image picked in menu screen
+                                      if (pickedImage != null) {
+                                        // Update the profile with the new image
+                                        final currentState = context
+                                            .read<SettingBloc>()
+                                            .state;
+                                        if (currentState.sellerDetails !=
+                                            null) {
+                                          context.read<SettingBloc>().add(
+                                            UpdateProfile(
+                                              profileImage: pickedImage,
+                                              sellerDetails:
+                                                  currentState.sellerDetails!,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
                                   ),
                                 ),
                                 SizedBox(width: context.widthPct(9 / 375)),
@@ -217,70 +209,111 @@ class _MenuScreenState extends State<MenuScreen> {
                 },
               ),
 
-              // SizedBox(height: context.heightPct(20 / 812)),
-
-              /// Menu List
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: options.length,
-                itemBuilder: (context, index) {
-                  final item = options[index];
-                  return GestureDetector(
-                    onTap: () {
-                      if (item.route != null) {
-                        Navigator.push(context, item.route!);
-                      }
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      constraints: BoxConstraints(
-                        minHeight: context.heightPct(55 / 812),
-                      ),
-                      margin: EdgeInsets.only(
-                        bottom: context.heightPct(10 / 812),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: context.widthPct(10 / 375),
-                        vertical: context.heightPct(15 / 812),
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: AppColors.stroke, width: 1),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              SvgPicture.asset(
-                                item.svgAsset,
-                                color: AppColors.secondry,
-                                width: context.widthPct(15 / 375),
-                                height: context.widthPct(15 / 375),
-                                fit: BoxFit.contain,
-                              ),
-                              SizedBox(width: context.widthPct(10 / 375)),
-                              Text(
-                                item.title,
-                                style: AppTextStyles.medium3(context),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                          const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                            color: AppColors.secondry,
-                          ),
-                        ],
-                      ),
+              SizedBox(height: 20),
+              menuItem(
+                svgAsset: ImageAssets.setting,
+                title: AppStrings.settings,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingScreen()),
+                  );
+                },
+              ),
+              menuItem(
+                svgAsset: ImageAssets.returnorder,
+                title: AppStrings.returnorders,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReturnorderScreen(),
                     ),
                   );
                 },
               ),
+              menuItem(
+                svgAsset: ImageAssets.boost,
+                title: AppStrings.boostproducts,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BoostProduct()),
+                  );
+                },
+              ),
+              menuItem(
+                svgAsset: ImageAssets.setting,
+                title: AppStrings.salereport,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SalereportScreen()),
+                  );
+                },
+              ),
 
+              /// Menu List
+              // ListView.builder(
+              //   shrinkWrap: true,
+              //   physics: NeverScrollableScrollPhysics(),
+              //   itemCount: options.length,
+              //   itemBuilder: (context, index) {
+              //     final item = options[index];
+              //     return GestureDetector(
+              //       onTap: () {
+              //         if (item.route != null) {
+              //           Navigator.push(context, item.route!);
+              //         }
+              //       },
+              //       child: Container(
+              //         width: double.infinity,
+              //         constraints: BoxConstraints(
+              //           minHeight: context.heightPct(55 / 812),
+              //         ),
+              //         margin: EdgeInsets.only(
+              //           bottom: context.heightPct(10 / 812),
+              //         ),
+              //         padding: EdgeInsets.symmetric(
+              //           horizontal: context.widthPct(10 / 375),
+              //           vertical: context.heightPct(15 / 812),
+              //         ),
+              //         decoration: BoxDecoration(
+              //           color: AppColors.white,
+              //           borderRadius: BorderRadius.circular(5),
+              //           border: Border.all(color: AppColors.stroke, width: 1),
+              //         ),
+              //         child: Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //           children: [
+              //             Row(
+              //               children: [
+              //                 SvgPicture.asset(
+              //                   item.svgAsset,
+              //                   color: AppColors.secondry,
+              //                   width: context.widthPct(15 / 375),
+              //                   height: context.widthPct(15 / 375),
+              //                   fit: BoxFit.contain,
+              //                 ),
+              //                 SizedBox(width: context.widthPct(10 / 375)),
+              //                 Text(
+              //                   item.title,
+              //                   style: AppTextStyles.medium3(context),
+              //                   overflow: TextOverflow.ellipsis,
+              //                 ),
+              //               ],
+              //             ),
+              //             const Icon(
+              //               Icons.arrow_forward_ios,
+              //               size: 16,
+              //               color: AppColors.secondry,
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     );
+              //   },
+              // ),
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
                   if (state.logoutStatus == LogoutStatus.success) {
@@ -340,6 +373,57 @@ class _MenuScreenState extends State<MenuScreen> {
               SizedBox(height: 20),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  menuItem({
+    required String svgAsset,
+    required String title,
+    required GestureTapCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        constraints: BoxConstraints(minHeight: context.heightPct(55 / 812)),
+        margin: EdgeInsets.only(bottom: context.heightPct(10 / 812)),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.widthPct(10 / 375),
+          vertical: context.heightPct(15 / 812),
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(color: AppColors.stroke, width: 1),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                SvgPicture.asset(
+                  svgAsset,
+                  color: AppColors.secondry,
+                  width: context.widthPct(15 / 375),
+                  height: context.widthPct(15 / 375),
+                  fit: BoxFit.contain,
+                ),
+                SizedBox(width: context.widthPct(10 / 375)),
+                Text(
+                  title,
+                  style: AppTextStyles.medium3(context),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: AppColors.secondry,
+            ),
+          ],
         ),
       ),
     );

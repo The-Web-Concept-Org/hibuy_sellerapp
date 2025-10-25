@@ -9,7 +9,8 @@ import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/text_style.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/dashboard%20bloc/dashboard_bloc.dart';
 import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
-import 'package:hibuy/widgets/dashboard/app_bar.dart';
+import 'package:hibuy/widgets/dashboard/dashboard_home_appbar.dart';
+import 'package:hibuy/widgets/dashboard/dashboard_home_appbar.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 
 class DashboardHomeScreen extends StatefulWidget {
@@ -30,7 +31,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: const CustomAppBar(),
+      appBar: const DashboardHomeAppBar(),
       body: Padding(
         padding: EdgeInsets.all(context.widthPct(0.025)),
         child: BlocBuilder<DashboardBloc, DashboardState>(

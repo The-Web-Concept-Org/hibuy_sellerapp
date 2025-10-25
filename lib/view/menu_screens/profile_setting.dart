@@ -6,14 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/models/seller_details.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
 import 'package:hibuy/res/app_url/app_url.dart';
-import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
-import 'package:hibuy/res/routes/routes_name.dart';
 import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
-import 'package:hibuy/widgets/profile_widget.dart/id_image.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
+import 'package:hibuy/widgets/profile_image_container.dart';
 
 class ProfileSetting extends StatefulWidget {
   const ProfileSetting({super.key});
@@ -61,7 +59,6 @@ class _ProfileSettingState extends State<ProfileSetting> {
           top: context.heightPct(21 / 812),
         ),
         child: BlocBuilder<SettingBloc, SettingState>(
-          
           builder: (context, state) {
             if (state.savingDataStatus == SavingProfileStatus.loading) {
               return const Center(child: CircularProgressIndicator.adaptive());
@@ -70,35 +67,16 @@ class _ProfileSettingState extends State<ProfileSetting> {
               child: Column(
                 children: [
                   Center(
-                    child: Container(
-                      width: context.widthPct(64 / 375),
-                      height: context.heightPct(64 / 812),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.white, width: 2.85),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadiusGeometry.circular(100),
-                        child: Image.network(fit: BoxFit.fill, networkImageUrl),
-                      ),
+                    child: ProfileImageContainer(
+                      networkImageUrl: networkImageUrl,
+                      imageKey: 'profile_setting',
+                      profileImageBytes: state.sellerDetails?.profileImageFile,
+                      onImagePicked: (File? pickedImage) {
+                        setState(() {
+                          newProfileImage = pickedImage;
+                        });
+                      },
                     ),
-                    //  Container(
-                    //   width: context.widthPct(74 / 375),
-                    //   height: context.heightPct(74 / 812),
-                    //   decoration: BoxDecoration(
-                    //     color: AppColors.white,
-                    //     border: Border.all(color: AppColors.stroke, width: 1),
-                    //     shape: BoxShape.circle,
-                    //   ),
-                    //   child: Center(
-                    //     child: ReusableImageContainer(
-                    //       widthFactor: 0.32,
-                    //       heightFactor: 0.36,
-                    //       placeholderSvg: ImageAssets.profileimage,
-                    //       imageKey: 'profile',
-                    //     ),
-                    //   ),
-                    // ),
                   ),
                   SizedBox(height: context.heightPct(0.015)),
                   ReusableTextField(

@@ -1,15 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
+import 'package:hibuy/res/app_url/app_url.dart';
+import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+class DashboardHomeAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
   final VoidCallback? onProfileTap;
   final VoidCallback? onNotificationTap;
 
-  const CustomAppBar({super.key, this.onProfileTap, this.onNotificationTap});
+  const DashboardHomeAppBar({
+    super.key,
+    this.onProfileTap,
+    this.onNotificationTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,17 +41,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // ✅ Profile with CircleAvatar + border
-          Container(
-            width: context.widthPct(37 / 375),
-            height: context.heightPct(37 / 812),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.primaryColor, width: 2.85),
-            ),
-            child: const CircleAvatar(
-              // backgroundImage: AssetImage("assets/images/profile.png"),
-              backgroundColor: Colors.white,
-            ),
+          BlocBuilder<SettingBloc, SettingState>(
+            builder: (context, state) {
+              return Container(
+                width: context.widthPct(37 / 375),
+                height: context.heightPct(37 / 812),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.primaryColor,
+                    width: 2.85,
+                  ),
+                ),
+                child: ClipOval(child: _buildProfileImage(state)),
+              );
+            },
           ),
 
           // ✅ Center logo
@@ -86,6 +98,46 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildProfileImage(SettingState state) {
+    // Priority 1: If we have Uint8List from memory (stored in Hive), show it
+    if (state.sellerDetails?.profileImageFile != null &&
+        state.sellerDetails!.profileImageFile!.isNotEmpty) {
+      return Image.memory(
+        state.sellerDetails!.profileImageFile!,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    }
+
+    // Priority 2: If network URL exists, show network image
+    if (state.sellerDetails?.profilePicture != null &&
+        state.sellerDetails!.profilePicture!.isNotEmpty) {
+      return Image.network(
+        "${AppUrl.websiteUrl}/${state.sellerDetails!.profilePicture}",
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.white,
+            child: const Icon(Icons.person, color: Colors.grey, size: 20),
+          );
+        },
+      );
+    }
+
+    // Show placeholder if no image
+    return Container(
+      color: Colors.white,
+      child: const Icon(Icons.person, color: Colors.grey, size: 20),
     );
   }
 

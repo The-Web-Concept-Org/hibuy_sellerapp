@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -84,7 +85,7 @@ class SettingBloc extends Bloc<SettingEvent, SettingState> {
         "phone_no": event.sellerDetails.phone.toString(),
         "address": event.sellerDetails.address,
       };
-
+      final Uint8List? profileImageFile = event.profileImage?.readAsBytesSync();
       final sellerDetails = SellerDetails(
         name: event.sellerDetails.name,
         email: event.sellerDetails.email,
@@ -95,7 +96,7 @@ class SettingBloc extends Bloc<SettingEvent, SettingState> {
         profilePicture: (event.profileImage == null)
             ? event.sellerDetails.profilePicture?.split('.com/').last
             : null,
-        profileImageFile: event.profileImage,
+        profileImageFile: profileImageFile,
       );
       log("FormData prepared with ${formData.length} fields");
       if (event.profileImage != null) {

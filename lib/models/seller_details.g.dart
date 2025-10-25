@@ -24,7 +24,7 @@ class SellerDetailsAdapter extends TypeAdapter<SellerDetails> {
       profilePicture: fields[4] as String?,
       referralLink: fields[5] as String,
       encodedUserId: fields[6] as String,
-      profileImageFile: fields[7] as File?,
+      profileImageFile: fields[7] as Uint8List?,
     );
   }
 

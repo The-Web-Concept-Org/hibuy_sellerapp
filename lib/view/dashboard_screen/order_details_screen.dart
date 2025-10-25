@@ -10,15 +10,13 @@ import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/order_update/order_update_bloc.dart';
-import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
 
 import '../../res/app_string/app_string.dart';
 import '../../res/colors/app_color.dart';
 import '../../res/text_style.dart';
 import '../../widgets/profile_widget.dart/app_bar.dart';
-import '../../widgets/profile_widget.dart/button.dart';
-import '../../widgets/profile_widget.dart/id_image.dart';
 import '../../widgets/profile_widget.dart/text_field.dart';
+import '../../widgets/video_widget.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final OrderData currentOrder;
@@ -42,43 +40,60 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  final OrderDataModel orderData = OrderDataModel(
-    trackingId: "TRK-5848184331",
-    orderNumber: "3",
-    status: AppStrings.inProgress,
-    customer: CustomerInfoModel(
-      name: "Awais Ansari",
-      contact: "0000-00000000",
-      address: "123 Maple Street, Block B, Cityville, State 12345, Country",
-    ),
-    rider: RiderInfoModel(
-      name: "Rider Name Here",
-      contact: "0000-0000000",
-      email: "ad@gmail.com",
-      vehicleNumber: "FDS-0000",
-    ),
-    orderDetails: OrderDetailsModel(
-      itemCount: 1,
-      date: "25 Aug, 2025",
-      total: 0000,
-      deliveryFee: 0000,
-      grandTotal: 0000,
-    ),
-    products: [
-      ProductInfoModel(
-        title: "HD Wireless Bluetooth Headphones with Noise Cancellation",
-        quantity: 2,
-        size: "Large, Color:black",
-        unitPrice: 1200,
-      ),
-      ProductInfoModel(
-        title: "HD Wireless Bluetooth Headphones with Noise Cancellation",
-        quantity: 1,
-        size: "Medium, Color:black",
-        unitPrice: 800,
-      ),
-    ],
-  );
+  void _handleOrderSubmission(String networkVideoUrl) {
+    final orderVideoPath = context
+        .read<ImagePickerBloc>()
+        .state
+        .images['ordervideo'];
+    final orderId = widget.currentOrder.orderId?.toString();
+    final String status = delieveryStatusController.value!;
+    final size = sizeController.text.trim();
+    final weight = weightController.text.trim();
+
+    // Check if we have either network video URL or local video file
+    final hasNetworkVideo = networkVideoUrl.isNotEmpty;
+    final hasLocalVideo = orderVideoPath != null && orderVideoPath.isNotEmpty;
+    final hasAnyVideo = hasNetworkVideo || hasLocalVideo;
+
+    if (orderId == null || orderId.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Order ID is missing')));
+    } else if (status.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a delivery status')),
+      );
+    } else if (!hasAnyVideo) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please upload a video',
+          ),
+        ),
+      );
+    } else if (size.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter the size')));
+    } else if (weight.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter the weight')));
+    } else {
+      // ✅ All fields valid → Dispatch event
+      // Only send local video file if we have one and no network video
+      final File? videoFile = hasLocalVideo && !hasNetworkVideo
+          ? File(orderVideoPath)
+          : null;
+
+      context.read<OrderUpdateBloc>().add(
+        UpdateOrderEvent(orderId, status, videoFile, size, weight),
+      );
+    }
+    log("Order video path: ${orderVideoPath}");
+    log("Network video URL: ${networkVideoUrl}");
+    log("Has any video: ${hasAnyVideo}");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +122,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               );
             }
 
+            // Initialize networkVideoUrl outside the if block
+            final String statusVideo =
+                state.ordersResponse?.orderItems.first.statusVideo ?? '';
+            final String networkVideoUrl =
+                state.status == GetOrderStatus.success && statusVideo.isNotEmpty
+                ? "${AppUrl.websiteUrl}/storage/$statusVideo"
+                : "";
+
             if (state.status == GetOrderStatus.success) {
               weightController.text =
                   state.ordersResponse?.orderItems.first.orderWeight
@@ -115,44 +138,34 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               sizeController.text =
                   state.ordersResponse?.orderItems.first.orderSize.toString() ??
                   '';
+              log("Status video from API: $statusVideo");
+              log("Full network video URL: $networkVideoUrl");
               Future.delayed(Duration(milliseconds: 100), () {
                 delieveryStatusController.value = getOrderStatusLabel(
                   state.ordersResponse?.status ?? '',
                 );
               });
-              log(
-                "${AppUrl.baseUrl}/${state.ordersResponse?.orderItems.first.statusVideo}",
-              );
             }
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // const ReusableImageContainer(
-                //   widthFactor: 0.9,
-                //   heightFactor: 0.25,
-                //   placeholderSvg: 'ImageAssets.profileimage',
-                //   imageKey: 'ordder',
-                // ),
-                ReusableImageContainer(
+                VideoWidget(
                   widthFactor: 0.9,
                   heightFactor: 0.25,
                   placeholderSvg: ImageAssets.profileimage,
-                  imageKey: 'ordervideo',
-                  isVideo: true,
-
-                  networkImageUrl:
-                      "${AppUrl.baseUrl}/${state.ordersResponse?.orderItems.first.statusVideo}",
-                  // networkImageUrl:
-                  //     authState.documentsShopVideoUrl, // ✅ Network URL
+                  videoKey: 'ordervideo',
+                  networkVideoUrl: networkVideoUrl.isNotEmpty
+                      ? networkVideoUrl
+                      : null,
                 ),
                 SizedBox(height: context.heightPct(0.02)),
-                shipmentDetailsWidget(),
+                shipmentDetailsWidget(networkVideoUrl),
                 SizedBox(height: context.heightPct(0.02)),
                 OrderInfoWidget(currentOrder: widget.currentOrder),
                 SizedBox(height: context.heightPct(0.02)),
                 ProductDetailsWidget(
-                  products: orderData.products,
+                  products: state.ordersResponse?.orderItems ?? [],
                   isExpanded: isProductsExpanded,
                   onToggle: () =>
                       setState(() => isProductsExpanded = !isProductsExpanded),
@@ -165,7 +178,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  shipmentDetailsWidget() {
+  shipmentDetailsWidget(String networkVideoUrl) {
     return Column(
       children: [
         Row(
@@ -235,64 +248,46 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ),
             SizedBox(width: context.widthPct(0.03)),
             Expanded(
-              child: ReusableButton(
-                text:
-                    context.read<OrderUpdateBloc>().state.orderUpdateStatus ==
-                        OrderUpdateStatus.loading
-                    ? "Update"
-                    : "Submit",
+              child: BlocBuilder<OrderUpdateBloc, OrderUpdateState>(
+                builder: (context, state) {
+                  final isLoading =
+                      state.orderUpdateStatus == OrderUpdateStatus.loading;
 
-                // userHeight: context.heightPct(0.07), // proper height
-                // userPadding: context.widthPct(0.10),
-                // userBorderRadius: 50, // half-circular
-                onPressed: () {
-                  final homeBillPath = context
-                      .read<ImagePickerBloc>()
-                      .state
-                      .images['ordervideo'];
-                  final orderId = widget.currentOrder.orderId?.toString();
-                  final String status = delieveryStatusController.value!;
-                  final billPath = homeBillPath;
-                  final size = sizeController.text.trim();
-                  final weight = weightController.text.trim();
-
-                  if (orderId == null || orderId.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Order ID is missing')),
-                    );
-                  } else if (status.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select a delivery status'),
+                  return GestureDetector(
+                    onTap: isLoading
+                        ? null
+                        : () => _handleOrderSubmission(networkVideoUrl),
+                    child: Container(
+                      width: context.widthPct(0.9),
+                      height: context.heightPct(0.05),
+                      decoration: BoxDecoration(
+                        color: isLoading
+                            ? AppColors.primaryColor.withOpacity(0.7)
+                            : AppColors.primaryColor,
+                        borderRadius: BorderRadius.circular(
+                          context.widthPct(0.05),
+                        ),
+                        border: Border.all(color: AppColors.white, width: 1),
                       ),
-                    );
-                  } else if (billPath == null || billPath.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please upload the home bill file'),
+                      child: Center(
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                "Submit",
+                                style: AppTextStyles.buttontext(context),
+                              ),
                       ),
-                    );
-                  } else if (size.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter the size')),
-                    );
-                  } else if (weight.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter the weight')),
-                    );
-                  } else {
-                    // ✅ All fields valid → Dispatch event
-                    context.read<OrderUpdateBloc>().add(
-                      UpdateOrderEvent(
-                        orderId,
-                        status,
-                        File(billPath),
-                        size,
-                        weight,
-                      ),
-                    );
-                  }
-                  log("home bill path ${homeBillPath}");
+                    ),
+                  );
                 },
               ),
             ),
@@ -447,7 +442,7 @@ class OrderInfoWidget extends StatelessWidget {
 
 // product_details_widget.dart
 class ProductDetailsWidget extends StatelessWidget {
-  final List<ProductInfoModel> products;
+  final List<OrderItem> products;
   final bool isExpanded;
   final VoidCallback onToggle;
 
@@ -541,7 +536,7 @@ class ProductDetailsWidget extends StatelessWidget {
 
 // product_tile_widget.dart
 class ProductTileWidget extends StatelessWidget {
-  final ProductInfoModel product;
+  final OrderItem product;
 
   const ProductTileWidget({super.key, required this.product});
 
@@ -579,10 +574,11 @@ class ProductTileWidget extends StatelessWidget {
         color: AppColors.gray,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(
-        Icons.image,
-        color: AppColors.gray2,
-        size: context.widthPct(0.1),
+      child: Image.network(
+        "${product.image}",
+        width: context.widthPct(0.1),
+        height: context.widthPct(0.1),
+        fit: BoxFit.cover,
       ),
     );
   }
@@ -595,42 +591,45 @@ class ProductTileWidget extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                product.title,
+                product.productName ?? '',
                 style: AppTextStyles.samibold2(context),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            QuantityChipWidget(quantity: product.quantity),
+            QuantityChipWidget(quantity: product.quantity ?? 0),
           ],
         ),
         SizedBox(height: context.heightPct(0.01)),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                "${AppStrings.size}: ${product.size}",
-                style: AppTextStyles.greytext(context),
-              ),
-            ),
-            Text("1/2 by 4", style: AppTextStyles.bodyRegular(context)),
-          ],
-        ),
+        // Row(
+        //   children: [
+        //     Expanded(
+        //       child: Text(
+        //         // "${AppStrings.size}: ${product.size}",
+        //         style: AppTextStyles.greytext(context),
+        //       ),
+        //     ),
+        //     Text("1/2 by 4", style: AppTextStyles.bodyRegular(context)),
+        //   ],
+        // ),
       ],
     );
   }
 
   Widget _buildPriceInfo(BuildContext context) {
+    final price = product.price ?? 0;
+    final quantity = product.quantity ?? 0;
+    final total = price * quantity;
     return Row(
       children: [
         Expanded(
           child: Text(
-            "${AppStrings.unitPrice}: ${AppStrings.rs}${product.unitPrice}",
+            "${AppStrings.unitPrice}: ${AppStrings.rs}${product.price}",
             style: AppTextStyles.samibold2(context),
           ),
         ),
         Text(
-          "${AppStrings.subtotal}: ${AppStrings.rs}${product.unitPrice * product.quantity}",
+          "${AppStrings.subtotal}: ${AppStrings.rs}$total",
           style: AppTextStyles.samibold(context),
         ),
       ],

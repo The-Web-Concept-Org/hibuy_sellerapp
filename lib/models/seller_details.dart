@@ -4,7 +4,6 @@
 //   final int phone;
 //   final String address;
 //   final String profilePicture;
- 
 
 //   SellerDetails({
 //     required this.name,
@@ -12,7 +11,7 @@
 //     required this.phone,
 //     required this.address,
 //     required this.profilePicture,
-   
+
 //   });
 
 //   // From JSON
@@ -23,7 +22,7 @@
 //       phone: json['phone'] ?? 0,
 //       address: json['address'] ?? '',
 //       profilePicture: json['profile_picture'] ?? '',
-    
+
 //     );
 //   }
 
@@ -35,11 +34,12 @@
 //       'phone': phone,
 //       'address': address,
 //       'profile_picture': profilePicture,
-     
+
 //     };
 //   }
 // }
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:hive/hive.dart';
 
@@ -68,17 +68,17 @@ class SellerDetails extends HiveObject {
   @HiveField(6)
   final String encodedUserId;
   @HiveField(7)
-  final File? profileImageFile;
+  final Uint8List? profileImageFile;
 
   SellerDetails({
     required this.name,
     required this.email,
     required this.phone,
     required this.address,
-     this.profilePicture,
+    this.profilePicture,
     required this.referralLink,
     required this.encodedUserId,
-    this.profileImageFile
+    this.profileImageFile,
   });
 
   // From JSON
@@ -106,4 +106,4 @@ class SellerDetails extends HiveObject {
       'encodedUserId': encodedUserId,
     };
   }
-} 
+}

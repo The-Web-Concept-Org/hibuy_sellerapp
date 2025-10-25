@@ -105,12 +105,13 @@ class OrderUpdateBloc extends Bloc<OrderUpdateEvent, OrderUpdateState> {
         if (event.orderId.isNotEmpty) "order_id": event.orderId,
         if (event.delieveryStatus.isNotEmpty)
           "delivery_status": event.delieveryStatus,
-        "order_video": event.orderVideo,
+        if (event.orderVideo != null) "order_video": event.orderVideo,
         if (event.orderSize.isNotEmpty) "order_size": event.orderSize,
         if (event.orderWeight.isNotEmpty) "order_weight": event.orderWeight,
       };
 
       log("FormData prepared with ${formData.length} fields");
+      log("Order video file: ${event.orderVideo?.path ?? 'No video file'}");
 
       await ApiService.postMultipartMethod(
         authHeader: true,
@@ -151,5 +152,4 @@ class OrderUpdateBloc extends Bloc<OrderUpdateEvent, OrderUpdateState> {
       );
     }
   }
-
 }
