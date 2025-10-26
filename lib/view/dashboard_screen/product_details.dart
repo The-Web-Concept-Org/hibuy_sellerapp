@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
+import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/text_style.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
@@ -48,7 +49,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           } else if (state.status == ProductDetailsStatus.success) {
             final product = state.productDetails?.product;
             final images = product?.productImages ?? [];
-
+            final isNetwork=images.isNotEmpty;
             // If no images from API, fallback to assets
             final imageList = images.isNotEmpty
                 ? images
@@ -69,13 +70,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       final selectedIndex = detailState.selectedIndex;
                       final imagePath = imageList[selectedIndex];
 
-                      final isNetwork = imagePath.startsWith('http');
 
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(11.18),
                         child: isNetwork
                             ? Image.network(
-                                imagePath,
+                                "${AppUrl.websiteUrl}/$imagePath",
                                 width: context.widthPct(0.9),
                                 height: context.heightPct(0.35),
                                 fit: BoxFit.cover,
@@ -98,8 +98,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: List.generate(imageList.length, (index) {
-                          final imgPath = imageList[index];
-                          final isNetwork = imgPath.startsWith('http');
+                          
                           final isSelected =
                               detailState.selectedIndex == index;
 
@@ -125,13 +124,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 borderRadius: BorderRadius.circular(6),
                                 child: isNetwork
                                     ? Image.network(
-                                        imgPath,
+                                        "${AppUrl.websiteUrl}/${imageList[index]}",
                                         width: context.widthPct(0.18),
                                         height: context.widthPct(0.18),
                                         fit: BoxFit.cover,
                                       )
                                     : Image.asset(
-                                        imgPath,
+                                        imageList[index],
                                         width: context.widthPct(0.18),
                                         height: context.widthPct(0.18),
                                         fit: BoxFit.cover,

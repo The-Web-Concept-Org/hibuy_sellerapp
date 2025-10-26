@@ -1263,6 +1263,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
                       SizedBox(height: context.heightPct(12 / 812)),
 
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Expanded(
                             child: ReusableTextField(
@@ -1288,6 +1289,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
                       SizedBox(height: context.heightPct(12 / 812)),
 
                       Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Expanded(
                             child: ReusableTextField(
@@ -1313,6 +1315,7 @@ class _AddproductScreenState extends State<AddproductScreen> {
                       SizedBox(height: context.heightPct(12 / 812)),
 
                       Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Expanded(
                             child: ReusableTextField(

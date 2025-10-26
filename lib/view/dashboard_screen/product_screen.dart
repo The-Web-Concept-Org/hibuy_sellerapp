@@ -20,12 +20,14 @@ class ProductScreen extends StatefulWidget {
 }
 
 class _ProductScreenState extends State<ProductScreen> {
+  final TextEditingController searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
     // ✅ Fetch products when screen loads
     context.read<ProductListBloc>().add(FetchProductListEvent());
   }
+   
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,21 @@ class _ProductScreenState extends State<ProductScreen> {
             return const Center(child: CircularProgressIndicator());
           } else if (state.status == ProductListStatus.success) {
             final products = state.productList?.products ?? [];
+         final tabProducts=   (state.tabBarIndex == 0)
+                ? products
+                : state.boostedProducts ?? [];
+             final filteredOrders =
+                      tabProducts.where((product) {
+                        if (state.searchQuery.isEmpty) return true;
+                        final searchLower = state.searchQuery.toLowerCase();
+
+                        final productName =
+                            product.productName?.toLowerCase() ?? '';
+
+                        return productName.contains(searchLower);
+                      }).toList() ??
+                      [];
+                    
 
             return Padding(
               padding: EdgeInsets.only(
@@ -52,10 +69,9 @@ class _ProductScreenState extends State<ProductScreen> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                         
-                          context
-                              .read<ProductListBloc>()
-                              .add(const SetTabBarEvent(selectedIndex: 0));
+                          context.read<ProductListBloc>().add(
+                            const SetTabBarEvent(selectedIndex: 0),
+                          );
                         },
                         child: Container(
                           width: context.widthPct(160 / 375),
@@ -63,7 +79,10 @@ class _ProductScreenState extends State<ProductScreen> {
                           decoration: BoxDecoration(
                             color: AppColors.primaryColor,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.stroke, width: 1),
+                            border: Border.all(
+                              color: AppColors.stroke,
+                              width: 1,
+                            ),
                           ),
                           child: Center(
                             child: Text(
@@ -75,10 +94,9 @@ class _ProductScreenState extends State<ProductScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                         
-                          context
-                              .read<ProductListBloc>()
-                              .add(const SetTabBarEvent(selectedIndex: 1));
+                          context.read<ProductListBloc>().add(
+                            const SetTabBarEvent(selectedIndex: 1),
+                          );
                         },
                         child: Container(
                           width: context.widthPct(160 / 375),
@@ -86,7 +104,10 @@ class _ProductScreenState extends State<ProductScreen> {
                           decoration: BoxDecoration(
                             color: AppColors.white,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.stroke, width: 1),
+                            border: Border.all(
+                              color: AppColors.stroke,
+                              width: 1,
+                            ),
                           ),
                           child: Center(
                             child: Text(
@@ -98,71 +119,81 @@ class _ProductScreenState extends State<ProductScreen> {
                       ),
                     ],
                   ),
-                 
+
                   SizedBox(height: context.heightPct(12 / 812)),
 
                   /// Search Bar
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: context.heightPct(40 / 812),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: context.widthPct(16 / 375),
-                            vertical: context.heightPct(12 / 812),
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(
-                              color: AppColors.stroke,
-                              width: 1,
+                /// Search Bar
+              BlocListener<ProductListBloc, ProductListState>(
+                listener: (context, state) {
+                  // Clear search field when search query is cleared
+                  if (state.searchQuery.isEmpty &&
+                      searchController.text.isNotEmpty) {
+                    searchController.clear();
+                  }
+                },
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: searchController,
+                        onChanged: (value) {
+                          context.read<ProductListBloc>().add(
+                            SearchOrdersEvent(value),
+                          );
+                        },
+                        decoration: InputDecoration(
+                          hintText: AppStrings.searchproduct,
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(top: 2.0),
+                            child: Icon(
+                              Icons.search,
+                              size: 20,
+                              color: AppColors.hintTextDarkGrey,
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.search,
-                                size: context.widthPct(18 / 375),
-                                color: AppColors.secondry.withOpacity(0.5),
-                              ),
-                              SizedBox(width: context.widthPct(8 / 375)),
-                              Text(
-                                AppStrings.searchproduct,
-                                style: AppTextStyles.searchtext(context),
-                              ),
-                            ],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: AppColors.stroke),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(color: AppColors.stroke),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            borderSide: BorderSide(
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: context.widthPct(12 / 375),
+                            vertical: context.heightPct(10 / 812),
                           ),
                         ),
-                      ),
-                      SizedBox(width: context.widthPct(9 / 375)),
-                      SvgPicture.asset(
-                        ImageAssets.searchicon,
-                        height: context.heightPct(20 / 812),
-                        width: context.widthPct(20 / 375),
-                        fit: BoxFit.contain,
-                      ),
-                    ],
-                  ),
-
+                      ),),
                   // SizedBox(height: context.heightPct(12 / 812)),
+                    // Filter orders based on search query
+                 
 
                   /// Product List
                   Expanded(
                     child: ListView.builder(
-                      itemCount:(state.tabBarIndex==0) ?products.length: state.boostedProducts?.length,
+                      itemCount:filteredOrders.length,
                       itemBuilder: (context, index) {
-                        final product = state.tabBarIndex==0?products[index] :state.boostedProducts![index];
+                        final product = filteredOrders[index];
                         final imageUrl = product.firstImage ?? "";
+                       
 
                         return GestureDetector(
                           onTap: () {
-                             final productId = product.productId;
+                            final productId = product.productId;
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                     ProductDetailScreen(productId:productId??0,),
+                                builder: (context) => ProductDetailScreen(
+                                  productId: productId ?? 0,
+                                ),
                               ),
                             );
                           },
@@ -250,16 +281,89 @@ class _ProductScreenState extends State<ProductScreen> {
                                   ),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Icon(
-                                        Icons.more_vert,
-                                        size: context.widthPct(15 / 375),
-                                        color: AppColors.black,
+                                      PopupMenuButton<String>(
+                                        color: AppColors.white,
+                                        icon: Icon(
+                                          Icons.more_vert,
+                                          size: context.widthPct(15 / 375),
+                                          color: AppColors.black,
+                                        ),
+                                        onSelected: (String value) {
+                                          if (value == 'edit') {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    AddproductScreen(),
+                                              ),
+                                            );
+                                          } else if (value == 'delete') {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: Text('Delete Product'),
+                                                content: Text(
+                                                  'Are you want this product Deleted?',
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(context),
+                                                    child: Text('Cancel'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      // Delete logic yahan implement karein
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text('Delete'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        itemBuilder: (BuildContext context) =>
+                                            <PopupMenuEntry<String>>[
+                                              PopupMenuItem<String>(
+                                                value: 'edit',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.edit,
+                                                      size: 20,
+                                                      color: Colors.blue,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text('Edit'),
+                                                  ],
+                                                ),
+                                              ),
+                                              PopupMenuItem<String>(
+                                                value: 'delete',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.delete,
+                                                      size: 20,
+                                                      color: Colors.red,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text(
+                                                      'Delete',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                       ),
-                                      SizedBox(
-                                        height: context.heightPct(6 / 812),
-                                      ),
+                                      // ✅ Remove extra SizedBox heights
                                       if (state.productList?.packageStatus !=
                                           null)
                                         Container(
@@ -288,24 +392,23 @@ class _ProductScreenState extends State<ProductScreen> {
                                         )
                                       else
                                         const SizedBox.shrink(),
-
+                                      // ✅ Reduced spacing
                                       SizedBox(
-                                        height: context.heightPct(3 / 812),
+                                        height: context.heightPct(2 / 812),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        child: Container(
-                                         // width: context.widthPct(52.62 / 375),
-                                          height: context.heightPct(16.84 / 812),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.green,
-                                        
-                                            borderRadius: BorderRadius.circular(
-                                              35,
-                                            ),
+                                      Container(
+                                        height: context.heightPct(16.84 / 812),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.green,
+                                          borderRadius: BorderRadius.circular(
+                                            35,
                                           ),
-                                          child: Center(
+                                        ),
+                                        child: Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 3.0,
+                                            ),
                                             child: Text(
                                               product.productStatus == 1
                                                   ? "Active"
@@ -329,7 +432,12 @@ class _ProductScreenState extends State<ProductScreen> {
                   ),
                 ],
               ),
+            ),
+                ]
+              )
             );
+              
+              
           } else if (state.status == ProductListStatus.error) {
             return Center(
               child: Text(state.message ?? 'Failed to load products'),
