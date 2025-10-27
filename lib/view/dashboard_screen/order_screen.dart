@@ -8,6 +8,7 @@ import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/services/app_func.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/order_detail_filter_dialog.dart';
 import 'package:hibuy/view/dashboard_screen/order_details_screen.dart';
@@ -215,6 +216,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       ),
                     );
                   }
+                 
                   // Filter orders based on search query
                   final filteredOrders =
                       state.ordersResponse?.data.where((order) {
@@ -286,7 +288,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            getOrderStatusLabel(
+                                            AppFunc.orderStatusLabel(
                                               currentOrder.orderStatus ?? "",
                                             ),
                                             style: AppTextStyles.regular(
@@ -392,7 +394,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          "${AppStrings.deliveryStatus}: ${getOrderStatusLabel(currentOrder.orderStatus ?? "")}",
+                                          "${AppStrings.deliveryStatus}: ${AppFunc.orderStatusLabel(currentOrder.orderStatus ?? "")}",
                                           style: AppTextStyles.unselect(
                                             context,
                                           ),
@@ -413,8 +415,10 @@ class _OrderScreenState extends State<OrderScreen> {
                                                         MaterialPageRoute(
                                                           builder: (context) =>
                                                               OrderDetailScreen(
-                                                                currentOrder:
-                                                                    currentOrder,
+                                                                orderId:
+                                                                    currentOrder
+                                                                        .orderId
+                                                                        .toString(),
                                                               ),
                                                         ),
                                                       );
@@ -466,24 +470,6 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 
-  String getOrderStatusLabel(String status) {
-    switch (status) {
-      case 'order_placed':
-        return 'Order Placed';
-      case 'pending':
-        return 'Pending';
-      case 'processing':
-        return 'Processing';
-      case 'shipped':
-        return 'Shipped';
-      case 'delivered':
-        return 'Delivered';
-      case 'cancelled':
-        return 'Cancelled';
-      case 'returned':
-        return 'Returned';
-      default:
-        return 'Unknown Status';
-    }
-  }
+ 
+
 }

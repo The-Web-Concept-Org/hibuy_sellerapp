@@ -7,6 +7,7 @@ import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/services/app_func.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/order_details_screen.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
@@ -105,6 +106,7 @@ class _SalereportScreenState extends State<SalereportScreen> {
                   'Delivered',
                   'Cancelled',
                   'Returned',
+                  "Completed",
                 ],
                 controller: orderStatusController,
                 onChanged: (value) {
@@ -221,7 +223,7 @@ class _SalereportScreenState extends State<SalereportScreen> {
               text: AppStrings.applyfilters,
               onPressed: () {
                 final displayStatus = orderStatusController.value ?? 'all';
-                final apiStatus = _convertDisplayToApiStatus(displayStatus);
+                final apiStatus = AppFunc.orderStatusInverse(displayStatus);
                 context.read<OrdersBloc>().add(
                   ApplyFilterEvent(
                     fromDate: selectedFromDate,
@@ -399,7 +401,7 @@ class _SalereportScreenState extends State<SalereportScreen> {
                                             ),
                                             child: Center(
                                               child: Text(
-                                                getOrderStatusLabel(
+                                                AppFunc.orderStatusLabel(
                                                   currentOrder.orderStatus ??
                                                       "",
                                                 ),
@@ -507,7 +509,7 @@ class _SalereportScreenState extends State<SalereportScreen> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              "${AppStrings.deliveryStatus}: ${getOrderStatusLabel(currentOrder.orderStatus ?? "")}",
+                                              "${AppStrings.deliveryStatus}: ${AppFunc.orderStatusLabel(currentOrder.orderStatus ?? "")}",
                                               style: AppTextStyles.unselect(
                                                 context,
                                               ),
@@ -528,8 +530,9 @@ class _SalereportScreenState extends State<SalereportScreen> {
                                                             MaterialPageRoute(
                                                               builder: (context) =>
                                                                   OrderDetailScreen(
-                                                                    currentOrder:
-                                                                        currentOrder,
+                                                                    orderId: currentOrder
+                                                                        .orderId
+                                                                        .toString(),
                                                                   ),
                                                             ),
                                                           );
@@ -713,49 +716,4 @@ class _SalereportScreenState extends State<SalereportScreen> {
     );
   }
 
-  String getOrderStatusLabel(String status) {
-    switch (status) {
-      case 'all':
-        return 'All Orders';
-      case 'order_placed':
-        return 'Order Placed';
-      case 'pending':
-        return 'Pending';
-      case 'processing':
-        return 'Processing';
-      case 'shipped':
-        return 'Shipped';
-      case 'delivered':
-        return 'Delivered';
-      case 'cancelled':
-        return 'Cancelled';
-      case 'returned':
-        return 'Returned';
-      default:
-        return 'Unknown Status';
-    }
-  }
-
-  String _convertDisplayToApiStatus(String displayStatus) {
-    switch (displayStatus) {
-      case 'All Orders':
-        return 'all';
-      case 'Order Placed':
-        return 'order_placed';
-      case 'Pending':
-        return 'pending';
-      case 'Processing':
-        return 'processing';
-      case 'Shipped':
-        return 'shipped';
-      case 'Delivered':
-        return 'delivered';
-      case 'Cancelled':
-        return 'cancelled';
-      case 'Returned':
-        return 'returned';
-      default:
-        return 'all';
-    }
-  }
 }

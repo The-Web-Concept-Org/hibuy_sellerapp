@@ -25,6 +25,7 @@ import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_bloc
 import 'package:hibuy/view/dashboard_screen/Bloc/view_produc/product_details_bloc.dart';
 import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
 import 'package:hibuy/view/menu_screens/menu%20blocs/boost%20bloc/boost_menu_bloc.dart';
+import 'package:hibuy/view/menu_screens/return_order_bloc/return_order_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
@@ -62,7 +63,7 @@ void main() async {
         BlocProvider(create: (_) => ProductListBloc()),
         BlocProvider(create: (_) => ProductDetailsBloc()),
         BlocProvider(create: (_) => BoostMenuBloc()),
-
+        BlocProvider(create: (_) => ReturnOrderBloc()),
       ],
       child: const MyApp(),
     ),

@@ -4,99 +4,95 @@ import 'dart:io';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
-import 'package:hibuy/models/orders_model.dart';
-import 'package:hibuy/models/return_order_model.dart';
-import 'package:hibuy/res/app_url/app_url.dart';
-import 'package:hibuy/res/assets/image_assets.dart';
+
+import 'package:hibuy/models/return_order_detail_model.dart';
+
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/services/app_func.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/order_update/order_update_bloc.dart';
+import 'package:hibuy/view/menu_screens/return_order_bloc/return_order_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../res/app_string/app_string.dart';
 import '../../res/colors/app_color.dart';
 import '../../res/text_style.dart';
 import '../../widgets/profile_widget.dart/app_bar.dart';
-import '../../widgets/profile_widget.dart/text_field.dart';
-import '../../widgets/video_widget.dart';
 
-class OrderDetailScreen extends StatefulWidget {
-  final String orderId;
-  final bool isReturn;
-  final ReturnOrderModel? returnOrder;
-  const OrderDetailScreen({
-    super.key,
-    this.returnOrder,
-    required this.orderId,
-    this.isReturn = false,
-  });
+class ReturnOrderDetailScreen extends StatefulWidget {
+  final String returnOrderId;
+  const ReturnOrderDetailScreen({super.key, required this.returnOrderId});
 
   @override
-  State<OrderDetailScreen> createState() => _OrderDetailScreenState();
+  State<ReturnOrderDetailScreen> createState() =>
+      _ReturnOrderDetailScreenState();
 }
 
-class _OrderDetailScreenState extends State<OrderDetailScreen> {
+class _ReturnOrderDetailScreenState extends State<ReturnOrderDetailScreen> {
   bool isProductsExpanded = false;
   final SingleSelectController<String> delieveryStatusController =
       SingleSelectController<String>(null);
-  TextEditingController weightController = TextEditingController();
-  TextEditingController sizeController = TextEditingController();
+
   @override
   initState() {
     super.initState();
-    context.read<OrderUpdateBloc>().add(GetCompleteOrderEvent(widget.orderId));
+    context.read<ReturnOrderBloc>().add(
+      GetReturnOrderDetailEvent(widget.returnOrderId),
+    );
   }
 
-  void _handleOrderSubmission(String networkVideoUrl) {
-    final orderVideoPath = context
-        .read<ImagePickerBloc>()
-        .state
-        .images['ordervideo'];
-    final orderId = widget.orderId;
-    final String status = delieveryStatusController.value!;
-    final size = sizeController.text.trim();
-    final weight = weightController.text.trim();
-
-    // Check if we have either network video URL or local video file
-    final hasNetworkVideo = networkVideoUrl.isNotEmpty;
-    final hasLocalVideo = orderVideoPath != null && orderVideoPath.isNotEmpty;
-    final hasAnyVideo = hasNetworkVideo || hasLocalVideo;
-
-    if (orderId.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Order ID is missing')));
-    } else if (status.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a delivery status')),
-      );
-    } else if (!hasAnyVideo) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please upload a video')));
-    } else if (size.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter the size')));
-    } else if (weight.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter the weight')));
-    } else {
-      // ✅ All fields valid → Dispatch event
-      // Only send local video file if we have one and no network video
-      final File? videoFile = hasLocalVideo && !hasNetworkVideo
-          ? File(orderVideoPath)
-          : null;
-
-      context.read<OrderUpdateBloc>().add(
-        UpdateOrderEvent(orderId, status, videoFile, size, weight),
-      );
-    }
-    log("Order video path: ${orderVideoPath}");
-    log("Network video URL: ${networkVideoUrl}");
-    log("Has any video: ${hasAnyVideo}");
+  @override
+  void dispose() {
+    delieveryStatusController.dispose();
+    super.dispose();
   }
+  // void _handleOrderSubmission(String networkVideoUrl) {
+  //   final orderVideoPath = context
+  //       .read<ImagePickerBloc>()
+  //       .state
+  //       .images['ordervideo'];
+  //   final orderId = widget.orderId;
+  //   final String status = delieveryStatusController.value!;
+
+  //   // Check if we have either network video URL or local video file
+  //   final hasNetworkVideo = networkVideoUrl.isNotEmpty;
+  //   final hasLocalVideo = orderVideoPath != null && orderVideoPath.isNotEmpty;
+  //   final hasAnyVideo = hasNetworkVideo || hasLocalVideo;
+
+  //   if (orderId.isEmpty) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(const SnackBar(content: Text('Order ID is missing')));
+  //   } else if (status.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Please select a delivery status')),
+  //     );
+  //   } else if (!hasAnyVideo) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(const SnackBar(content: Text('Please upload a video')));
+  //   } else if (size.isEmpty) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(const SnackBar(content: Text('Please enter the size')));
+  //   } else if (weight.isEmpty) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(const SnackBar(content: Text('Please enter the weight')));
+  //   } else {
+  //     // ✅ All fields valid → Dispatch event
+  //     // Only send local video file if we have one and no network video
+  //     final File? videoFile = hasLocalVideo && !hasNetworkVideo
+  //         ? File(orderVideoPath)
+  //         : null;
+
+  //     context.read<OrderUpdateBloc>().add(
+  //       UpdateOrderEvent(orderId, status, videoFile, size, weight),
+  //     );
+  //   }
+  //   log("Order video path: ${orderVideoPath}");
+  //   log("Network video URL: ${networkVideoUrl}");
+  //   log("Has any video: ${hasAnyVideo}");
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -108,67 +104,50 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       ),
       body: SingleChildScrollView(
         padding: context.responsiveAll(0.05),
-        child: BlocConsumer<OrderUpdateBloc, OrderUpdateState>(
+        child: BlocConsumer<ReturnOrderBloc, ReturnOrderState>(
           listener: (context, state) {
-            if (state.orderUpdateStatus == OrderUpdateStatus.success) {
-              Navigator.pop(context);
-            }
+            // if (.returnOrderDetailStatus ==
+            //     ReturnOrderDetailStatus.success) {
+            //   Navigator.pop(context);
+            // }
           },
           builder: (context, state) {
-            if (state.status == GetOrderStatus.loading) {
+            if (state.returnOrderDetailStatus ==
+                ReturnOrderDetailStatus.loading) {
               return const Center(child: CircularProgressIndicator());
-            } else if (state.status == GetOrderStatus.error) {
+            } else if (state.returnOrderDetailStatus ==
+                ReturnOrderDetailStatus.error) {
               return Center(
                 child: Text(state.errorMessage ?? 'Something went wrong'),
               );
-            } else if (state.status == GetOrderStatus.success) {
+            } else if (state.returnOrderDetailStatus ==
+                ReturnOrderDetailStatus.success) {
               // Initialize networkVideoUrl outside the if block
-              final String statusVideo =
-                  state.ordersResponse?.orderItems.first.statusVideo ?? '';
-              final String networkVideoUrl =
-                  state.status == GetOrderStatus.success &&
-                      statusVideo.isNotEmpty
-                  ? "${AppUrl.websiteUrl}/storage/$statusVideo"
-                  : "";
 
-              weightController.text =
-                  state.ordersResponse?.orderItems.first.orderWeight
-                      .toString() ??
-                  '';
-              sizeController.text =
-                  state.ordersResponse?.orderItems.first.orderSize.toString() ??
-                  '';
-              log("Status video from API: $statusVideo");
-              log("Full network video URL: $networkVideoUrl");
-              log(state.ordersResponse?.status ?? '');
-              Future.delayed(Duration(milliseconds: 100), () {
-                delieveryStatusController.value = AppFunc.orderStatusLabel(
-                  state.ordersResponse?.status ?? '',
-                );
-              });
+              // Future.delayed(Duration(milliseconds: 100), () {
+
+              log(
+                "=> => => =>${AppFunc.orderStatusLabel(state.returnOrderDetail?.returnStatus ?? '')}",
+              );
+              delieveryStatusController.value = AppFunc.orderStatusLabel(
+                state.returnOrderDetail?.returnStatus ?? '',
+              );
+              // });
+              final currentReturn = state.returnOrderDetail;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (widget.isReturn)
-                    returnReasonContainer(widget.returnOrder!),
-                  if (!widget.isReturn)
-                    VideoWidget(
-                      widthFactor: 0.9,
-                      heightFactor: 0.25,
-                      placeholderSvg: ImageAssets.profileimage,
-                      videoKey: 'ordervideo',
-                      networkVideoUrl: networkVideoUrl.isNotEmpty
-                          ? networkVideoUrl
-                          : null,
-                    ),
+                  // if (widget.isReturn)
+                  returnReasonContainer(currentReturn!),
+
                   SizedBox(height: context.heightPct(0.02)),
-                  shipmentDetailsWidget(networkVideoUrl),
+                  shipmentDetailsWidget(),
                   SizedBox(height: context.heightPct(0.02)),
-                  if (state.ordersResponse != null)
-                    OrderInfoWidget(currentOrder: state.ordersResponse!),
+                  // if (state.ordersResponse != null)
+                  OrderInfoWidget(currentOrder: state.returnOrderDetail!),
                   SizedBox(height: context.heightPct(0.02)),
                   ProductDetailsWidget(
-                    products: state.ordersResponse?.orderItems ?? [],
+                    products: currentReturn.returnItems,
                     isExpanded: isProductsExpanded,
                     onToggle: () => setState(
                       () => isProductsExpanded = !isProductsExpanded,
@@ -185,7 +164,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  returnReasonContainer(ReturnOrderModel returnOrder) {
+  returnReasonContainer(ReturnOrderDetailModel returnOrder) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -195,52 +174,94 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       ),
       padding: EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text.rich(
             TextSpan(
               children: [
                 TextSpan(
                   text: "Return Reason: ",
-                  style: AppTextStyles.samibold2(context),
+                  style: AppTextStyles.regular2(context).copyWith(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.black,
+                  ),
                 ),
                 TextSpan(
                   text: returnOrder.returnReason,
-                  style: AppTextStyles.regular2(context),
+                  style: AppTextStyles.regular2(
+                    context,
+                  ).copyWith(fontSize: 10, color: AppColors.secondry),
                 ),
               ],
             ),
           ),
-          
+          SizedBox(height: 10),
+
+          SizedBox(
+            height: 90,
+            child: ListView.builder(
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemCount: returnOrder.returnImages.length,
+              itemBuilder: (context, index) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.lightBorderGrey),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    margin: EdgeInsets.only(right: 10),
+                    width: 90,
+                    child: Image.network(
+                      returnOrder.returnImages[index],
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: "Note: ",
+                  style: AppTextStyles.regular2(context).copyWith(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.black,
+                  ),
+                ),
+                TextSpan(
+                  text: returnOrder.returnNote,
+                  style: AppTextStyles.regular2(
+                    context,
+                  ).copyWith(fontSize: 10, color: AppColors.secondry),
+                ),
+              ],
+            ),
+          ),
+
+          // Image.network(returnOrder.returnImages)
         ],
       ),
     );
   }
 
-  shipmentDetailsWidget(String networkVideoUrl) {
+  shipmentDetailsWidget() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!widget.isReturn)
-          Row(
-            children: [
-              Expanded(
-                child: ReusableTextField(
-                  controller: weightController,
-                  hintText: AppStrings.enterhere,
-                  labelText: AppStrings.weight,
-                ),
-              ),
-              SizedBox(width: context.widthPct(0.03)),
-              Expanded(
-                child: ReusableTextField(
-                  controller: sizeController,
-                  hintText: AppStrings.sizeHint,
-                  labelText: AppStrings.size,
-                ),
-              ),
-              // Expanded(child: _buildSizeField(context)),
-            ],
-          ),
-        SizedBox(height: context.heightPct(0.02)),
+        Text(
+          "Delievery Status",
+          style: AppTextStyles.regular2(
+            context,
+          ).copyWith(fontSize: 12, color: AppColors.secondry),
+        ),
+        SizedBox(height: 5),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -276,12 +297,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     'Shipped',
                     'Delivered',
                     'Cancelled',
+                    "Returned",
                     "Completed",
                   ],
                   controller: delieveryStatusController,
                   onChanged: (value) async {
-                    String selectedValue = AppFunc.orderStatusInverse(value!);
-                    log("selected value ------>  $selectedValue}");
+                    // String selectedValue = returnOrderDetailStatusKey(value!);
+                    // log("selected value ------>  $selectedValue}");
                   },
                 ),
               ),
@@ -296,7 +318,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   return GestureDetector(
                     onTap: isLoading
                         ? null
-                        : () => _handleOrderSubmission(networkVideoUrl),
+                        : () {
+                            context.read<ReturnOrderBloc>().add(
+                              UpdateReturnOrdersEvent(
+                                widget.returnOrderId,
+                                AppFunc.orderStatusLabel(
+                                  delieveryStatusController.value!,
+                                ),
+                              ),
+                            );
+                          },
                     child: Container(
                       width: context.widthPct(0.9),
                       height: context.heightPct(0.05),
@@ -340,9 +371,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
 // shipment_details_widget.dart
 
-// order_info_widget.dart
 class OrderInfoWidget extends StatelessWidget {
-  final OrderData currentOrder;
+  final ReturnOrderDetailModel currentOrder;
 
   const OrderInfoWidget({super.key, required this.currentOrder});
 
@@ -376,15 +406,51 @@ class OrderInfoWidget extends StatelessWidget {
                 SizedBox(height: context.heightPct(0.01)),
                 _buildTotalInfo(context),
                 SizedBox(height: context.heightPct(0.01)),
-                const Divider(),
-                SizedBox(height: context.heightPct(0.01)),
                 _buildGrandTotal(context),
                 SizedBox(height: context.heightPct(0.01)),
                 _buildAddress(context),
                 SizedBox(height: context.heightPct(0.01)),
                 const Divider(),
                 SizedBox(height: context.heightPct(0.01)),
-                if (currentOrder.rider != null) _buildRiderDetails(context),
+                if (currentOrder.riderId != null)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: context.heightPct(7 / 812),
+                      bottom: context.heightPct(8 / 812),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              currentOrder.riderDetails!.riderName ?? "",
+                              style: AppTextStyles.regular2(context),
+                            ),
+
+                            Text(
+                              currentOrder.riderDetails?.phone ?? "",
+                              style: AppTextStyles.regular2(context),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              currentOrder.riderDetails!.phone ?? "",
+                              style: AppTextStyles.regular2(context),
+                            ),
+
+                            Text(
+                              currentOrder.riderDetails?.email ?? "",
+                              style: AppTextStyles.regular2(context),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
@@ -407,14 +473,14 @@ class OrderInfoWidget extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              "${currentOrder.orderId}/ ${currentOrder.trackingId}",
+              "${currentOrder.orderId}/ ${currentOrder.order.trackingId}",
               style: AppTextStyles.samibold2(
                 context,
               ).copyWith(color: AppColors.white),
             ),
           ),
           StatusChipWidget(
-            status: AppFunc.orderStatusLabel(currentOrder.orderStatus ?? ''),
+            status: AppFunc.orderStatusLabel(currentOrder.returnStatus),
           ),
         ],
       ),
@@ -423,68 +489,44 @@ class OrderInfoWidget extends StatelessWidget {
 
   Widget _buildCustomerInfo(BuildContext context) {
     return InfoRowWidget(
-      left: "${AppStrings.customer}: ${currentOrder.customerName}",
-      right: "${AppStrings.contact}: ${currentOrder.paid}",
+      left: "${AppStrings.customer}: ${currentOrder.order.customerName}",
+      right: "${AppStrings.contact}: ${currentOrder.order.phone}",
     );
   }
 
   Widget _buildOrderInfo(BuildContext context) {
     return InfoRowWidget(
       left: "${AppStrings.items}: 1",
-      right: "(${AppStrings.date}: ${currentOrder.orderDate})",
+      right:
+          "(${AppStrings.date}: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(currentOrder.createdAt))})",
     );
   }
 
   Widget _buildTotalInfo(BuildContext context) {
     return InfoRowWidget(
-      left: "${AppStrings.total}: ${currentOrder.total}",
-      right: "(${AppStrings.deliveryFee}: ${currentOrder.deliveryFee})",
+      left: "${AppStrings.total}: ${currentOrder.returnTotal}",
+      right: "${AppStrings.deliveryFee}: ${currentOrder.returnDeliveryFee}",
     );
   }
 
   Widget _buildGrandTotal(BuildContext context) {
     return Text(
-      "${AppStrings.grandTotal}: ${AppStrings.rs} ${currentOrder.grandTotal}",
+      "${AppStrings.grandTotal}: ${AppStrings.rs} ${currentOrder.returnGrandTotal}",
       style: AppTextStyles.samibold2(context),
     );
   }
 
   Widget _buildAddress(BuildContext context) {
     return Text(
-      "${AppStrings.address}: ${currentOrder.address}",
+      "${AppStrings.address}: ${currentOrder.order.address}",
       style: AppTextStyles.bodyRegular(context),
-    );
-  }
-
-  Widget _buildRiderDetails(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "${AppStrings.riderDetails}:",
-          style: AppTextStyles.samibold2(
-            context,
-          ).copyWith(color: AppColors.primaryColor),
-        ),
-        SizedBox(height: context.heightPct(0.01)),
-        InfoRowWidget(
-          left: "${AppStrings.rider}: ${currentOrder.rider?.riderName ?? ''}",
-          right:
-              "${AppStrings.vehicleNumber} : ${currentOrder.rider?.vehicleType ?? ''}",
-        ),
-        InfoRowWidget(
-          left:
-              "${AppStrings.contactNumber}: ${currentOrder.rider?.phone ?? ''}",
-          right: "${AppStrings.email}: ${currentOrder.rider?.riderEmail ?? ''}",
-        ),
-      ],
     );
   }
 }
 
 // product_details_widget.dart
 class ProductDetailsWidget extends StatelessWidget {
-  final List<OrderItem> products;
+  final List<ReturnItem> products;
   final bool isExpanded;
   final VoidCallback onToggle;
 
@@ -502,14 +544,6 @@ class ProductDetailsWidget extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.stroke),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.gray.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -568,8 +602,10 @@ class ProductDetailsWidget extends StatelessWidget {
           itemCount: products.length,
           separatorBuilder: (context, index) =>
               SizedBox(height: context.heightPct(0.02)),
-          itemBuilder: (context, index) =>
-              ProductTileWidget(product: products[index]),
+          itemBuilder: (context, index) => ProductTileWidget(
+            product: products[index],
+            isLastItem: index == products.length - 1,
+          ),
         ),
       ],
     );
@@ -578,16 +614,20 @@ class ProductDetailsWidget extends StatelessWidget {
 
 // product_tile_widget.dart
 class ProductTileWidget extends StatelessWidget {
-  final OrderItem product;
+  final ReturnItem product;
+  final bool isLastItem;
 
-  const ProductTileWidget({super.key, required this.product});
+  const ProductTileWidget({
+    super.key,
+    required this.product,
+    this.isLastItem = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: context.responsiveAll(0.03),
       decoration: BoxDecoration(
-        color: AppColors.stroke,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.stroke),
       ),
@@ -603,6 +643,11 @@ class ProductTileWidget extends StatelessWidget {
           ),
           SizedBox(height: context.heightPct(0.01)),
           _buildPriceInfo(context),
+          if (!isLastItem)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: Divider(height: 1, color: AppColors.stroke),
+            ),
         ],
       ),
     );
@@ -617,9 +662,9 @@ class ProductTileWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Image.network(
-        "${product.image}",
-        width: context.widthPct(0.1),
-        height: context.widthPct(0.1),
+        product.image,
+        width: 56,
+        height: 48,
         fit: BoxFit.cover,
       ),
     );
@@ -634,12 +679,15 @@ class ProductTileWidget extends StatelessWidget {
             Expanded(
               child: Text(
                 product.productName ?? '',
-                style: AppTextStyles.samibold2(context),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            QuantityChipWidget(quantity: product.quantity ?? 0),
+            Text(
+              "Qty: ${product.quantity ?? ''}",
+              style: TextStyle(color: Colors.black, fontSize: 9),
+            ),
           ],
         ),
         SizedBox(height: context.heightPct(0.01)),
@@ -667,12 +715,12 @@ class ProductTileWidget extends StatelessWidget {
         Expanded(
           child: Text(
             "${AppStrings.unitPrice}: ${AppStrings.rs}${product.price}",
-            style: AppTextStyles.samibold2(context),
+            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700),
           ),
         ),
         Text(
           "${AppStrings.subtotal}: ${AppStrings.rs}$total",
-          style: AppTextStyles.samibold(context),
+          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -739,81 +787,4 @@ class InfoRowWidget extends StatelessWidget {
       ],
     );
   }
-}
-
-// Data Models
-class OrderDataModel {
-  final String trackingId;
-  final String orderNumber;
-  final String status;
-  final CustomerInfoModel customer;
-  final RiderInfoModel rider;
-  final OrderDetailsModel orderDetails;
-  final List<ProductInfoModel> products;
-
-  OrderDataModel({
-    required this.trackingId,
-    required this.orderNumber,
-    required this.status,
-    required this.customer,
-    required this.rider,
-    required this.orderDetails,
-    required this.products,
-  });
-}
-
-class CustomerInfoModel {
-  final String name;
-  final String contact;
-  final String address;
-
-  CustomerInfoModel({
-    required this.name,
-    required this.contact,
-    required this.address,
-  });
-}
-
-class RiderInfoModel {
-  final String name;
-  final String contact;
-  final String email;
-  final String vehicleNumber;
-
-  RiderInfoModel({
-    required this.name,
-    required this.contact,
-    required this.email,
-    required this.vehicleNumber,
-  });
-}
-
-class OrderDetailsModel {
-  final int itemCount;
-  final String date;
-  final int total;
-  final int deliveryFee;
-  final int grandTotal;
-
-  OrderDetailsModel({
-    required this.itemCount,
-    required this.date,
-    required this.total,
-    required this.deliveryFee,
-    required this.grandTotal,
-  });
-}
-
-class ProductInfoModel {
-  final String title;
-  final int quantity;
-  final String size;
-  final int unitPrice;
-
-  ProductInfoModel({
-    required this.title,
-    required this.quantity,
-    required this.size,
-    required this.unitPrice,
-  });
 }

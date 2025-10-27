@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/services/app_func.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/orders_bloc/orders_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -144,11 +145,12 @@ class _FilterDialogState extends State<FilterDialog> {
                     'Shipped',
                     'Delivered',
                     'Cancelled',
+                    "Completed"
                   ],
                   // controller: delieveryStatusController,
                   onChanged: (value) async {
                     setState(
-                      () => selectedOrderStatus = getOrderStatusKey(value!),
+                      () => selectedOrderStatus = AppFunc.orderStatusInverse(value!),
                     );
 
                     // String selectedValue = getOrderStatusKey(value!);
@@ -157,40 +159,6 @@ class _FilterDialogState extends State<FilterDialog> {
                 ),
               ),
 
-              // DropdownButtonFormField<String>(
-              //   value: selectedOrderStatus,
-              //   hint: const Text("Select"),
-              //   decoration: InputDecoration(
-              //     border: OutlineInputBorder(
-              //       borderRadius: BorderRadius.circular(12),
-              //       borderSide: BorderSide(color: Colors.grey.shade300),
-              //     ),
-              //     contentPadding: const EdgeInsets.symmetric(
-              //       horizontal: 12,
-              //       vertical: 10,
-              //     ),
-              //   ),
-              //   items:
-              //       const [
-              //             'Order Placed',
-              //             'Pending',
-              //             'Processing',
-              //             'Shipped',
-              //             'Delivered',
-              //             'Cancelled',
-              //             'Returned',
-              //           ]
-              //           .map(
-              //             (status) => DropdownMenuItem(
-              //               value: status,
-              //               child: Text(status),
-              //             ),
-              //           )
-              //           .toList(),
-              //   onChanged: (value) {
-              //     setState(() => selectedOrderStatus = value);
-              //   },
-              // ),
               const SizedBox(height: 20),
               const Text("From", style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
@@ -292,23 +260,3 @@ class _FilterDialogState extends State<FilterDialog> {
   }
 }
 
-String getOrderStatusKey(String label) {
-  switch (label) {
-    case 'Order Placed':
-      return 'order_placed';
-    case 'Pending':
-      return 'pending';
-    case 'Processing':
-      return 'processing';
-    case 'Shipped':
-      return 'shipped';
-    case 'Delivered':
-      return 'delivered';
-    case 'Cancelled':
-      return 'cancelled';
-    case 'Returned':
-      return 'returned';
-    default:
-      return 'unknown';
-  }
-}

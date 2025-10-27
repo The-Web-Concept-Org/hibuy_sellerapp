@@ -12,7 +12,9 @@ class AppUrl {
   static const String getVehicleTypes = '$baseUrl/getVehicleTypes';
 
   static const String getSellerDashboard = '$baseUrl/sellerDashboard';
-  static const String getOrders = '$baseUrl/sellerOrders';
+  static const String getOrders = '$baseUrl/sellerOrders';  
+  static const String getSellerReturn = '$baseUrl/getSellerReturn';
+  static const String updateReturnOrderStatus = '$baseUrl/updateReturnStatus';
   static const String storeProduct = '$baseUrl/storeProduct';
   static const String settingDetail = '$baseUrl/settings';
   static const String updatePersonalInfo = '$baseUrl/updatePersonalInfo';
