@@ -37,4 +37,5 @@ class ImageAssets {
   static const String statusapprove = 'assets/images/status_approve.svg';
   static const String refealBg = 'assets/images/refral_bg.png';
   static const String storeBanner = 'assets/images/temp_banner.png';
+  static const String videoUpload = 'assets/images/video_upload.svg';
 }

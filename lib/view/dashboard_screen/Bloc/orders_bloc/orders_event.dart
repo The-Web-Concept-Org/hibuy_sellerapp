@@ -24,13 +24,31 @@ class SetCurrentOrder extends OrdersEvent {
   @override
   List<Object> get props => [currentOrder];
 }
+
 class ApplyFilterEvent extends OrdersEvent {
   final DateTime fromDate;
   final DateTime toDate;
   final String orderStatus;
-  const ApplyFilterEvent({required this.fromDate, required this.toDate, required this.orderStatus});
+  const ApplyFilterEvent({
+    required this.fromDate,
+    required this.toDate,
+    required this.orderStatus,
+  });
 
   @override
   List<Object> get props => [fromDate, toDate, orderStatus];
 }
 
+class SearchOrdersEvent extends OrdersEvent {
+  final String searchQuery;
+  const SearchOrdersEvent(this.searchQuery);
+
+  @override
+  List<Object> get props => [searchQuery];
+}
+class ClearDataEvent extends OrdersEvent {
+  const ClearDataEvent();
+
+  @override
+  List<Object> get props => [];
+}

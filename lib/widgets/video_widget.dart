@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:hibuy/res/assets/image_assets.dart';
 import 'package:video_player/video_player.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_event.dart';
@@ -182,7 +184,7 @@ class _VideoWidgetState extends State<VideoWidget> {
             ? MediaQuery.of(context).size.height * widget.heightFactor!
             : MediaQuery.of(context).size.height * 0.25,
         decoration: BoxDecoration(
-          color: AppColors.gray,
+          // color: AppColors.gray,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: AppColors.stroke),
         ),
@@ -258,45 +260,66 @@ class _VideoWidgetState extends State<VideoWidget> {
   }
 
   Widget _buildErrorState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, color: AppColors.gray2, size: 48),
-          SizedBox(height: context.heightPct(0.01)),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: context.widthPct(0.05)),
-            child: Text(
-              _errorMessage!,
-              style: AppTextStyles.bodyRegular(context),
-              textAlign: TextAlign.center,
+    // Get the video file info if available
+    final imagePickerState = context.read<ImagePickerBloc>().state;
+    final videoPath = imagePickerState.images[widget.videoKey];
+    String? fileType;
+    String? fileName;
+
+    if (videoPath != null && videoPath.isNotEmpty) {
+      final file = File(videoPath);
+      fileName = file.path.split('/').last;
+      final extension = fileName.split('.').last.toLowerCase();
+      fileType = 'Video (.$extension)';
+    }
+
+    return GestureDetector(
+      onTap: _pickVideo,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(ImageAssets.videoUpload, width: 20, height: 20),
+            Text(
+              "Video",
+              style: TextStyle(
+                fontSize: context.scaledFont(20),
+                color: AppColors.primaryColor,
+              ),
             ),
-          ),
-          SizedBox(height: context.heightPct(0.02)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                onPressed: _initializeVideo,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: AppColors.white,
-                ),
-                icon: const Icon(Icons.refresh, size: 16),
-                label: const Text('Retry'),
+            if (fileType != null) ...[
+              SizedBox(height: context.heightPct(0.01)),
+              Text(
+                fileType,
+                style: AppTextStyles.medium(context),
+                textAlign: TextAlign.center,
               ),
-              ElevatedButton.icon(
-                onPressed: _pickVideo,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.gray2,
-                  foregroundColor: AppColors.white,
+              if (fileName != null) ...[
+                SizedBox(height: context.heightPct(0.005)),
+                Text(
+                  fileName,
+                  style: AppTextStyles.regular(context),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                icon: const Icon(Icons.videocam, size: 16),
-                label: const Text('Pick Video'),
-              ),
+              ],
             ],
-          ),
-        ],
+            // if (_errorMessage != null && _errorMessage!.isNotEmpty) ...[
+            //   SizedBox(height: context.heightPct(0.01)),
+            //   Padding(
+            //     padding: EdgeInsets.symmetric(
+            //       horizontal: context.widthPct(0.05),
+            //     ),
+            //     child: Text(
+            //       _errorMessage!,
+            //       style: AppTextStyles.bodyRegular(context),
+            //       textAlign: TextAlign.center,
+            //     ),
+            // ),
+            // ],
+          ],
+        ),
       ),
     );
   }
@@ -308,8 +331,8 @@ class _VideoWidgetState extends State<VideoWidget> {
         children: [
           Icon(Icons.videocam_outlined, color: AppColors.gray2, size: 48),
           SizedBox(height: context.heightPct(0.01)),
-          Text('No video available', style: AppTextStyles.bodyRegular(context)),
-          SizedBox(height: context.heightPct(0.01)),
+          // Text('No video available', style: AppTextStyles.bodyRegular(context)),
+          // SizedBox(height: context.heightPct(0.01)),
           ElevatedButton(
             onPressed: _pickVideo,
             style: ElevatedButton.styleFrom(

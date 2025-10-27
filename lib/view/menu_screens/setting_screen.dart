@@ -19,10 +19,7 @@ class SettingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: const CustomAppBar(
-        title: AppStrings.addproduct,
-        previousPageTitle: "Back",
-      ),
+      appBar: const CustomAppBar(title: "Settings", previousPageTitle: "Back"),
       body: Padding(
         padding: EdgeInsets.only(
           left: context.widthPct(17 / 375),

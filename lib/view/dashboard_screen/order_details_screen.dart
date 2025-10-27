@@ -64,13 +64,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         const SnackBar(content: Text('Please select a delivery status')),
       );
     } else if (!hasAnyVideo) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please upload a video',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please upload a video')));
     } else if (size.isEmpty) {
       ScaffoldMessenger.of(
         context,
@@ -373,7 +369,7 @@ class OrderInfoWidget extends StatelessWidget {
               ).copyWith(color: AppColors.white),
             ),
           ),
-          StatusChipWidget(status: currentOrder.status ?? ''),
+          StatusChipWidget(status: currentOrder.orderStatus ?? ''),
         ],
       ),
     );

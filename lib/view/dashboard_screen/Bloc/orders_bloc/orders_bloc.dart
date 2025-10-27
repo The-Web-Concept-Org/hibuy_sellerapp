@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -18,7 +17,19 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     on<GetOrdersEvent>(_fetchOrders);
     on<SetCurrentOrder>(_setCurrentOrder);
     on<ApplyFilterEvent>(_applyFilter);
+    on<SearchOrdersEvent>(_searchOrders);
+    on<ClearDataEvent>(_clearData);
   }
+  _clearData(ClearDataEvent event, Emitter<OrdersState> emit) {
+    emit(
+      state.copyWith(
+        ordersResponse: null,
+        status: OrdersStatus.initial,
+        searchQuery: '',
+      ),
+    );
+  }
+
   Future<void> _setCurrentOrder(
     SetCurrentOrder event,
     Emitter<OrdersState> emit,
@@ -116,6 +127,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
         filterStartDate: formattedDate,
         filterEndDate: formattedDateTo,
         filterStatus: event.orderStatus,
+        searchQuery: "", // Clear search query when filters are applied
       ),
     );
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -127,5 +139,12 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
         ),
       );
     });
+  }
+
+  Future<void> _searchOrders(
+    SearchOrdersEvent event,
+    Emitter<OrdersState> emit,
+  ) async {
+    emit(state.copyWith(searchQuery: event.searchQuery));
   }
 }

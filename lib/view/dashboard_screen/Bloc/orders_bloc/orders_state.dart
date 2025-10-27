@@ -11,6 +11,8 @@ class OrdersState extends Equatable {
   final String? errorMessage;
   final String filterEndDate;
   final OrderData? currentOrder;
+  final String searchQuery;
+
   const OrdersState({
     this.currentOrder,
     this.message,
@@ -20,13 +22,15 @@ class OrdersState extends Equatable {
     this.filterStatus = "all",
     this.filterStartDate = "2025-10-18",
     this.filterEndDate = "2025-10-23",
-  });
+    String? searchQuery,
+  }) : searchQuery = searchQuery ?? "";
 
   OrdersState copyWith({
     final String? filterStatus,
     final String? errorMessage,
     final String? filterStartDate,
     final String? filterEndDate,
+    final String? searchQuery,
     OrdersStatus? status,
     OrdersResponse? ordersResponse,
     OrderData? currentOrder,
@@ -36,6 +40,7 @@ class OrdersState extends Equatable {
       filterStatus: filterStatus ?? this.filterStatus,
       filterStartDate: filterStartDate ?? this.filterStartDate,
       filterEndDate: filterEndDate ?? this.filterEndDate,
+      searchQuery: searchQuery ?? this.searchQuery,
       status: status ?? this.status,
       currentOrder: currentOrder ?? this.currentOrder,
       ordersResponse: ordersResponse ?? this.ordersResponse,
@@ -45,5 +50,5 @@ class OrdersState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [message, status];
+  List<Object?> get props => [message, status, searchQuery];
 }

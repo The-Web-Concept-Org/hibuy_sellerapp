@@ -9,6 +9,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? previousPageTitle;
   final VoidCallback? onBack;
   final bool transitionBetweenRoutes;
+  
 
   const CustomAppBar({
     super.key,
