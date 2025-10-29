@@ -9,6 +9,7 @@ class ProductListState extends Equatable {
   final List<Product>? boostedProducts;
   final String? message;
   final int tabBarIndex;
+  final String searchQuery;
 
   const ProductListState({
     this.status = ProductListStatus.initial,
@@ -16,13 +17,15 @@ class ProductListState extends Equatable {
     this.tabBarIndex = 0,
     this.boostedProducts,
     this.message,
-  });
+    String? searchQuery ,
+  }): searchQuery = searchQuery ?? "";
 
   ProductListState copyWith({
     ProductListStatus? status,
     ProductListModel? productList,
     List<Product>? boostedProducts,
     String? message,
+    final String? searchQuery,
     int? tabBarIndex,
   }) {
     return ProductListState(
@@ -31,9 +34,10 @@ class ProductListState extends Equatable {
       boostedProducts: boostedProducts ?? this.boostedProducts,
       message: message ?? this.message,
       tabBarIndex: tabBarIndex ?? this.tabBarIndex,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 
   @override
-  List<Object?> get props => [status, productList, message,boostedProducts,tabBarIndex];
+  List<Object?> get props => [status, productList, message,boostedProducts,tabBarIndex,searchQuery];
 }

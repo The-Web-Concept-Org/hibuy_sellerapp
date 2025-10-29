@@ -27,6 +27,7 @@ import 'package:hibuy/view/dashboard_screen/Bloc/variant_bloc/variant_state.dart
 import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_event.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/vechicle_type/vehicle_type_state.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/view_produc/product_details_bloc.dart';
 import 'package:hibuy/widgets/dashboard/variant_dialog.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
@@ -88,7 +89,28 @@ class _AddproductScreenState extends State<AddproductScreen> {
     _vechiletype();
     _setupDimensionListeners();
     _setupPriceCalculationListeners();
+    doProcess();
   }
+  doProcess() {
+    final brand = context.read<ProductDetailsBloc>().state.productDetails?.product?.productBrand?.toString();
+    final title = context.read<ProductDetailsBloc>().state.productDetails?.product?.productName?.toString();
+    final description = context.read<ProductDetailsBloc>().state.productDetails?.product?.productDescription?.toString();
+    final productprice = context.read<ProductDetailsBloc>().state.productDetails?.product?.productPrice?.toString();
+    final discount = context.read<ProductDetailsBloc>().state.productDetails?.product?.productDiscount?.toString();
+    
+
+
+
+    
+    _titleController.text = title ?? '';
+    _descriptionController.text = description ?? '';
+    _brandController.text = brand ?? '';
+    _productPriceController.text = productprice ?? '';
+    _discountController.text = discount ?? '';
+    
+    
+  }
+
 
   @override
   void dispose() {

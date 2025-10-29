@@ -1,23 +1,26 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_bloc.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_event.dart';
 import 'package:hibuy/Bloc/image_picker/image_picker_state.dart';
 import 'package:hibuy/res/app_string/app_string.dart';
+import 'package:hibuy/res/app_url/app_url.dart';
 import 'package:hibuy/res/colors/app_color.dart';
 import 'package:hibuy/res/media_querry/media_query.dart';
 import 'package:hibuy/res/text_style.dart';
+import 'package:hibuy/view/dashboard_screen/Bloc/store_details/store_details_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_bloc.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_event.dart';
 import 'package:hibuy/view/dashboard_screen/Bloc/store_update/store_update_state.dart';
+import 'package:hibuy/view/menu_screens/menu%20blocs/bloc/setting_bloc.dart';
 import 'package:hibuy/widgets/profile_widget.dart/app_bar.dart';
 import 'package:hibuy/widgets/profile_widget.dart/button.dart';
 import 'package:hibuy/widgets/profile_widget.dart/text_field.dart';
 import 'package:image/image.dart' as img;
 
 class EditProfile extends StatefulWidget {
-  
   const EditProfile({super.key});
 
   @override
@@ -28,7 +31,9 @@ class _EditProfileState extends State<EditProfile> {
   final TextEditingController _storeNameController = TextEditingController();
   final TextEditingController _tagController = TextEditingController();
   final List<String> _tags = [];
-  
+  String store_image = '';
+  List<String> store_banners = []; // Changed to List to handle multiple banners
+  List<String> store_posts = [];
 
   @override
   void dispose() {
@@ -93,7 +98,7 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
-  // Validate post image
+  // Validate post image - FIXED: Changed to 1080x1080
   Future<bool> _validatePostImage(
     String imagePath,
     BuildContext context,
@@ -124,7 +129,8 @@ class _EditProfileState extends State<EditProfile> {
       print('   📐 Dimensions: ${image.width}x${image.height} pixels');
       print('   ✓ Required: 1080x1080 pixels');
 
-      if (image.width != 1080 || image.height != 270) {
+      // FIXED: Changed from 1080x270 to 1080x1080
+      if (image.width != 1080 || image.height != 1080) {
         print('   ❌ Dimension validation FAILED!');
         print('   ❌ Expected: 1080x1080');
         print('   ❌ Got: ${image.width}x${image.height}');
@@ -288,6 +294,76 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    doProcess();
+  }
+
+  doProcess() {
+    final storeData = context.read<StoreDetailsBloc>().state.storeDetailsModel?.storeData;
+    
+    // Load store name
+    _storeNameController.text = storeData?.storeName ?? '';
+    
+    // FIXED: Load tags from store data
+    if (storeData?.storeTags != null && storeData!.storeTags!.isNotEmpty) {
+      _tags.clear();
+      // Assuming storeTags is either a List<String> or a comma-separated string
+      if (storeData.storeTags is List) {
+        _tags.addAll((storeData.storeTags as List).cast<String>());
+      } else if (storeData.storeTags is String) {
+        // If it's a comma-separated string, split it
+        final tagString = storeData.storeTags as String;
+        if (tagString.isNotEmpty) {
+          _tags.addAll(tagString.split(',').map((tag) => tag.trim()).where((tag) => tag.isNotEmpty));
+        }
+      }
+      print("✅ Loaded tags: $_tags");
+    }
+
+    // Load store profile image
+    if (storeData?.storeImage != null && storeData!.storeImage!.isNotEmpty) {
+      store_image = "${AppUrl.websiteUrl}/${storeData.storeImage}";
+    }
+
+    // FIXED: Load banners as a list
+    if (storeData?.storeBanners != null) {
+      store_banners.clear();
+      // Assuming storeBanners is a List<StoreBanner> with image property
+      // or List<String> of image paths
+      if (storeData?.storeBanners is List) {
+        for (var banner in storeData?.storeBanners as List) {
+          String bannerPath = '';
+          if (banner is String) {
+            bannerPath = banner;
+          } else if (banner.image != null) {
+            // If it's an object with image property
+            bannerPath = banner.image;
+          }
+          if (bannerPath.isNotEmpty) {
+            store_banners.add("${AppUrl.websiteUrl}/$bannerPath");
+          }
+        }
+      }
+      print("✅ Loaded banners: ${store_banners.length}");
+    }
+
+    // FIXED: Load post images
+    store_posts.clear();
+    if (storeData?.storePosts != null && storeData!.storePosts!.isNotEmpty) {
+      store_posts = storeData.storePosts!
+          .map((post) => post.image ?? '')
+          .where((image) => image.isNotEmpty)
+          .toList();
+      print("✅ Loaded post images: ${store_posts.length}");
+    }
+
+    print("store_image: $store_image");
+    print("store_banners: $store_banners");
+    print("store_posts: $store_posts");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -344,8 +420,7 @@ class _EditProfileState extends State<EditProfile> {
                                 color: AppColors.stroke,
                                 width: 0.3,
                               ),
-                              gradient: coverImagePath == null
-                                  ? LinearGradient(
+                              gradient:  LinearGradient(
                                       begin: Alignment.centerLeft,
                                       end: Alignment.centerRight,
                                       colors: [
@@ -353,23 +428,10 @@ class _EditProfileState extends State<EditProfile> {
                                         AppColors.yellow,
                                       ],
                                     )
-                                  : null,
-                            ),
-                            child: coverImagePath != null
-                                ? ClipRRect(
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(5),
-                                      topRight: Radius.circular(5),
-                                    ),
-                                    child: Image.file(
-                                      File(coverImagePath),
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                    ),
-                                  )
-                                : null,
-                          ),
+                                  
+                            ),  
+           
+                          )
                         ),
                         // Profile Picture
                         Positioned(
@@ -400,6 +462,25 @@ class _EditProfileState extends State<EditProfile> {
                                           File(profileImagePath),
                                           fit: BoxFit.cover,
                                         )
+                                        : (store_image.isNotEmpty)
+                                    ? ClipRRect(
+                                        borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(5),
+                                          topRight: Radius.circular(5),
+                                        ),
+                                        child: Image.network(
+                                          store_image,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Center(
+                                            child:
+                                                Icon(Icons.image_not_supported),
+                                          ),
+                                        ),
+                                      )
                                       : Center(
                                           child: Column(
                                             mainAxisAlignment:
@@ -483,22 +564,6 @@ class _EditProfileState extends State<EditProfile> {
                       onTrailingWidgetTap: _addTag,
                     ),
                   ),
-                  // GestureDetector(
-                  //   onTap: _addTag,
-                  //   child: Container(
-                  //     height: context.heightPct(0.06),
-                  //     width: 43,
-                  //     decoration: BoxDecoration(
-                  //       color: AppColors.primaryColor,
-                  //       border: Border.all(color: AppColors.stroke, width: 1),
-                  //       borderRadius: const BorderRadius.only(
-                  //         topRight: Radius.circular(5),
-                  //         bottomRight: Radius.circular(5),
-                  //       ),
-                  //     ),
-                  //     child: Icon(Icons.add, color: AppColors.white),
-                  //   ),
-                  // ),
                 ],
               ),
 
@@ -547,20 +612,62 @@ class _EditProfileState extends State<EditProfile> {
                       .where((entry) => entry.key.startsWith('banner_image_'))
                       .toList();
 
+                  // FIXED: Calculate total banners (new + existing)
+                  int totalBanners = bannerImages.length + store_banners.length;
+
                   return Column(
                     children: [
+                      // Display existing banners from server
+                      if (store_banners.isNotEmpty && bannerImages.isEmpty)
+                        GridView.builder(
+                          itemCount: store_banners.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: context.widthPct(15 / 375),
+                            mainAxisSpacing: context.heightPct(15 / 812),
+                            childAspectRatio: 16 / 9,
+                          ),
+                          itemBuilder: (context, index) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(
+                                  color: AppColors.stroke,
+                                  width: 1,
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: Image.network(
+                                  store_banners[index],
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Center(
+                                    child: Icon(Icons.image_not_supported),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      
+                      // Display newly selected banners
                       if (bannerImages.isNotEmpty)
                         GridView.builder(
                           itemCount: bannerImages.length,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: context.widthPct(15 / 375),
-                                mainAxisSpacing: context.heightPct(15 / 812),
-                                childAspectRatio: 16 / 9,
-                              ),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: context.widthPct(15 / 375),
+                            mainAxisSpacing: context.heightPct(15 / 812),
+                            childAspectRatio: 16 / 9,
+                          ),
                           itemBuilder: (context, index) {
                             final bannerEntry = bannerImages[index];
                             final bannerKey = bannerEntry.key;
@@ -615,10 +722,11 @@ class _EditProfileState extends State<EditProfile> {
                             );
                           },
                         ),
-
-                      if (bannerImages.isNotEmpty)
+                      
+                      if (bannerImages.isNotEmpty || store_banners.isNotEmpty)
                         SizedBox(height: context.heightPct(15 / 812)),
 
+                      // Add Banner Button
                       GestureDetector(
                         onTap: () async {
                           int nextIndex = 0;
@@ -773,50 +881,52 @@ class _EditProfileState extends State<EditProfile> {
                               width: 1,
                             ),
                           ),
-                          child: postImagePath != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(5),
-                                  child: Image.file(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: (postImagePath != null && postImagePath.isNotEmpty)
+                                ? Image.file(
                                     File(postImagePath),
                                     fit: BoxFit.cover,
                                     width: double.infinity,
                                     height: double.infinity,
-                                  ),
-                                )
-                              : Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.cloud_upload_outlined,
-                                        color: AppColors.primaryColor,
-                                        size: context.widthPct(32 / 375),
-                                      ),
-                                      SizedBox(
-                                        height: context.heightPct(5 / 812),
-                                      ),
-                                      Text(
-                                        'Upload',
-                                        style: AppTextStyles.searchtext(context)
-                                            .copyWith(
+                                  )
+                                : (store_posts.isNotEmpty && index < store_posts.length)
+                                    ? Image.network(
+                                        "${AppUrl.websiteUrl}/${store_posts[index]}",
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        errorBuilder: (context, error, stackTrace) => const Center(
+                                          child: Icon(Icons.image_not_supported),
+                                        ),
+                                      )
+                                    : Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.cloud_upload_outlined,
                                               color: AppColors.primaryColor,
+                                              size: context.widthPct(32 / 375),
                                             ),
-                                      ),
-                                      SizedBox(
-                                        height: context.heightPct(2 / 812),
-                                      ),
-                                      Text(
-                                        '1080x270',
-                                        style: AppTextStyles.searchtext(context)
-                                            .copyWith(
-                                              fontSize: context.widthPct(
-                                                9 / 375,
+                                            SizedBox(height: context.heightPct(5 / 812)),
+                                            Text(
+                                              'Upload',
+                                              style: AppTextStyles.searchtext(context).copyWith(
+                                                    color: AppColors.primaryColor,
+                                                  ),
+                                            ),
+                                            SizedBox(height: context.heightPct(2 / 812)),
+                                            Text(
+                                              '1080x1080',
+                                              style: AppTextStyles.searchtext(context).copyWith(
+                                                fontSize: context.widthPct(9 / 375),
                                               ),
                                             ),
+                                          ],
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                ),
+                          ),
                         ),
                       );
                     },

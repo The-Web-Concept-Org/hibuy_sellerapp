@@ -17,6 +17,7 @@ import 'package:hibuy/Bloc/product_details_bloc/product_detail_state.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
+  
   const ProductDetailScreen({super.key, required this.productId});
 
   @override

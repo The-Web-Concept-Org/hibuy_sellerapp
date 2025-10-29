@@ -16,3 +16,10 @@ class SetTabBarEvent extends ProductListEvent {
   @override
   List<Object?> get props => [selectedIndex];
 }
+class SearchOrdersEvent extends ProductListEvent {
+  final String searchQuery;
+  const SearchOrdersEvent(this.searchQuery);
+
+  @override
+  List<Object> get props => [searchQuery];
+}
